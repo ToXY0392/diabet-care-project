@@ -30,6 +30,8 @@ Ouvre http://localhost:3000
 
 ## Dexcom
 
+> **Note :** L'intégration Dexcom ne fonctionne pas pour le moment 
+
 Pour connecter Dexcom G7 :
 
 1. Créer une app sur [developer.dexcom.com](https://developer.dexcom.com/)
