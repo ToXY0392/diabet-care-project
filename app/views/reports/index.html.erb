@@ -1,0 +1,33 @@
+<%# Rapports : temps en cible (%) + courbe glycémique 7 jours (Chartkick) %>
+<h2 class="mb-4">Rapports</h2>
+
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Temps en cible (7 jours)</h5>
+        <p class="display-4 text-primary"><%= @time_in_range_pct %>%</p>
+        <p class="text-muted small">
+          <% if current_user.target %>
+            Entre <%= current_user.target.min_glucose %> et <%= current_user.target.max_glucose %> mg/dL
+          <% else %>
+            Définissez vos objectifs dans Paramètres
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Courbe glycémique (7 derniers jours)</h5>
+  </div>
+  <div class="card-body">
+    <% if @chart_data.any? %>
+      <%= line_chart @chart_data, library: { title: "Glycémie (mg/dL)" }, curve: false %>
+    <% else %>
+      <p class="text-muted">Aucune donnée glycémique sur les 7 derniers jours.</p>
+    <% end %>
+  </div>
+</div>

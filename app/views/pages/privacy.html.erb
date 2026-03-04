@@ -1,0 +1,33 @@
+<div class="container py-4">
+  <h2 class="mb-4">Politique de confidentialité</h2>
+
+  <div class="card">
+  <div class="card-body">
+    <h5>1. Données collectées</h5>
+    <p>DiabetCare collecte et stocke les données suivantes :</p>
+    <ul>
+      <li>Informations de compte : email, mot de passe (chiffré)</li>
+      <li>Données de santé : glycémies, repas (glucides, bolus insuline), objectifs</li>
+      <li>Données provenant de Dexcom (si connecté)</li>
+    </ul>
+
+    <h5 class="mt-4">2. Utilisation des données</h5>
+    <p>Vos données servent uniquement à :</p>
+    <ul>
+      <li>Vous permettre de suivre votre glycémie et vos repas</li>
+      <li>Générer des graphiques et rapports</li>
+      <li>Partager vos données avec votre médecin (si vous le souhaitez)</li>
+    </ul>
+
+    <h5 class="mt-4">3. Vos droits (RGPD)</h5>
+    <ul>
+      <li><strong>Droit d'accès</strong> : <%= link_to "Exporter vos données", data_export_path %></li>
+      <li><strong>Droit de rectification</strong> : Modifiez vos données dans l'application</li>
+      <li><strong>Droit à l'effacement</strong> : <%= link_to "Supprimer votre compte", delete_account_path, method: :delete, data: { turbo_confirm: "Êtes-vous sûr ? Cette action est irréversible." }, class: "text-danger" %></li>
+    </ul>
+
+    <h5 class="mt-4">4. Sécurité</h5>
+    <p>Les mots de passe sont stockés de manière sécurisée (bcrypt). Les données de santé sont protégées et accessibles uniquement par vous.</p>
+  </div>
+</div>
+</div>

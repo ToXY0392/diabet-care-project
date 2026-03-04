@@ -1,0 +1,97 @@
+<%# Formulaire repas : date/heure, type, glucides (g), bolus (U), glycémie, notes %>
+<%= form_with model: meal, url: meal.persisted? ? meal_path(meal) : meals_path, method: meal.persisted? ? :patch : :post do |f| %>
+  <% if meal.errors.any? %>
+    <div class="alert alert-danger mb-3">
+      <ul class="mb-0">
+        <% meal.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <%= f.label :recorded_at, "Date et heure", class: "form-label" %>
+      <%= f.datetime_local_field :recorded_at, class: "form-control", required: true %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :meal_type, "Type de repas", class: "form-label" %>
+      <%= f.select :meal_type, options_for_select([["-", nil], ["Petit-déjeuner", "breakfast"], ["Déjeuner", "lunch"], ["Dîner", "dinner"], ["Collation", "snack"], ["Autre", "other"]]), {}, class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <%= f.label :glucose, "Glycémie (mg/dL)", class: "form-label" %>
+      <div class="input-group">
+        <%= f.number_field :glucose, id: "meal_glucose", class: "form-control", step: 0.1, min: 20, max: 600, placeholder: "Optionnel" %>
+        <button type="button" id="use_sensor_btn" class="btn btn-outline-secondary" data-dexcom-connected="<%= current_user.dexcom_access_token.present? %>">
+          Utiliser capteur
+        </button>
+      </div>
+      <small id="sensor_status" class="text-muted"></small>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :carbs, "Glucides (g)", class: "form-label" %>
+      <%= f.number_field :carbs, class: "form-control", step: 0.1, min: 0 %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :bolus, "Bolus insuline (U)", class: "form-label" %>
+      <%= f.number_field :bolus, class: "form-control", step: 0.1, min: 0 %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :notes, class: "form-label" %>
+    <%= f.text_area :notes, class: "form-control", rows: 2 %>
+  </div>
+
+  <%= f.submit meal.persisted? ? "Mettre à jour" : "Enregistrer", class: "btn btn-primary" %>
+<% end %>
+
+<script>
+  (function() {
+    const btn = document.getElementById("use_sensor_btn");
+    const glucoseInput = document.getElementById("meal_glucose");
+    const recordedAtInput = document.querySelector('input[name="meal[recorded_at]"]');
+    const statusEl = document.getElementById("sensor_status");
+
+    if (!btn || !glucoseInput) return;
+
+    const dexcomConnected = btn.dataset.dexcomConnected === "true";
+
+    if (!dexcomConnected) {
+      btn.disabled = true;
+      btn.title = "Connectez Dexcom dans le tableau de bord pour utiliser cette fonction.";
+      statusEl.textContent = "Dexcom non connecté";
+    }
+
+    btn.addEventListener("click", function() {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      statusEl.textContent = "Récupération...";
+
+      fetch("<%= latest_glucose_meals_path %>", {
+        headers: { "Accept": "application/json", "X-CSRF-Token": document.querySelector('[name="csrf-token"]').content }
+      })
+        .then(r => r.json().then(data => ({ ok: r.ok, data })))
+        .then(({ ok, data }) => {
+          if (ok && data.value != null) {
+            glucoseInput.value = data.value;
+            if (data.recorded_at && recordedAtInput) {
+              const d = new Date(data.recorded_at);
+              recordedAtInput.value = d.toISOString().slice(0, 16);
+            }
+            statusEl.textContent = "Valeur récupérée (" + data.value + " mg/dL)";
+          } else {
+            statusEl.textContent = data.error || "Aucune donnée";
+          }
+        })
+        .catch(() => {
+          statusEl.textContent = "Erreur de récupération";
+        })
+        .finally(() => { btn.disabled = !dexcomConnected; });
+    });
+  })();
+</script>

@@ -1,0 +1,39 @@
+<div class="container py-5" style="max-width: 400px;">
+  <h2 class="mb-4">Inscription</h2>
+
+  <%= form_with model: @user, url: signup_path, local: true, data: { turbo: false } do |f| %>
+    <% if @user.errors.any? %>
+      <div class="alert alert-danger mb-3">
+        <ul class="mb-0">
+          <% @user.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mb-3">
+      <%= f.label :email, class: "form-label" %>
+      <%= f.email_field :email, class: "form-control", required: true, autofocus: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :password, "Mot de passe", class: "form-label" %>
+      <%= f.password_field :password, class: "form-control", required: true %>
+      <small class="text-muted">Minimum 6 caractères</small>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :password_confirmation, "Confirmation", class: "form-label" %>
+      <%= f.password_field :password_confirmation, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.submit "Créer mon compte", class: "btn btn-primary w-100" %>
+    </div>
+  <% end %>
+
+  <p class="text-center text-muted">
+    Déjà inscrit ? <%= link_to "Se connecter", login_path %>
+  </p>
+</div>

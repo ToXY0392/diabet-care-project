@@ -1,0 +1,33 @@
+<%# Formulaire glycémie : valeur (mg/dL), date/heure, tendance %>
+<%= form_with model: glucose_reading, url: glucose_reading.persisted? ? glucose_reading_path(glucose_reading) : glucose_readings_path, method: glucose_reading.persisted? ? :patch : :post do |f| %>
+  <% if glucose_reading.errors.any? %>
+    <div class="alert alert-danger mb-3">
+      <ul class="mb-0">
+        <% glucose_reading.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <%= f.label :value, "Valeur (mg/dL)", class: "form-label" %>
+      <%= f.number_field :value, class: "form-control", step: 0.1, min: 20, max: 600, required: true %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :recorded_at, "Date et heure", class: "form-label" %>
+      <%= f.datetime_local_field :recorded_at, class: "form-control", required: true %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :trend, "Tendance", class: "form-label" %>
+      <%= f.select :trend, options_for_select([["-", nil], ["Montant", "rising"], ["Stable", "stable"], ["Descendant", "falling"]]), {}, class: "form-select" %>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <%= f.hidden_field :source, value: "manual" %>
+  </div>
+
+  <%= f.submit glucose_reading.persisted? ? "Mettre à jour" : "Enregistrer", class: "btn btn-primary" %>
+<% end %>

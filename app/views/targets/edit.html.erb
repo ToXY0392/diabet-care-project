@@ -1,0 +1,28 @@
+<h2 class="mb-4">Objectifs glycémiques</h2>
+
+<p class="text-muted">Définissez votre plage cible (temps en cible). Valeurs par défaut : 70-180 mg/dL.</p>
+
+<%= form_with model: @target, url: target_path, method: :patch do |f| %>
+  <% if @target.errors.any? %>
+    <div class="alert alert-danger mb-3">
+      <ul class="mb-0">
+        <% @target.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <%= f.label :min_glucose, "Minimum (mg/dL)", class: "form-label" %>
+      <%= f.number_field :min_glucose, class: "form-control", step: 0.1, min: 40 %>
+    </div>
+    <div class="col-md-4">
+      <%= f.label :max_glucose, "Maximum (mg/dL)", class: "form-label" %>
+      <%= f.number_field :max_glucose, class: "form-control", step: 0.1, max: 400 %>
+    </div>
+  </div>
+
+  <%= f.submit "Enregistrer", class: "btn btn-primary" %>
+<% end %>

@@ -1,0 +1,40 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Repas</h2>
+  <%= link_to "Nouveau repas", new_meal_path, class: "btn btn-primary" %>
+</div>
+
+<% if @meals.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Date / Heure</th>
+          <th>Type</th>
+          <th>Glycémie</th>
+          <th>Glucides (g)</th>
+          <th>Bolus (U)</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @meals.each do |m| %>
+          <tr>
+            <td><%= m.recorded_at.strftime("%d/%m/%Y %H:%M") %></td>
+            <td><%= m.meal_type.present? ? { "breakfast" => "Petit-déj.", "lunch" => "Déjeuner", "dinner" => "Dîner", "snack" => "Collation", "other" => "Autre" }[m.meal_type] || m.meal_type : "-" %></td>
+            <td><%= m.glucose ? "#{m.glucose} mg/dL" : "-" %></td>
+            <td><%= m.carbs || "-" %></td>
+            <td><%= m.bolus || "-" %></td>
+            <td><%= truncate(m.notes, length: 30) if m.notes.present? %></td>
+            <td>
+              <%= link_to "Modifier", edit_meal_path(m), class: "btn btn-sm btn-outline-primary" %>
+              <%= button_to "Suppr.", meal_path(m), method: :delete, class: "btn btn-sm btn-outline-danger", form: { data: { turbo_confirm: "Supprimer ?" } } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-muted">Aucun repas enregistré. <%= link_to "Ajouter un repas", new_meal_path %></p>
+<% end %>

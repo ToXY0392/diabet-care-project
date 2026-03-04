@@ -1,0 +1,58 @@
+<%# Page d'accueil publique : hero, fonctionnalités, CTA inscription %>
+<div class="home-page">
+  <div class="hero-section py-5 text-center">
+    <h1 class="display-4 fw-bold mb-3">DiabetCare</h1>
+    <p class="lead text-muted mb-4">Application de gestion du diabète. Suivez votre glycémie, vos repas et vos objectifs au quotidien.</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+      <%= link_to "S'inscrire", signup_path, class: "btn btn-primary btn-lg px-4" %>
+      <%= link_to "Se connecter", login_path, class: "btn btn-outline-primary btn-lg px-4" %>
+    </div>
+  </div>
+
+  <div class="features-section py-5">
+    <div class="container">
+      <h2 class="text-center mb-5">Pourquoi DiabetCare ?</h2>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="mb-3 fs-2 text-primary">📊</div>
+              <h5 class="card-title">Suivi glycémique</h5>
+              <p class="card-text text-muted">Enregistrez vos mesures manuellement ou importez-les automatiquement depuis votre Dexcom G7.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="mb-3 fs-2 text-primary">🍽️</div>
+              <h5 class="card-title">Repas & bolus</h5>
+              <p class="card-text text-muted">Glucides et insuline par repas pour une gestion fine de votre alimentation et de vos doses.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+              <div class="mb-3 fs-2 text-primary">🎯</div>
+              <h5 class="card-title">Objectifs & rapports</h5>
+              <p class="card-text text-muted">Graphiques, temps en cible, objectifs personnalisés. Vos données, visualisées simplement.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section py-5 bg-light text-center">
+    <div class="container">
+      <h3 class="mb-3">Prêt à prendre le contrôle ?</h3>
+      <p class="text-muted mb-4">Créez un compte gratuitement et commencez dès aujourd'hui.</p>
+      <%= link_to "Créer mon compte", signup_path, class: "btn btn-primary btn-lg" %>
+    </div>
+  </div>
+
+  <footer class="py-3 text-center text-muted small border-top">
+    <%= link_to "Politique de confidentialité", privacy_path, class: "text-muted" %>
+  </footer>
+</div>
