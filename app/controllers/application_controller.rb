@@ -35,4 +35,9 @@ class ApplicationController < ActionController::Base
     return true if controller_name == "pages" && action_name.in?(%w[home privacy])
     controller_name.in?(%w[sessions registrations]) && action_name.in?(%w[new create])
   end
+
+  # URI de callback OAuth Dexcom — doit correspondre exactement à celle enregistrée sur developer.dexcom.com
+  def dexcom_redirect_uri
+    ENV["DEXCOM_REDIRECT_URI"].presence || dexcom_callback_url
+  end
 end

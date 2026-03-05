@@ -1,0 +1,71 @@
+<%# Diagnostic Dexcom OAuth (development uniquement) %>
+<div class="py-4">
+  <h2 class="mb-4">Diagnostic Dexcom OAuth</h2>
+  <p class="text-muted mb-4">Vérifiez que ces valeurs correspondent à la configuration de votre app sur <a href="https://developer.dexcom.com/" target="_blank" rel="noopener">developer.dexcom.com</a>.</p>
+
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <strong>Redirect URI (doit être identique sur Dexcom)</strong>
+    </div>
+    <div class="card-body">
+      <code class="d-block bg-dark text-light p-3 rounded mb-2"><%= @diagnostic[:redirect_uri] %></code>
+      <small class="text-muted">Source : <%= @diagnostic[:redirect_uri_source] %></small>
+      <div class="alert alert-warning mt-3 mb-0">
+        <strong>Action :</strong> Sur developer.dexcom.com → My Apps → votre app → Redirect URIs, ajoutez cette URL <em>exactement</em> (copier-coller).
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header bg-light">
+      <strong>Credentials</strong>
+    </div>
+    <div class="card-body">
+      <table class="table table-sm">
+        <tr>
+          <td>Client ID</td>
+          <td>
+            <% if @diagnostic[:client_id_set] %>
+              <span class="text-success">Défini</span> (longueur: <%= @diagnostic[:client_id_length] %>, aperçu: <%= @diagnostic[:client_id_preview] %>)
+            <% else %>
+              <span class="text-danger">Manquant dans .env</span>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td>Client Secret</td>
+          <td>
+            <% if @diagnostic[:client_secret_set] %>
+              <span class="text-success">Défini</span>
+            <% else %>
+              <span class="text-danger">Manquant dans .env</span>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td>Environnement</td>
+          <td><%= @diagnostic[:sandbox] ? "Sandbox" : "Production" %> (<%= @diagnostic[:base_url] %>)</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card border-warning">
+    <div class="card-header bg-warning bg-opacity-25">
+      <strong>Si "The client application is not known or is not authorized"</strong>
+    </div>
+    <div class="card-body">
+      <ol class="mb-0">
+        <li>Vérifiez que la <strong>Redirect URI</strong> ci-dessus est <em>exactement</em> la même dans My Apps (pas d’espace, pas de slash final).</li>
+        <li>Vérifiez <strong>client_id</strong> et <strong>client_secret</strong> : copiez-les depuis developer.dexcom.com, sans espace ni retour à la ligne.</li>
+        <li>Si l’app tourne sur un port différent (ex. 3001), définissez dans .env : <code>DEXCOM_REDIRECT_URI=<%= @diagnostic[:redirect_uri] %></code></li>
+        <li>Assurez-vous d’utiliser l’app <strong>Sandbox</strong> pour les tests (DEXCOM_SANDBOX=true).</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <%= link_to "Retour au tableau de bord", dashboard_path, class: "btn btn-outline-secondary" %>
+    <%= link_to "Connecter Dexcom", dexcom_connect_path, class: "btn btn-primary" %>
+  </div>
+</div>

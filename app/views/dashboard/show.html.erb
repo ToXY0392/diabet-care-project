@@ -31,6 +31,7 @@
           <% else %>
             <p class="card-text text-muted">Non connecté</p>
             <%= link_to "Connecter Dexcom", dexcom_connect_path, class: "btn btn-sm btn-primary" %>
+            <%= link_to "Diagnostic", dexcom_check_path, class: "btn btn-sm btn-outline-secondary ms-1" if Rails.env.development? %>
           <% end %>
         </div>
       </div>

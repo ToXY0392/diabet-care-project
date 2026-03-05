@@ -31,6 +31,7 @@ Rails.application.routes.draw do
 
   # Dexcom OAuth 2.0
   get "dexcom/connect", to: "dexcom#connect", as: :dexcom_connect
+  get "dexcom/check", to: "dexcom#check", as: :dexcom_check
   get "dexcom/callback", to: "dexcom_callbacks#callback", as: :dexcom_callback
   post "dexcom/sync", to: "dexcom#sync", as: :dexcom_sync
 end
