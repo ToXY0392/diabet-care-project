@@ -168,3 +168,30 @@ The objective will be to propose a more complete, fluid, and pleasant applicatio
 ---
 
 # 6. Dexcom integration
+
+> **Note :** L'intégration Dexcom ne fonctionne pas pour le moment 
+
+Pour connecter Dexcom G7 :
+
+1. Créer une app sur [developer.dexcom.com](https://developer.dexcom.com/)
+2. Configurer la redirect URI : `http://localhost:3000/dexcom/callback`
+3. Définir les variables d'environnement :
+   - `DEXCOM_CLIENT_ID`
+   - `DEXCOM_CLIENT_SECRET`
+   - `DEXCOM_SANDBOX=true` (pour le sandbox)
+
+Ou ajouter dans `config/credentials.yml.enc` :
+```yaml
+dexcom:
+  client_id: "xxx"
+  client_secret: "xxx"
+```
+
+## Fonctionnalités
+
+- **Authentification** : inscription, connexion
+- **Glycémies** : saisie manuelle + import Dexcom
+- **Repas** : glucides (g) et bolus insuline (U) par repas
+- **Objectifs** : plage cible personnalisée (défaut 70-180 mg/dL)
+- **Rapports** : courbe glycémique, temps en cible
+- **RGPD** : export données, suppression compte, politique confidentialité
