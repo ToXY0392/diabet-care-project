@@ -1,197 +1,254 @@
-# 1. Presentation
+# Application de Suivi du Diabète
 
-Diabetes management requires daily monitoring, clear communication with healthcare professionals, and reliable centralization of medical information. Today, this data is often scattered between paper logs, disconnected applications, or fragmented medical records, which complicates patient monitoring and coordination of care.
+## 1. Présentation
 
-This responsive web application developed with Ruby on Rails aims to centralize and secure the medical data of diabetic patients. It allows patients to record their blood glucose levels, treatments, and observations, while providing healthcare professionals with real-time access to the information necessary for effective medical follow-up.
+La gestion du diabète nécessite un suivi quotidien, une communication claire avec les professionnels de santé et une centralisation fiable des informations médicales. Aujourd’hui, ces données sont souvent dispersées entre carnets papier, applications non connectées ou dossiers médicaux fragmentés, ce qui complique le suivi des patients et la coordination des soins.
 
-The application is designed to be easy to use, secure, and compliant with GDPR, with an initial implementation intended for the French territory.
+Cette application web responsive, développée avec **Ruby on Rails**, vise à **centraliser et sécuriser les données médicales des patients diabétiques**.
+
+Elle permet aux patients de :
+- enregistrer leur glycémie,
+- suivre leurs traitements,
+- ajouter des observations ou symptômes.
+
+Les professionnels de santé peuvent quant à eux **consulter ces données en temps réel**, facilitant ainsi le suivi médical.
+
+L’application est conçue pour être :
+
+- simple d’utilisation  
+- sécurisée  
+- conforme au **RGPD**  
+
+La première version est destinée au **territoire français**.
 
 ---
 
-# 2. User Journey
+# 2. Parcours utilisateur
 
-A patient creates a secure account on the platform and enters their basic information. Once logged in, they access their dashboard where they can record their blood glucose measurements daily, their insulin injections, their treatments, and add observations or symptoms.
+Un patient crée un **compte sécurisé** sur la plateforme et renseigne ses informations de base.
 
-All this data is stored and displayed in a history viewable through tables and graphs, allowing the patient to track the evolution of their health.
+Une fois connecté, il accède à son **tableau de bord**, où il peut :
 
-Healthcare professionals (doctors or nurses) have dedicated access that allows them to consult their patients' data in real time via a professional dashboard. They can also communicate with patients through secure messaging and organize consultations using an integrated calendar.
+- enregistrer ses glycémies quotidiennes  
+- renseigner ses injections d’insuline  
+- suivre ses traitements  
+- ajouter des observations ou symptômes  
 
-If necessary, an emergency module allows quick access to essential medical information and emergency contacts.
+Toutes ces données sont **stockées et consultables dans un historique**, affiché sous forme de **tableaux et graphiques**, permettant au patient de suivre l’évolution de sa santé.
+
+Les **professionnels de santé** (médecins ou infirmiers) disposent d’un accès dédié leur permettant de :
+
+- consulter les données de leurs patients en temps réel
+- accéder à un **tableau de bord professionnel**
+- communiquer via une **messagerie sécurisée**
+- organiser des consultations grâce à un **calendrier intégré**
+
+En cas de besoin, un **module d’urgence** permet d’accéder rapidement aux informations médicales essentielles et aux contacts d’urgence.
 
 ---
 
-# 3. Concretely and Technically
+# 3. Conception technique
 
-The application will be developed using Ruby on Rails as a responsive web application, accessible from a computer, tablet, or smartphone through a web browser.
+L’application est développée sous forme d’une **application web responsive** avec **Ruby on Rails**, accessible depuis :
 
-## 3.1 Database
+- ordinateur
+- tablette
+- smartphone
 
-The database must allow the management of several types of users with different roles.
+via un navigateur web.
 
-The main tables could include:
+---
 
-### Users
+## 3.1 Base de données
+
+La base de données doit permettre de gérer plusieurs types d’utilisateurs avec des rôles différents.
+
+### Table `users`
+
 - email
-- secure password
-- role (patient, doctor, nurse, administrator)
+- mot de passe sécurisé
+- rôle (patient, médecin, infirmier, administrateur)
 
-### Patient_profiles
-- basic medical information
-- emergency contacts
+### Table `patient_profiles`
 
-### Glycemia_records
-- blood glucose value
-- date / time
-- associated patient
+- informations médicales de base
+- contacts d’urgence
 
-### Treatments
-- treatment type
-- dose
-- frequency
+### Table `glycemia_records`
 
-### Prescriptions
-- medical prescriptions
-- associated doctor
-- modification history
+- valeur de glycémie
+- date / heure
+- patient associé
 
-### Appointments
+### Table `treatments`
+
+- type de traitement
+- dosage
+- fréquence
+
+### Table `prescriptions`
+
+- prescriptions médicales
+- médecin associé
+- historique des modifications
+
+### Table `appointments`
+
 - date
 - patient
-- healthcare professional
-- status
+- professionnel de santé
+- statut
 
-### Messages
-- sender
-- recipient
-- content
+### Table `messages`
+
+- expéditeur
+- destinataire
+- contenu
 - date
 
-Sensitive medical data must be encrypted in order to guarantee confidentiality.
+Les **données médicales sensibles doivent être chiffrées** afin de garantir la confidentialité.
 
 ---
 
 ## 3.2 Frontend
 
-The frontend must be responsive in order to function properly on mobile, tablet, and desktop.
+Le frontend doit être **responsive** afin de fonctionner correctement sur :
 
-The main components will include:
+- mobile
+- tablette
+- ordinateur
 
-- registration / login page  
-- patient dashboard  
-- healthcare professional dashboard  
-- blood glucose recording form  
-- treatment management  
-- secure messaging  
-- appointment calendar  
-- graphical data visualization  
+Les principaux composants comprennent :
 
-Some JavaScript will be necessary for:
+- page d’inscription / connexion
+- tableau de bord patient
+- tableau de bord professionnel de santé
+- formulaire de saisie des glycémies
+- gestion des traitements
+- messagerie sécurisée
+- calendrier de rendez-vous
+- visualisation graphique des données
 
-- blood glucose monitoring graphs  
-- the interactive calendar  
-- certain dynamic interactions (dashboard updates, messaging)
+Du **JavaScript** sera utilisé pour :
+
+- les graphiques de suivi de glycémie
+- le calendrier interactif
+- certaines interactions dynamiques (mise à jour du dashboard, messagerie)
 
 ---
 
 ## 3.3 Backend
 
-The backend will be built with Ruby on Rails.
+Le backend est développé avec **Ruby on Rails**.
 
-It will handle:
+Il gère :
 
-- secure user authentication  
-- role and permission management  
-- encryption of sensitive medical data  
-- appointment management  
-- sending automatic reminders (treatments or appointments)  
-- secure messaging between patients and healthcare professionals  
+- l’authentification sécurisée des utilisateurs
+- la gestion des rôles et permissions
+- le chiffrement des données médicales
+- la gestion des rendez-vous
+- l’envoi de rappels automatiques (traitements ou rendez-vous)
+- la messagerie sécurisée entre patients et professionnels de santé
 
-Internal APIs will allow the different features of the application to connect together (medical data management, messaging, calendar).
+Des **API internes** permettent de connecter les différentes fonctionnalités de l’application :
 
----
-
-## 3.4 My Technical Needs
-
-### Current Skills
-
-- web development with Ruby on Rails  
-- web application design  
-- database management  
-- application project structuring  
-
-### Needs to Complete the Team
-
-- frontend development (UI/UX and dynamic components)  
-- security and sensitive data management  
-- implementation of graphs and visualizations  
-- user experience optimization  
-- testing and application validation  
+- gestion des données médicales
+- messagerie
+- calendrier
 
 ---
 
-# 4. The Minimal but Functional Version to Deliver in the First Week (MVP)
+## 3.4 Besoins techniques
 
-The MVP must allow the delivery of a first simple but functional version of the application.
+### Compétences actuelles
 
-Minimal features:
+- développement web avec Ruby on Rails  
+- conception d’applications web  
+- gestion de bases de données  
+- structuration de projets applicatifs  
 
-- user registration and login  
-- role management (patient / healthcare professional)  
-- recording of blood glucose measurements by patients  
-- display of measurement history  
-- doctor access to patient data  
-- simple dashboard interface  
+### Compétences à compléter
 
-This first version will already allow:
-
-- patients to record their data  
-- doctors to consult them  
-
-Advanced features (messaging, automatic reminders, advanced graphs, full calendar) can be added later.
+- développement frontend (UI / UX et composants dynamiques)
+- sécurité et gestion de données sensibles
+- implémentation de graphiques et visualisations
+- optimisation de l’expérience utilisateur
+- tests et validation de l’application
 
 ---
 
-# 5. The Version That Will Be Presented to the Jury
+# 4. Version minimale fonctionnelle (MVP)
 
-During the second week, several features can be added to improve the user experience:
+Le **MVP** doit permettre de livrer une première version simple mais fonctionnelle de l’application.
 
-- blood glucose monitoring graphs  
-- secure patient / doctor messaging  
-- interactive appointment calendar  
-- automatic treatment reminders  
-- improved professional dashboard  
-- more advanced user interface  
-- improved security and data encryption  
+Fonctionnalités minimales :
 
-The objective will be to propose a more complete, fluid, and pleasant application to use, while maintaining a solid technical foundation.
+- inscription et connexion des utilisateurs
+- gestion des rôles (patient / professionnel de santé)
+- saisie des glycémies par les patients
+- affichage de l’historique des mesures
+- accès des médecins aux données des patients
+- interface simple de tableau de bord
+
+Cette première version permettra déjà :
+
+- aux patients d’enregistrer leurs données
+- aux médecins de les consulter
+
+Les fonctionnalités avancées (messagerie, rappels automatiques, graphiques avancés, calendrier complet) pourront être ajoutées par la suite.
 
 ---
 
-# 6. Dexcom integration
+# 5. Version présentée au jury
 
-> **Note :** L'intégration Dexcom ne fonctionne pas pour le moment 
+Lors de la deuxième semaine, plusieurs fonctionnalités pourront être ajoutées afin d’améliorer l’expérience utilisateur :
 
-Pour connecter Dexcom G7 :
+- graphiques de suivi glycémique
+- messagerie sécurisée patient / médecin
+- calendrier interactif de rendez-vous
+- rappels automatiques de traitement
+- tableau de bord professionnel amélioré
+- interface utilisateur plus avancée
+- amélioration de la sécurité et du chiffrement des données
 
-1. Créer une app sur [developer.dexcom.com](https://developer.dexcom.com/)
-2. Configurer la redirect URI : `http://localhost:3000/dexcom/callback`
-3. Définir les variables d'environnement :
-   - `DEXCOM_CLIENT_ID`
-   - `DEXCOM_CLIENT_SECRET`
-   - `DEXCOM_SANDBOX=true` (pour le sandbox)
+L’objectif est de proposer une **application plus complète, fluide et agréable à utiliser**, tout en conservant une base technique solide.
 
-Ou ajouter dans `config/credentials.yml.enc` :
-```yaml
-dexcom:
+---
+
+# 6. Intégration Dexcom
+
+> ⚠️ **Note : l'intégration Dexcom ne fonctionne pas encore actuellement.**
+
+## Configuration
+
+Pour connecter **Dexcom G7** :
+
+1. Créer une application sur  
+   https://developer.dexcom.com/
+
+2. Configurer la **Redirect URI** :
+  http://localhost:3000/dexcom/callback/
+
+3. Définir les variables d’environnement :
+  DEXCOM_CLIENT_ID=your_client_id
+  DEXCOM_CLIENT_SECRET=your_client_secret
+  DEXCOM_SANDBOX=true
+
+Ou ajouter les informations dans `config/credentials.yml.enc` :
+  dexcom:
   client_id: "xxx"
   client_secret: "xxx"
-```
 
-## Fonctionnalités
+## 7. Fonctionnalités
 
-- **Authentification** : inscription, connexion
-- **Glycémies** : saisie manuelle + import Dexcom
-- **Repas** : glucides (g) et bolus insuline (U) par repas
-- **Objectifs** : plage cible personnalisée (défaut 70-180 mg/dL)
-- **Rapports** : courbe glycémique, temps en cible
-- **RGPD** : export données, suppression compte, politique confidentialité
+- Authentification : inscription et connexion
+- Glycémies : saisie manuelle + import Dexcom
+- Repas : glucides (g) et bolus d’insuline (U) par repas
+- Objectifs : plage cible personnalisée (70–180 mg/dL par défaut)
+- Rapports : courbe glycémique et temps dans la cible
+
+## 8. Conformité RGPD
+
+- export des données utilisateur
+- suppression du compte
+- politique de confidentialité
