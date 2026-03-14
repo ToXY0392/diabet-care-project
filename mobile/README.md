@@ -1,24 +1,39 @@
-# Application mobile (Expo)
+# Application mobile DiabetCare (Expo + React Native)
 
-Projet Expo pour faire tourner une version mobile sur Android / iPhone.
+Application mobile native (React Native) pour le parcours patient : tableau de bord, capteur, mesures, échanges (messages/documents), profil. Construite avec Expo SDK 54 et React Navigation.
 
-## Lancer sur ton téléphone
+## Lancer l’app
 
 1. Installe **Expo Go** sur ton téléphone (Play Store ou App Store).
-2. Mets le téléphone et le PC sur le **même Wi‑Fi**.
-3. Dans ce dossier, exécute :
+2. Téléphone et PC sur le **même Wi‑Fi** (pour Expo Go en dev).
+3. Dans ce dossier :
 
 ```bash
+npm install
 npm start
 ```
 
-4. Scanne le **QR code** affiché avec Expo Go (Android) ou avec l’app Caméra (iPhone).
+4. Scanne le **QR code** avec Expo Go (Android) ou l’app Caméra (iPhone).
 
-→ Guide détaillé (débutant, dépannage, structure) : **[../docs/EXPO_GUIDE.md](../docs/EXPO_GUIDE.md)**.
+Aucune autre commande n’est nécessaire (pas d’app web à lancer).
 
 ## Commandes
 
-- `npm start` — Démarre Expo et affiche le QR code (pour le téléphone).
-- `npm run web` — Ouvre l’app dans le navigateur.
-- `npm run android` — Émulateur Android (si installé).
-- `npm run ios` — Simulateur iOS (Mac uniquement).
+| Commande | Description |
+|----------|-------------|
+| `npm start` | Démarre Expo et affiche le QR code |
+| `npm run web` | Ouvre l’app dans le navigateur (mode web Expo) |
+| `npm run android` | Lance sur l’émulateur Android (si configuré) |
+| `npm run ios` | Lance sur le simulateur iOS (Mac uniquement) |
+
+## Structure rapide
+
+- `App.tsx` – Point d’entrée (SafeAreaProvider, NavigationContainer, onglets + stack).
+- `src/` – Thème, types, données mock, composants, écrans, navigation.
+- `src/screens/` – Dashboard, Capteur, Mesures, Échanges, Chat, Profil.
+- `src/navigation/AppTabs.tsx` – Bottom tabs (5 onglets) + écran Chat en stack.
+
+## Documentation
+
+- **Migration React → React Native** (modifs, structure, différences web/mobile) : **[../docs/MIGRATION_REACT_NATIVE.md](../docs/MIGRATION_REACT_NATIVE.md)**.
+- **Expo (débutant, dépannage)** : **[../docs/EXPO_GUIDE.md](../docs/EXPO_GUIDE.md)**.
