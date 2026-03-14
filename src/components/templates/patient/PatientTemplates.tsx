@@ -66,7 +66,7 @@ export function PatientDashboardTemplate({
         <div className="mt-2 text-[var(--text-sm)] opacity-90">Stable · synchronisé {patient.syncAgo}</div>
       </Card>
       <div className="flex justify-center mt-3 mb-3">
-        <button type="button" onClick={onOpenMealModal} className="rounded-[var(--radius-md)] bg-[var(--color-teal)] text-white px-7 py-2.5 font-semibold shadow-sm hover:shadow-md">
+        <button type="button" onClick={onOpenMealModal} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-7 py-2.5 font-semibold shadow-sm hover:shadow-md">
           Ajouter repas
         </button>
       </div>
@@ -380,7 +380,7 @@ export function PatientMeasuresTemplate({
           </div>
         ))}
       </div>
-      <Card variant="surface" className="p-4 mb-3 hover:shadow-md active:shadow-lg">
+      <Card variant="surfaceMint" className="p-4 mb-3 hover:shadow-md active:shadow-lg">
         <div className="flex items-center gap-3 mb-4">
           <div className="text-2xl">◉</div>
           <div className="text-[var(--text-title)] font-semibold text-[var(--color-muted-strong)]">Temps dans la cible</div>
@@ -403,7 +403,7 @@ export function PatientMeasuresTemplate({
         </div>
         <div className="flex items-center justify-between text-sm text-[var(--color-muted)]"><div>% des données recueillies par CGM</div><div className="font-semibold">27%</div></div>
       </Card>
-      <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+      <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
             <div className="text-2xl">◔</div>
@@ -451,7 +451,7 @@ export function PatientMeasuresTemplate({
           <div className="mt-2 flex items-center justify-between text-[12px] text-[var(--color-text-secondary)]">{currentMeasureConfig.xLabels.map((label) => <span key={label}>{label}</span>)}</div>
         </div>
       </Card>
-      <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+      <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
             <div className="text-2xl">✎</div>
@@ -476,9 +476,9 @@ export function PatientMeasuresTemplate({
         </div>
       </Card>
       <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
-        <button type="button" onClick={() => setHistoryExpanded(!historyExpanded)} className="w-full flex items-center justify-between gap-3 text-left" aria-label={historyExpanded ? "Réduire l'historique des mesures" : "Développer l'historique des mesures"} aria-expanded={historyExpanded}>
-          <div className="text-xs tracking-[0.2em] text-[var(--color-label)] font-semibold">HISTORIQUE DES MESURES</div>
-          <div className={`text-[var(--color-text-secondary)] text-sm transition-transform duration-200 ${historyExpanded ? "rotate-180" : ""}`}>▾</div>
+        <button type="button" onClick={() => setHistoryExpanded(!historyExpanded)} className="w-full flex items-center justify-between gap-3 text-left text-white" aria-label={historyExpanded ? "Réduire l'historique des mesures" : "Développer l'historique des mesures"} aria-expanded={historyExpanded}>
+          <div className="text-xs tracking-[0.2em] text-white font-semibold">HISTORIQUE DES MESURES</div>
+          <div className={`text-white/90 text-sm transition-transform duration-200 ${historyExpanded ? "rotate-180" : ""}`}>▾</div>
         </button>
         <div className="space-y-3 mt-4">
           {visibleHistoryRows.map((row) => (
@@ -729,7 +729,6 @@ export function PatientExchangesTemplate({
               <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">MES MESSAGES</div>
               <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-0.5">Conversations prioritaires et non lus</div>
             </div>
-            <div className={`text-[var(--color-text-secondary)] text-[var(--text-sm)] transition-transform duration-200 ${messagesCardExpanded ? "rotate-180" : ""}`}>▾</div>
           </button>
           <div className="space-y-3 mt-4">
             {visibleThreads.length === 0 ? (
@@ -827,8 +826,8 @@ export function PatientExchangesTemplate({
             <div className="text-[17px] font-semibold text-[var(--color-text)]">Envoyer un document au soignant</div>
             <div className="text-sm text-[var(--color-text-secondary)] mt-2">PDF, photo d'ordonnance, bilan glycémique ou résultat de laboratoire.</div>
             <div className="mt-4 flex gap-3">
-              <button type="button" className="flex-1 rounded-[18px] bg-[var(--color-teal)] text-white py-3 font-semibold">Choisir un fichier</button>
-              <button type="button" className="flex-1 rounded-[18px] bg-[var(--color-mint)] text-[var(--color-text)] py-3 font-semibold border border-[var(--color-border)]">Prendre une photo</button>
+              <button type="button" className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold">Choisir un fichier</button>
+              <button type="button" className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold border border-transparent">Prendre une photo</button>
             </div>
           </div>
         </Card>
@@ -845,7 +844,7 @@ export function PatientExchangesTemplate({
                     <div className="text-sm text-[var(--color-text-secondary)] mt-1">{document.category} · envoyé le {document.date}</div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {document.status ? <Badge tone={document.status === "Consulté" ? "active" : "neutral"}>{document.status}</Badge> : null}
+                    {document.status ? <Badge tone={document.status === "Consulté" || document.status === "Envoyé" ? "teal" : "neutral"}>{document.status}</Badge> : null}
                     <div className="text-[var(--color-text-secondary)]">›</div>
                   </div>
                 </div>
@@ -948,11 +947,11 @@ export function PatientProfileTemplate({
           <div className="animate-[slideFromLeft_0.2s_ease-in-out] space-y-4">
             <Card variant="surface" className="p-4 hover:shadow-md active:shadow-lg">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-[var(--color-teal)] flex items-center justify-center text-white text-xl font-semibold shrink-0">{patient.initials}</div>
+                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white text-xl font-semibold shrink-0">{patient.initials}</div>
                 <div className="min-w-0">
-                  <div className="text-xl font-semibold text-[var(--color-text)] truncate">{patient.name}</div>
-                  <div className="text-sm text-[var(--color-text-secondary)] mt-1">{patient.sensor}</div>
-                  <div className="text-sm text-[var(--color-muted)] mt-1">Synchronisé {patient.syncAgo}</div>
+                  <div className="text-xl font-semibold text-white truncate">{patient.name}</div>
+                  <div className="text-sm text-white/90 mt-1">{patient.sensor}</div>
+                  <div className="text-sm text-white/80 mt-1">Synchronisé {patient.syncAgo}</div>
                 </div>
               </div>
             </Card>
@@ -966,13 +965,13 @@ export function PatientProfileTemplate({
                   { title: "Confidentialité", desc: "Consentement actif et partage des données", icon: "◍" },
                   { title: "Sécurité", desc: "Accès au compte et protection des données", icon: "◎" },
                 ].map((item) => (
-                  <button key={item.title} type="button" className="w-full rounded-[20px] bg-[var(--color-mint)] border border-[var(--color-border)] p-4 text-left flex items-center gap-3 hover:shadow-md">
-                    <div className="w-10 h-10 rounded-full bg-[var(--color-mint)] text-[var(--color-teal)] flex items-center justify-center text-base shrink-0">{item.icon}</div>
+                  <button key={item.title} type="button" className="w-full rounded-[20px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border border-transparent text-white p-4 text-left flex items-center gap-3 hover:shadow-md">
+                    <div className="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center text-base shrink-0">{item.icon}</div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-[var(--color-text)] truncate">{item.title}</div>
-                      <div className="text-sm text-[var(--color-text-secondary)] mt-1 truncate">{item.desc}</div>
+                      <div className="font-semibold text-white truncate">{item.title}</div>
+                      <div className="text-sm text-white/90 mt-1 truncate">{item.desc}</div>
                     </div>
-                    <div className="text-[var(--color-text-secondary)] shrink-0">›</div>
+                    <div className="text-white shrink-0">›</div>
                   </button>
                 ))}
               </div>

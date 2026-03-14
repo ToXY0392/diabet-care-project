@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { BarChart3, Home, Settings } from "lucide-react";
 
-import FeedbackWidget from "../components/atoms/FeedbackWidget";
 import Toast from "../components/atoms/Toast";
 import BottomNavigation from "../components/organisms/app-shell/BottomNavigation";
 import PhoneFrame from "../components/organisms/app-shell/PhoneFrame";
 import RoleSwitcher from "../components/organisms/app-shell/RoleSwitcher";
-import { GlycemiaModalForm, MealModalForm } from "../components/organisms/forms/Modals";
+import { GlycemiaModalForm, MealModalForm, SensorChoiceModal } from "../components/organisms/forms/Modals";
 import { ClinicianCockpitTemplate, ClinicianNotesTemplate, ClinicianPatientViewTemplate, ClinicianPatientsTemplate } from "../components/templates/clinician/ClinicianTemplates";
 import {
   PatientDashboardTemplate,
@@ -385,13 +384,14 @@ export default function DiabetCareClinicalMockupPage() {
               setToastMessage("Repas enregistré");
               state.setShowMealModal(false);
             }}
+            onOpenSensorChoice={() => state.setShowSensorChoiceModal(true)}
           />
+          <SensorChoiceModal open={state.showSensorChoiceModal} onClose={() => state.setShowSensorChoiceModal(false)} />
         </>
       }
     >
       {renderActiveScreen()}
       {toastMessage ? <Toast message={toastMessage} variant="success" /> : null}
-      <FeedbackWidget />
     </PhoneFrame>
   );
 }

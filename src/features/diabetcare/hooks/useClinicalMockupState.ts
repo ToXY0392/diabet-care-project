@@ -16,6 +16,7 @@ export function useClinicalMockupState() {
   const [selectedClinicalPatientId, setSelectedClinicalPatientId] = useState("PAT-001");
   const [showGlycemiaModal, setShowGlycemiaModal] = useState(false);
   const [showMealModal, setShowMealModal] = useState(false);
+  const [showSensorChoiceModal, setShowSensorChoiceModal] = useState(false);
   const [glycemiaInput, setGlycemiaInput] = useState("118");
   const [mealType, setMealType] = useState("Déjeuner");
   const [mealTime, setMealTime] = useState("12:30");
@@ -60,6 +61,8 @@ export function useClinicalMockupState() {
     setShowGlycemiaModal,
     showMealModal,
     setShowMealModal,
+    showSensorChoiceModal,
+    setShowSensorChoiceModal,
     glycemiaInput,
     setGlycemiaInput,
     mealType,

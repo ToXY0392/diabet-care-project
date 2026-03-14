@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type CardVariant = "default" | "hero" | "danger" | "warning" | "surface";
+export type CardVariant = "default" | "hero" | "danger" | "warning" | "surface" | "surfaceWhite" | "surfaceMint";
 
 type CardProps = {
   children: ReactNode;
@@ -14,6 +14,8 @@ const variantClass: Record<CardVariant, string> = {
   danger: "app-card-danger",
   warning: "app-card-warning",
   surface: "app-card-surface-neutral",
+  surfaceWhite: "app-card-surface-white",
+  surfaceMint: "app-card-surface-mint",
 };
 
 export default function Card({ children, variant = "default", className = "" }: CardProps) {
