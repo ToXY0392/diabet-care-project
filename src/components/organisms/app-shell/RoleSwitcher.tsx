@@ -12,14 +12,14 @@ export default function RoleSwitcher({ role, onSwitchRole }: RoleSwitcherProps) 
         <button
           type="button"
           onClick={() => onSwitchRole("patient")}
-          className={`px-4 py-2 rounded-full text-sm font-semibold transition ${role === "patient" ? "bg-[#1c8f84] text-white" : "text-[#5e7379]"}`}
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition ${role === "patient" ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white" : "text-[#5e7379]"}`}
         >
           Patient
         </button>
         <button
           type="button"
           onClick={() => onSwitchRole("clinician")}
-          className={`px-4 py-2 rounded-full text-sm font-semibold transition ${role === "clinician" ? "bg-[#1c8f84] text-white" : "text-[#5e7379]"}`}
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition ${role === "clinician" ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white" : "text-[#5e7379]"}`}
         >
           Soignant
         </button>

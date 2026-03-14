@@ -48,12 +48,12 @@ export function GlycemiaModalForm({ open, glycemiaInput, setGlycemiaInput, onClo
   return (
     <Modal open={open} title="Ajouter glycémie" onClose={onClose}>
       <div className="space-y-3">
-        <div className="rounded-[20px] bg-[#E9F6F3] p-4">
-          <div className="text-sm text-[#616f73] mb-2">Valeur manuelle</div>
-          <input value={glycemiaInput} onChange={(event) => setGlycemiaInput(event.target.value)} className="w-full rounded-[16px] bg-white border border-[#dde5e7] px-4 py-3 text-[#233636] outline-none" inputMode="numeric" />
+        <div className="rounded-[20px] bg-[var(--color-mint)] p-4">
+          <div className="text-sm text-[var(--color-text-secondary)] mb-2">Valeur manuelle</div>
+          <input value={glycemiaInput} onChange={(event) => setGlycemiaInput(event.target.value)} className="w-full rounded-[16px] bg-white border border-[var(--color-border)] px-4 py-3 text-[var(--color-text)] outline-none" inputMode="numeric" />
         </div>
         <button type="button" onClick={onManualSave} className="w-full rounded-[18px] bg-[#1c8f84] text-white py-3 font-semibold">Enregistrer manuellement</button>
-        <button type="button" onClick={onUseSensor} className="w-full rounded-[18px] bg-[#E9F6F3] text-[#233636] py-3 font-semibold border border-[#dde5e7]">Utiliser capteur</button>
+        <button type="button" onClick={onUseSensor} className="w-full rounded-[18px] bg-[var(--color-mint)] text-[var(--color-text)] py-3 font-semibold border border-[var(--color-border-mint)]">Utiliser capteur</button>
       </div>
     </Modal>
   );
@@ -140,44 +140,44 @@ export function MealModalForm({
 
   return (
     <Modal open={open} title="Ajouter un repas" onClose={onClose}>
-      <div className="space-y-3 max-h-[48vh] overflow-y-auto scrollbar-hide pr-1">
+      <div className="space-y-2 max-h-[55vh] overflow-y-auto scrollbar-hide pr-1">
         <div>
-          <div className="text-xs tracking-[0.18em] text-[#2c4443] font-semibold mb-2">REPAS</div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="text-[11px] tracking-[0.14em] text-[#2c4443] font-semibold mb-1">REPAS</div>
+          <div className="grid grid-cols-2 gap-1.5">
             {["Petit-déjeuner", "Déjeuner", "Dîner", "Collation"].map((item) => (
-              <button key={item} type="button" onClick={() => setMealType(item)} className={`rounded-[14px] px-3 py-2 text-sm font-semibold transition-all duration-150 active:scale-[0.985] ${mealType === item ? "bg-[#1c8f84] text-white shadow-sm" : "bg-[#E9F6F3] text-[#5e7379] border border-[#dde5e7]"}`}>
+              <button key={item} type="button" onClick={() => setMealType(item)} className={`rounded-[12px] px-2.5 py-1.5 text-xs font-semibold transition-all duration-150 active:scale-[0.985] ${mealType === item ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-transparent shadow-sm"}`}>
                 {item}
               </button>
             ))}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-[18px] bg-[#E9F6F3] border border-[#e4ebed] p-3">
-            <div className="text-sm text-[#616f73] mb-2">Heure</div>
-            <input value={mealTime} onChange={(event) => setMealTime(event.target.value)} className="w-full rounded-[14px] bg-[#f7fafb] border border-[#dde5e7] px-3 py-2.5 text-[#233636] outline-none" />
+        <div className="grid grid-cols-2 gap-1.5 items-stretch">
+          <div className="flex flex-col rounded-[14px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border border-transparent shadow-sm p-2 min-h-0">
+            <span className="text-xs text-white/90 mb-1 shrink-0">Heure</span>
+            <input value={mealTime} onChange={(event) => setMealTime(event.target.value)} className="w-full h-9 rounded-[12px] bg-[var(--color-surface)] border border-[var(--color-border)] px-2.5 text-sm text-[var(--color-text)] outline-none shrink-0" />
           </div>
-          <div className="meal-carbs-wrapper relative" ref={carbsDropdownRef}>
-            <div className="meal-carbs-label mb-2">Glucides</div>
-            <div className="flex items-end gap-2">
+          <div className="meal-carbs-wrapper meal-carbs-wrapper--compact relative flex flex-col min-h-0" ref={carbsDropdownRef}>
+            <span className="meal-carbs-label mb-1 shrink-0">Glucides</span>
+            <div className="flex items-center gap-1.5 shrink-0">
               <input
                 id="meal-carbs-input"
                 value={carbsInput}
                 onChange={(event) => setCarbsInput(event.target.value)}
                 onFocus={() => setCarbsDropdownOpen(true)}
-                className="meal-carbs-field w-full"
+                className="meal-carbs-field meal-carbs-field--compact flex-1 min-w-0"
                 inputMode="numeric"
                 placeholder="Choisir ou saisir"
               />
               <button
                 type="button"
                 onClick={() => setCarbsDropdownOpen((v) => !v)}
-                className="shrink-0 w-9 h-[42px] rounded-[var(--radius-md)] bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-secondary)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)] transition-colors"
+                className="shrink-0 w-8 h-9 rounded-[12px] bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text-secondary)] hover:border-[var(--color-teal)] hover:text-[var(--color-teal)] transition-colors"
                 aria-label="Ouvrir les suggestions"
                 aria-expanded={carbsDropdownOpen}
               >
-                <span className={`text-sm transition-transform duration-200 ${carbsDropdownOpen ? "rotate-180" : ""}`}>▾</span>
+                <span className={`text-xs transition-transform duration-200 ${carbsDropdownOpen ? "rotate-180" : ""}`}>▾</span>
               </button>
-              <div className="text-[var(--text-xs)] text-[var(--color-text-secondary)] pb-1 self-center">g</div>
+              <span className="text-xs text-white/90 self-center shrink-0">g</span>
             </div>
             {carbsDropdownOpen ? (
               <div className="meal-carbs-dropdown absolute left-0 right-0 z-10" role="listbox">
@@ -201,37 +201,37 @@ export function MealModalForm({
           </div>
         </div>
         <div>
-          <button type="button" onClick={() => setMealInsulinExpanded(!mealInsulinExpanded)} className="w-full rounded-[18px] bg-[#E9F6F3] border border-[#e4ebed] p-3 text-left" aria-expanded={mealInsulinExpanded} aria-label={mealInsulinExpanded ? "Réduire la section insuline" : "Développer la section insuline"}>
-            <div className="flex items-center justify-between gap-3">
+          <button type="button" onClick={() => setMealInsulinExpanded(!mealInsulinExpanded)} className="w-full rounded-[14px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-transparent shadow-sm p-2 text-left" aria-expanded={mealInsulinExpanded} aria-label={mealInsulinExpanded ? "Réduire la section insuline" : "Développer la section insuline"}>
+            <div className="flex items-center justify-between gap-2">
               <div>
-                <div className="text-xs tracking-[0.18em] text-[#2c4443] font-semibold">INSULINE</div>
-                <div className="text-sm text-[#616f73] mt-1">Bolus associé au repas</div>
+                <div className="text-[11px] tracking-[0.14em] text-white font-semibold">INSULINE</div>
+                <div className="text-xs text-white/90 mt-0.5">Bolus associé au repas</div>
               </div>
-              <div className={`text-[#616f73] text-sm transition-transform duration-200 ${mealInsulinExpanded ? "rotate-180" : ""}`}>▾</div>
+              <div className={`text-white/90 text-xs transition-transform duration-200 ${mealInsulinExpanded ? "rotate-180" : ""}`}>▾</div>
             </div>
           </button>
           {mealInsulinExpanded ? (
-            <div className="rounded-[18px] bg-[#E9F6F3] border border-[#e4ebed] p-3 mt-2">
-              <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="rounded-[14px] bg-[var(--color-mint)] border border-[var(--color-border-mint)] p-2 mt-1.5">
+              <div className="flex items-center justify-between gap-2 mb-2">
                 <div>
-                  <div className="font-semibold text-[#233636]">Bolus associé</div>
-                  <div className="text-sm text-[#616f73] mt-1">Ajouter la dose liée au repas</div>
+                  <div className="text-sm font-semibold text-[var(--color-text)]">Bolus associé</div>
+                  <div className="text-xs text-[var(--color-text-secondary)] mt-0.5">Ajouter la dose liée au repas</div>
                 </div>
                 <button type="button" onClick={() => setMealBolusEnabled(!mealBolusEnabled)} className={`w-12 h-7 rounded-full transition relative ${mealBolusEnabled ? "bg-[#1c8f84]" : "bg-[#c9d2d1]"}`} aria-pressed={mealBolusEnabled} aria-label="Activer ou désactiver le bolus associé">
-                  <span className={`absolute top-1 w-5 h-5 rounded-full bg-[#E9F6F3] transition-all ${mealBolusEnabled ? "left-6" : "left-1"}`} />
+                  <span className={`absolute top-1 w-5 h-5 rounded-full bg-[var(--color-mint)] transition-all ${mealBolusEnabled ? "left-6" : "left-1"}`} />
                 </button>
               </div>
               {mealBolusEnabled ? (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-1.5">
                   <div>
-                    <div className="text-sm text-[#616f73] mb-2">Unités</div>
-                    <input value={mealBolusUnits} onChange={(event) => setMealBolusUnits(event.target.value)} className="w-full rounded-[14px] bg-[#f7fafb] border border-[#dde5e7] px-3 py-2.5 text-[#233636] outline-none" inputMode="decimal" />
+                    <div className="text-xs text-[var(--color-text-secondary)] mb-1">Unités</div>
+                    <input value={mealBolusUnits} onChange={(event) => setMealBolusUnits(event.target.value)} className="w-full rounded-[12px] bg-[var(--color-surface)] border border-[var(--color-border)] px-2.5 py-2 text-sm text-[var(--color-text)] outline-none" inputMode="decimal" />
                   </div>
                   <div>
-                    <div className="text-sm text-[#616f73] mb-2">Timing</div>
-                    <div className="flex flex-col gap-2">
+                    <div className="text-xs text-[var(--color-text-secondary)] mb-1">Timing</div>
+                    <div className="flex flex-col gap-1">
                       {["Avant repas", "Pendant repas", "Après repas"].map((item) => (
-                        <button key={item} type="button" onClick={() => setMealBolusTiming(item)} className={`rounded-[12px] px-3 py-2 text-sm font-semibold text-left ${mealBolusTiming === item ? "bg-[#1c8f84] text-white" : "bg-[#f7fafb] text-[#233636] border border-[#dde5e7]"}`}>
+                        <button key={item} type="button" onClick={() => setMealBolusTiming(item)} className={`rounded-[10px] px-2.5 py-1.5 text-xs font-semibold text-left ${mealBolusTiming === item ? "bg-[#1c8f84] text-white" : "bg-[var(--color-surface)] text-[var(--color-text)] border border-[var(--color-border)]"}`}>
                           {item}
                         </button>
                       ))}
@@ -243,45 +243,26 @@ export function MealModalForm({
           ) : null}
         </div>
         <div>
-          <div className="text-xs tracking-[0.18em] text-[#2c4443] font-semibold mb-2">GLYCÉMIE ASSOCIÉE</div>
-          <div className="rounded-[18px] bg-[#E9F6F3] border border-[#e4ebed] p-3">
-            <div className="flex mb-3">
-              <button type="button" onClick={() => { setMealGlucoseMode("capteur"); setMealGlucoseValue(String(patient.lastReading)); onOpenSensorChoice?.(); }} className="w-full rounded-[14px] px-3 py-2.5 text-sm font-semibold bg-[#1c8f84] text-white">
+          <div className="text-[11px] tracking-[0.14em] text-[#2c4443] font-semibold mb-1">GLYCÉMIE ASSOCIÉE</div>
+          <div className="rounded-[14px] bg-[var(--color-mint)] border border-[var(--color-border-mint)] p-2">
+            <div className="flex mb-2">
+              <button type="button" onClick={() => { setMealGlucoseMode("capteur"); setMealGlucoseValue(String(patient.lastReading)); onOpenSensorChoice?.(); }} className="w-full rounded-[12px] px-2.5 py-2 text-xs font-semibold bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
                 Utiliser capteur
               </button>
             </div>
-            <div className="rounded-[14px] bg-[#f7fafb] border border-[#dde5e7] px-3 py-3">
-              <div className="text-sm text-[#616f73] mb-1">Valeur avant repas</div>
+            <div className="rounded-[12px] bg-[var(--color-surface)] border border-[var(--color-border)] px-2.5 py-2">
+              <div className="text-xs text-[var(--color-text-secondary)] mb-0.5">Valeur avant repas</div>
               <div className="flex items-end gap-2">
-                <input value={mealGlucoseValue} onChange={(event) => setMealGlucoseValue(event.target.value)} className="w-full bg-transparent text-[24px] font-semibold text-[#233636] outline-none" inputMode="numeric" />
-                <div className="text-sm text-[#616f73] pb-1">mg/dL</div>
+                <input value={mealGlucoseValue} onChange={(event) => setMealGlucoseValue(event.target.value)} className="w-full bg-transparent text-lg font-semibold text-[var(--color-text)] outline-none" inputMode="numeric" />
+                <div className="text-xs text-[var(--color-text-secondary)] pb-0.5">mg/dL</div>
               </div>
-              {mealGlucoseMode === "capteur" ? <div className="text-xs text-[#616f73] mt-1.5">Dernière mesure capteur</div> : null}
+              {mealGlucoseMode === "capteur" ? <div className="text-[11px] text-[var(--color-text-secondary)] mt-1">Dernière mesure capteur</div> : null}
             </div>
           </div>
         </div>
-        <div>
-          <button type="button" onClick={() => setMealNotesExpanded(!mealNotesExpanded)} className="w-full rounded-[18px] bg-[#E9F6F3] border border-[#e4ebed] p-3 text-left" aria-expanded={mealNotesExpanded} aria-label={mealNotesExpanded ? "Réduire la section notes" : "Développer la section notes"}>
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="text-xs tracking-[0.18em] text-[#2c4443] font-semibold">NOTES</div>
-                <div className="text-sm text-[#616f73] mt-1">Contexte clinique facultatif</div>
-              </div>
-              <div className={`text-[#616f73] text-sm transition-transform duration-200 ${mealNotesExpanded ? "rotate-180" : ""}`}>▾</div>
-            </div>
-          </button>
-          {mealNotesExpanded ? (
-            <div className="rounded-[18px] bg-[#E9F6F3] border border-[#e4ebed] p-3 mt-2">
-              <button type="button" onClick={() => setMealUnusual(!mealUnusual)} className={`mb-3 rounded-full px-3 py-1.5 text-xs font-semibold ${mealUnusual ? "bg-[#1c8f84] text-white" : "bg-[#f7fafb] text-[#4d6260] border border-[#dde5e7]"}`}>
-                {mealUnusual ? "Repas inhabituel" : "Marquer comme inhabituel"}
-              </button>
-              <textarea value={mealNote} onChange={(event) => setMealNote(event.target.value)} className="w-full min-h-[72px] rounded-[14px] bg-[#f7fafb] border border-[#dde5e7] px-3 py-2.5 text-[#233636] outline-none resize-none" placeholder="Notes cliniques ou contexte du repas" />
-            </div>
-          ) : null}
-        </div>
-        <div className="flex gap-3 pt-1">
-          <button type="button" onClick={onClose} className="flex-1 rounded-[16px] bg-[#E9F6F3] text-[#233636] py-2.5 font-semibold border border-[#dde5e7]">Annuler</button>
-          <button type="button" onClick={onSave} className="flex-1 rounded-[16px] bg-[#1c8f84] text-white py-2.5 font-semibold">Enregistrer</button>
+        <div className="flex gap-2 pt-0.5">
+          <button type="button" onClick={onClose} className="flex-1 rounded-[14px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2 text-sm font-semibold border-transparent shadow-sm">Annuler</button>
+          <button type="button" onClick={onSave} className="flex-1 rounded-[14px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2 text-sm font-semibold shadow-sm">Enregistrer</button>
         </div>
       </div>
     </Modal>

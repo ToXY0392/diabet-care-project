@@ -153,8 +153,8 @@ export function PatientSensorTemplate({ role, patient, clinicianInitials, device
                   <div className="text-sm text-[var(--color-muted)] mt-1">Dernière sync : {connection.lastSync}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-mint)] text-[var(--color-teal)] border border-[var(--color-teal)]/10">Actif</span>
-                  <button type="button" onClick={onOpenProfile} className="w-9 h-9 rounded-full bg-white border border-[var(--color-border-mint)] flex items-center justify-center text-[16px] text-[var(--color-teal)] shadow-sm" title="Paramètres du capteur" aria-label="Ouvrir les paramètres du capteur">
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-transparent shadow-sm">Actif</span>
+                  <button type="button" onClick={onOpenProfile} className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border-transparent flex items-center justify-center text-[16px] text-white shadow-sm" title="Paramètres du capteur" aria-label="Ouvrir les paramètres du capteur">
                     ⚙
                   </button>
                 </div>
@@ -279,7 +279,7 @@ export function PatientMeasuresTemplate({
             </div>
           ))}
         </div>
-        <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+        <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <div className="text-[var(--text-section)] text-[var(--color-muted-strong)]">◉</div>
             <div className="text-[var(--text-title)] font-semibold text-[var(--color-muted-strong)]">Temps dans la cible</div>
@@ -309,7 +309,7 @@ export function PatientMeasuresTemplate({
             ))}
           </div>
         </Card>
-        <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+        <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <div className="text-[var(--text-section)] text-[var(--color-muted-strong)]">◔</div>
             <div>
@@ -336,7 +336,7 @@ export function PatientMeasuresTemplate({
             <div className="mt-2 flex items-center justify-between text-[12px] text-[var(--color-text-secondary)] px-1">{["0h", "4h", "8h", "12h", "16h", "20h", "24h"].map((label) => <span key={label}>{label}</span>)}</div>
           </div>
         </Card>
-        <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+        <Card variant="surfaceMint" className="p-5 hover:shadow-md active:shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <div className="text-[var(--text-section)] text-[var(--color-muted-strong)]">⚖</div>
             <div>
@@ -741,7 +741,7 @@ export function PatientExchangesTemplate({
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <div className="font-semibold text-[var(--color-text)]">{thread.name}</div>
-                        {thread.unread > 0 ? <Badge tone="info">{thread.unread} non lu{thread.unread > 1 ? "s" : ""}</Badge> : null}
+                        {thread.unread > 0 ? <Badge tone="teal">{thread.unread} non lu{thread.unread > 1 ? "s" : ""}</Badge> : null}
                       </div>
                       <div className="text-sm text-[var(--color-text-secondary)] mt-1 truncate">{thread.preview}</div>
                     </div>
@@ -810,7 +810,7 @@ export function PatientExchangesTemplate({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="font-semibold text-[var(--color-text)]">{document.title}</div>
-                      {document.isNew ? <Badge tone="active">Nouveau</Badge> : null}
+                      {document.isNew ? <Badge tone="teal">Nouveau</Badge> : null}
                     </div>
                     <div className="text-sm text-[var(--color-text-secondary)] mt-1">{document.category} · {document.date}</div>
                   </div>
@@ -933,7 +933,7 @@ export function PatientProfileTemplate({
       <SectionTitle title="Compte" subtitle="Informations du patient et préférences de l’application" />
       <div className="mb-3 flex items-center justify-center">
         <div className="relative bg-[#f1f5f6] rounded-full p-1 flex gap-1 border border-[var(--color-border)] w-full overflow-hidden">
-          <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-[var(--color-teal)] transition-all duration-200 ease-in-out ${activeAccountTab === "profil" ? "left-1" : "left-[calc(50%+2px)]"}`} />
+          <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] transition-all duration-200 ease-in-out ${activeAccountTab === "profil" ? "left-1" : "left-[calc(50%+2px)]"}`} />
           <button type="button" onClick={() => setActiveAccountTab("profil")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeAccountTab === "profil" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
             Profil
           </button>
@@ -947,7 +947,7 @@ export function PatientProfileTemplate({
           <div className="animate-[slideFromLeft_0.2s_ease-in-out] space-y-4">
             <Card variant="surface" className="p-4 hover:shadow-md active:shadow-lg">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-white text-xl font-semibold shrink-0">{patient.initials}</div>
+                <div className="w-14 h-14 rounded-full bg-[var(--color-mint)] flex items-center justify-center text-[var(--color-teal-on-mint)] text-xl font-semibold shrink-0">{patient.initials}</div>
                 <div className="min-w-0">
                   <div className="text-xl font-semibold text-white truncate">{patient.name}</div>
                   <div className="text-sm text-white/90 mt-1">{patient.sensor}</div>
@@ -966,7 +966,7 @@ export function PatientProfileTemplate({
                   { title: "Sécurité", desc: "Accès au compte et protection des données", icon: "◎" },
                 ].map((item) => (
                   <button key={item.title} type="button" className="w-full rounded-[20px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border border-transparent text-white p-4 text-left flex items-center gap-3 hover:shadow-md">
-                    <div className="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center text-base shrink-0">{item.icon}</div>
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-mint)] text-[var(--color-teal-on-mint)] flex items-center justify-center text-base shrink-0">{item.icon}</div>
                     <div className="min-w-0 flex-1">
                       <div className="font-semibold text-white truncate">{item.title}</div>
                       <div className="text-sm text-white/90 mt-1 truncate">{item.desc}</div>
