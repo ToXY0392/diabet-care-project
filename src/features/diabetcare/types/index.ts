@@ -44,6 +44,14 @@ export type ConversationThread = {
   messages: ConversationMessage[];
 };
 
+/** Soignant inscrit, recherchable par le patient pour démarrer une discussion */
+export type Caregiver = {
+  id: string;
+  name: string;
+  initials: string;
+  role?: string;
+};
+
 export type DocumentItem = {
   id: string;
   title: string;
@@ -74,6 +82,10 @@ export type PatientProfile = {
   tir: number;
   freshness: string;
   coverage: number;
+  /** Jours restants sur le capteur (optionnel, pour la page Connexions) */
+  sensorDaysRemaining?: number;
+  /** Durée totale du capteur en jours (ex. 10 pour G7) */
+  sensorDaysTotal?: number;
 };
 
 export type ClinicianProfile = {
@@ -93,6 +105,30 @@ export type HistoryRow = {
   value: number;
   status: string;
   note: string;
+};
+
+/** Type d'entrée du carnet diabète (glycémie, repas, insuline, activité, note) */
+export type CarnetEntryKind = "glucose" | "meal" | "bolus" | "basal" | "activity" | "note";
+
+/** Créneau repas pour la grille du carnet */
+export type MealSlot = "petit-dejeuner" | "dejeuner" | "diner" | "en-cas";
+/** Moment par rapport au repas */
+export type MealMoment = "avant" | "apres";
+
+export type CarnetEntry = {
+  id: string;
+  date: string;
+  time: string;
+  kind: CarnetEntryKind;
+  /** Valeur principale (mg/dL, unités, g glucides, etc.) */
+  value?: number;
+  unit?: string;
+  /** Libellé ou détail (ex. "Petit-déjeuner", "Marche 30 min") */
+  label?: string;
+  note?: string;
+  /** Créneau repas (pour affichage grille Avant/Après) */
+  mealSlot?: MealSlot;
+  moment?: MealMoment;
 };
 
 export type NavItem<T extends string> = {

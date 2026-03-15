@@ -1,4 +1,6 @@
 import type {
+  Caregiver,
+  CarnetEntry,
   ClinicalPatient,
   ClinicianProfile,
   ConversationThread,
@@ -20,6 +22,8 @@ export const patient: PatientProfile = {
   tir: 74,
   freshness: "5 min",
   coverage: 93,
+  sensorDaysRemaining: 7,
+  sensorDaysTotal: 10,
 };
 
 export const clinicianProfile: ClinicianProfile = {
@@ -61,12 +65,43 @@ export const historyRows: HistoryRow[] = [
   { time: "11:45", value: 68, status: "Hypo", note: "Événement détecté" },
 ];
 
+/** Entrées du carnet diabète (grille par repas Avant/Après) */
+export const carnetEntries: CarnetEntry[] = [
+  { id: "c1", date: "2026-03-14", time: "08:00", kind: "glucose", value: 102, unit: "mg/dL", mealSlot: "petit-dejeuner", moment: "avant" },
+  { id: "c2", date: "2026-03-14", time: "08:10", kind: "bolus", value: 5, unit: "u", mealSlot: "petit-dejeuner", moment: "avant" },
+  { id: "c3", date: "2026-03-14", time: "08:15", kind: "meal", value: 45, unit: "g", mealSlot: "petit-dejeuner", moment: "apres" },
+  { id: "c4", date: "2026-03-14", time: "11:45", kind: "glucose", value: 68, unit: "mg/dL", mealSlot: "en-cas", moment: "avant" },
+  { id: "c5", date: "2026-03-14", time: "11:55", kind: "meal", value: 25, unit: "g", mealSlot: "en-cas", moment: "apres" },
+  { id: "c6", date: "2026-03-14", time: "12:05", kind: "glucose", value: 111, unit: "mg/dL", mealSlot: "dejeuner", moment: "apres" },
+  { id: "c7", date: "2026-03-14", time: "11:30", kind: "bolus", value: 4, unit: "u", mealSlot: "dejeuner", moment: "avant" },
+  { id: "c8", date: "2026-03-14", time: "12:10", kind: "glucose", value: 118, unit: "mg/dL", mealSlot: "dejeuner", moment: "apres" },
+  { id: "c9", date: "2026-03-13", time: "07:45", kind: "glucose", value: 245, unit: "mg/dL", mealSlot: "petit-dejeuner", moment: "avant" },
+  { id: "c10", date: "2026-03-13", time: "07:50", kind: "bolus", value: 3.5, unit: "u", mealSlot: "petit-dejeuner", moment: "avant" },
+  { id: "c11", date: "2026-03-13", time: "08:00", kind: "meal", value: 0, unit: "g", mealSlot: "petit-dejeuner", moment: "apres" },
+  { id: "c12", date: "2026-03-13", time: "12:30", kind: "glucose", value: 318, unit: "mg/dL", mealSlot: "dejeuner", moment: "apres" },
+  { id: "c13", date: "2026-03-13", time: "12:15", kind: "bolus", value: 1.15, unit: "u", mealSlot: "dejeuner", moment: "avant" },
+  { id: "c14", date: "2026-03-13", time: "12:20", kind: "meal", value: 23, unit: "g", mealSlot: "dejeuner", moment: "apres" },
+  { id: "c15", date: "2026-03-13", time: "16:00", kind: "glucose", value: 322, unit: "mg/dL", mealSlot: "en-cas", moment: "avant" },
+  { id: "c16", date: "2026-03-13", time: "16:10", kind: "bolus", value: 4.3, unit: "u", mealSlot: "en-cas", moment: "avant" },
+  { id: "c17", date: "2026-03-13", time: "16:15", kind: "meal", value: 0, unit: "g", mealSlot: "en-cas", moment: "apres" },
+];
+
 export const documents: DocumentItem[] = [
   { id: "ordonnance-mars", title: "Ordonnance mars", category: "Prescription", date: "11 mars 2026", source: "soignant", isNew: true, content: "Insuline rapide avant repas. Maintien du schéma basal actuel. Surveillance CGM continue recommandée avec revue des épisodes bas de fin de matinée." },
   { id: "compte-rendu", title: "Compte-rendu consultation", category: "Clinique", date: "09 mars 2026", source: "soignant", content: "Temps dans la cible satisfaisant. Quelques épisodes bas en fin de matinée. Réévaluation prévue après une semaine de surveillance continue." },
   { id: "consentement", title: "Consentement télésurveillance", category: "Administratif", date: "01 mars 2026", source: "soignant", content: "Consentement actif pour le partage des données de surveillance continue du glucose et l'échange de documents cliniques avec l'équipe soignante." },
   { id: "bilan-mars-patient", title: "Bilan glycémique mars.pdf", category: "PDF", date: "10 mars 2026", source: "patient", status: "Consulté", content: "Document patient transmis à l'équipe soignante avec récapitulatif des mesures, événements et remarques cliniques." },
   { id: "ordonnance-photo-patient", title: "Ordonnance photo.jpg", category: "Image", date: "07 mars 2026", source: "patient", status: "Envoyé", content: "Capture photo d'ordonnance déposée par le patient et transmise au soignant." },
+];
+
+/** Soignants inscrits, recherchables par le patient pour créer une discussion */
+export const availableCaregivers: Caregiver[] = [
+  { id: "dr-martin", name: "Dr Martin", initials: "DM", role: "Médecin diabétologue" },
+  { id: "dr-lambert", name: "Dr Lambert", initials: "DL", role: "Médecin traitant" },
+  { id: "service-suivi", name: "Service suivi", initials: "SS", role: "Équipe DiabetCare" },
+  { id: "dr-dupont", name: "Dr Dupont", initials: "DD", role: "Endocrinologue" },
+  { id: "inf-sophie", name: "Inf. Sophie Martin", initials: "SM", role: "Infirmière coordinatrice" },
+  { id: "dr-leroy", name: "Dr Leroy", initials: "DL", role: "Médecin" },
 ];
 
 export const patientThreads: ConversationThread[] = [

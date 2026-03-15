@@ -113,6 +113,13 @@ textarea:focus-visible,
   box-shadow: 0 0 0 4px rgba(28, 143, 132, 0.22);
 }
 
+/* Champ recherche soignant : une seule bordure au focus (évite double contour avec la règle ci‑dessus) */
+#caregiver-search:focus,
+#caregiver-search:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 /* Variantes de cartes (socle design system) – fond teal garanti, typo lisible (évite blanc sur blanc) */
 .app-card-default {
   background: linear-gradient(135deg, var(--color-teal-deep) 0%, var(--color-teal-end) 100%) !important;

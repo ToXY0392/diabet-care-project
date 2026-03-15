@@ -16,12 +16,14 @@ import {
   PatientSensorTemplate,
 } from "../components/templates/patient/PatientTemplates";
 import {
+  availableCaregivers,
   clinicianPatients,
   clinicianProfile,
   clinicianThreads,
   deviceConnections,
   documents,
   glucoseSeriesByPeriod,
+  carnetEntries,
   historyRows,
   patient,
   patientThreads,
@@ -29,11 +31,12 @@ import {
 } from "../features/diabetcare/data/mockData";
 import { useClinicalMockupState } from "../features/diabetcare/hooks/useClinicalMockupState";
 import { useMeasureChart } from "../features/diabetcare/hooks/useMeasureChart";
-import type { ClinicianTab, NavItem, PatientTab } from "../features/diabetcare/types";
+import type { Caregiver, ClinicianTab, ConversationThread, NavItem, PatientTab } from "../features/diabetcare/types";
 
 export default function DiabetCareClinicalMockupPage() {
   const state = useClinicalMockupState();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [patientThreadsState, setPatientThreadsState] = useState<ConversationThread[]>(patientThreads);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -46,10 +49,31 @@ export default function DiabetCareClinicalMockupPage() {
   const visibleHistoryRows = state.historyExpanded ? historyRows : historyRows.slice(0, 1);
   const providerDocuments = documents.filter((item) => item.source === "soignant");
   const patientDocuments = documents.filter((item) => item.source === "patient");
-  const threads = state.role === "patient" ? patientThreads : clinicianThreads;
+  const threads = state.role === "patient" ? patientThreadsState : clinicianThreads;
   const sortedThreads = [...threads].sort((a, b) => (b.unread !== a.unread ? b.unread - a.unread : a.name.localeCompare(b.name)));
   const visibleThreads = state.messagesCardExpanded ? sortedThreads : sortedThreads.slice(0, 3);
   const selectedThread = threads.find((item) => item.id === state.selectedThreadId) ?? threads[0];
+
+  const startNewConversation = (caregiver: Caregiver) => {
+    const existing = patientThreadsState.find((t) => t.id === caregiver.id);
+    if (existing) {
+      state.setSelectedThreadId(caregiver.id);
+      state.setMessageViewMode("thread");
+      return;
+    }
+    const newThread: ConversationThread = {
+      id: caregiver.id,
+      name: caregiver.name,
+      initials: caregiver.initials,
+      preview: "Nouvelle conversation",
+      time: "Maintenant",
+      unread: 0,
+      messages: [],
+    };
+    setPatientThreadsState((prev) => [...prev, newThread]);
+    state.setSelectedThreadId(caregiver.id);
+    state.setMessageViewMode("thread");
+  };
   const selectedDocument = documents.find((item) => item.id === state.selectedDocumentId) ?? documents[0];
   const selectedClinicalPatient = clinicianPatients.find((item) => item.id === state.selectedClinicalPatientId) ?? clinicianPatients[0];
 
@@ -76,7 +100,7 @@ export default function DiabetCareClinicalMockupPage() {
     state.setActiveTab(nextRole === "patient" ? "accueil" : "cockpit");
     state.setActiveExchangeTab("messages");
     state.setActiveAccountTab("profil");
-    state.setSelectedThreadId(nextRole === "patient" ? patientThreads[0].id : clinicianThreads[0].id);
+    state.setSelectedThreadId(nextRole === "patient" ? patientThreadsState[0]?.id ?? "dr-martin" : clinicianThreads[0].id);
     state.setMessageViewMode("list");
     state.setDocumentViewMode("list");
   };
@@ -151,6 +175,7 @@ export default function DiabetCareClinicalMockupPage() {
               visibleHistoryRows={visibleHistoryRows}
               historyExpanded={state.historyExpanded}
               setHistoryExpanded={state.setHistoryExpanded}
+              carnetEntries={carnetEntries}
               onOpenMealModal={() => state.setShowMealModal(true)}
               onProfileClick={openProfile}
             />
@@ -178,6 +203,8 @@ export default function DiabetCareClinicalMockupPage() {
               documentViewMode={state.documentViewMode}
               setDocumentViewMode={state.setDocumentViewMode}
               setSelectedDocumentId={state.setSelectedDocumentId}
+              availableCaregivers={availableCaregivers}
+              onStartNewConversation={startNewConversation}
               onProfileClick={openProfile}
             />
           );
@@ -248,6 +275,7 @@ export default function DiabetCareClinicalMockupPage() {
             visibleHistoryRows={visibleHistoryRows}
             historyExpanded={state.historyExpanded}
             setHistoryExpanded={state.setHistoryExpanded}
+            carnetEntries={carnetEntries}
             onOpenMealModal={() => state.setShowMealModal(true)}
             onProfileClick={() => state.setActiveTab("patients")}
           />

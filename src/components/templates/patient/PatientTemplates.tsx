@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useId, useRef, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import Badge from "../../atoms/Badge";
@@ -10,6 +10,8 @@ import HeaderPill from "../../organisms/app-shell/HeaderPill";
 import type { MeasureChartPoint } from "../../../features/diabetcare/hooks/useMeasureChart";
 import type {
   AccountTab,
+  Caregiver,
+  CarnetEntry,
   ClinicalPatient,
   ConversationThread,
   DeviceConnection,
@@ -17,6 +19,7 @@ import type {
   FollowUpView,
   HistoryRow,
   MeasurePeriod,
+  MealSlot,
   NoteItem,
   PatientProfile,
   Role,
@@ -55,16 +58,20 @@ export function PatientDashboardTemplate({
   return (
     <section className="pb-20" aria-label="Tableau de bord patient">
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-      <SectionTitle title="Tableau de bord" subtitle="Vue complète du suivi CGM et des actions rapides" />
-      <Card variant="hero" className="p-4 hover:shadow-md active:shadow-lg">
-        <div className="text-[var(--text-label)] tracking-[var(--tracking-label)] opacity-80">CAPTEUR PRINCIPAL</div>
-        <div className="text-[var(--text-title)] font-semibold mt-1">{patient.sensor}</div>
-        <div className="flex items-end gap-2 mt-4">
-          <div className="text-critical-number text-[var(--text-hero)] font-bold leading-none">{patient.lastReading}</div>
-          <div className="text-lg pb-1">mg/dL</div>
+      <SectionTitle title="Tableau de bord" />
+      <div className="flex flex-col items-center text-center py-2" aria-label="Glycémie actuelle">
+        <div className="text-[var(--text-section)] font-semibold text-[var(--color-text)] leading-tight">{patient.sensor}</div>
+        <div className="relative mt-3">
+          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] flex flex-col items-center justify-center shadow-md text-white">
+              <div className="text-critical-number text-4xl font-bold leading-none">{patient.lastReading}</div>
+              <div className="text-[var(--text-sm)] text-white/90 mt-1">mg/dL</div>
+            </div>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1">
+              <div className="w-0 h-0 border-y-[8px] border-y-transparent border-l-[10px] border-l-white drop-shadow-sm" aria-hidden />
+          </div>
         </div>
-        <div className="mt-2 text-[var(--text-sm)] opacity-90">Stable · synchronisé {patient.syncAgo}</div>
-      </Card>
+        <div className="mt-3 text-[var(--text-section)] font-semibold text-[var(--color-text)] leading-tight">Stable · synchronisé {patient.syncAgo}</div>
+      </div>
       <div className="flex justify-center mt-3 mb-3">
         <button type="button" onClick={onOpenMealModal} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-7 py-2.5 font-semibold shadow-sm hover:shadow-md">
           Ajouter repas
@@ -127,42 +134,134 @@ type SensorProps = HeaderProps & {
 };
 
 export function PatientSensorTemplate({ role, patient, clinicianInitials, deviceConnections, onOpenProfile, onProfileClick }: SensorProps) {
-  const activeConnections = deviceConnections.filter((connection) => connection.status === "Actif");
+  const mainConnection = deviceConnections.find((c) => c.status === "Actif");
+  const daysRemaining = patient.sensorDaysRemaining ?? 7;
+  const daysTotal = patient.sensorDaysTotal ?? 10;
+  const filledSegments = Math.min(Math.max(0, daysRemaining), daysTotal);
+
+  const connectionCards: Array<{ id: string; icon: string; title: string; subtitle: string; onClick?: () => void }> = [
+    {
+      id: "capteur",
+      icon: "sensor",
+      title: patient.sensor,
+      subtitle: mainConnection ? `${daysRemaining} jours restants · Sync ${mainConnection.lastSync}` : `${daysRemaining} jours restants`,
+      onClick: onOpenProfile,
+    },
+    {
+      id: "parametres",
+      icon: "settings",
+      title: "Paramètres du capteur",
+      subtitle: "Configurer le capteur et les alertes.",
+      onClick: onOpenProfile,
+    },
+  ];
+
+  const availableCards: Array<{ id: string; icon: string; title: string; subtitle: string }> = [
+    {
+      id: "share",
+      icon: "share",
+      title: "Share",
+      subtitle: "Permet aux amis et à la famille de consulter les mesures du capteur.",
+    },
+    {
+      id: "health-connect",
+      icon: "link",
+      title: "Health Connect",
+      subtitle: "Mis à jour : 14 mars 2026",
+    },
+  ];
+
+  const ConnectionIcon = ({ type }: { type: string }) => {
+    const iconWrap = "w-11 h-11 rounded-full bg-white/30 flex items-center justify-center shrink-0";
+    if (type === "sensor") {
+      return (
+        <div className={iconWrap} aria-hidden>
+          <div className="w-5 h-5 rounded-full bg-white" />
+        </div>
+      );
+    }
+    if (type === "chart") {
+      return (
+        <div className={iconWrap} aria-hidden>
+          <div className="flex gap-0.5 items-end h-4">
+            {[4, 6, 3].map((h, i) => <div key={i} className="w-1.5 bg-white rounded-t" style={{ height: `${h * 4}px` }} />)}
+          </div>
+        </div>
+      );
+    }
+    if (type === "settings") {
+      return (
+        <div className={iconWrap} aria-hidden>
+          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+        </div>
+      );
+    }
+    if (type === "link") {
+      return (
+        <div className={iconWrap} aria-hidden>
+          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
+        </div>
+      );
+    }
+    if (type === "share") {
+      return (
+        <div className={iconWrap} aria-hidden>
+          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" /></svg>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <section aria-label="Capteur du patient">
+    <section className="pb-24" aria-label="Connexions">
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-      <SectionTitle title="Capteur" subtitle="Connexion active et état de synchronisation" />
-      <Card variant="hero" className="p-6 hover:shadow-md active:shadow-lg">
-        <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] opacity-80">CAPTEUR PRINCIPAL</div>
-        <div className="text-3xl font-semibold mt-1">{patient.sensor}</div>
-        <div className="flex items-end gap-3 mt-5">
-          <div className="text-critical-number text-6xl font-bold leading-none">{patient.lastReading}</div>
-          <div className="text-2xl">mg/dL</div>
-        </div>
-        <div className="mt-3 text-[var(--text-sm)] opacity-90">Stable · synchronisé {patient.syncAgo}</div>
-      </Card>
-      <Card variant="default" className="p-5 mt-5 hover:shadow-md active:shadow-lg">
-        <div className="text-xs tracking-[0.2em] text-white font-semibold">CONNEXIONS</div>
-        <div className="space-y-3 mt-4">
-          {activeConnections.map((connection) => (
-            <div key={`${connection.vendor}-${connection.product}`} className="rounded-[22px] bg-[#F7FCFB] border border-[var(--color-border-mint)] p-4 shadow-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="font-semibold text-[var(--color-teal)]">{connection.vendor} {connection.product}</div>
-                  <div className="text-sm text-[var(--color-muted)] mt-1">Dernière sync : {connection.lastSync}</div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-transparent shadow-sm">Actif</span>
-                  <button type="button" onClick={onOpenProfile} className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border-transparent flex items-center justify-center text-[16px] text-white shadow-sm" title="Paramètres du capteur" aria-label="Ouvrir les paramètres du capteur">
-                    ⚙
-                  </button>
-                </div>
+      <div className="mb-5">
+        <h2 className="text-[var(--text-xs)] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-3">Capteur connecté</h2>
+        <div className="space-y-2">
+          {connectionCards.map((card) => (
+            <button
+              key={card.id}
+              type="button"
+              onClick={card.onClick}
+              className="w-full rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border-0 p-4 flex items-center gap-4 text-left text-white shadow-sm hover:shadow-md active:shadow-md transition-shadow"
+            >
+              <ConnectionIcon type={card.icon} />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white">{card.title}</div>
+                <div className="text-[var(--text-sm)] text-white/90 mt-0.5">{card.subtitle}</div>
+                {card.id === "capteur" && (
+                  <div className="mt-2 flex gap-0.5">
+                    {Array.from({ length: daysTotal }).map((_, i) => (
+                      <div key={i} className={`h-1.5 flex-1 rounded-sm ${i < filledSegments ? "bg-white" : "bg-white/30"}`} aria-hidden />
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
+              <svg className="w-5 h-5 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><path d="M9 18l6-6-6-6" /></svg>
+            </button>
           ))}
         </div>
-      </Card>
+      </div>
+      <div>
+        <h2 className="text-[var(--text-xs)] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-3">Connexions disponibles</h2>
+        <div className="space-y-2">
+          {availableCards.map((card) => (
+            <button
+              key={card.id}
+              type="button"
+              className="w-full rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border-0 p-4 flex items-center gap-4 text-left text-white shadow-sm hover:shadow-md active:shadow-md transition-shadow"
+            >
+              <ConnectionIcon type={card.icon} />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white">{card.title}</div>
+                <div className="text-[var(--text-sm)] text-white/90 mt-0.5">{card.subtitle}</div>
+              </div>
+              <svg className="w-5 h-5 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><path d="M9 18l6-6-6-6" /></svg>
+            </button>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -186,6 +285,7 @@ type MeasuresProps = HeaderProps & {
   visibleHistoryRows: HistoryRow[];
   historyExpanded: boolean;
   setHistoryExpanded: (value: boolean) => void;
+  carnetEntries: CarnetEntry[];
   onOpenMealModal: () => void;
 };
 
@@ -203,9 +303,135 @@ export function PatientMeasuresTemplate({
   visibleHistoryRows,
   historyExpanded,
   setHistoryExpanded,
+  carnetEntries,
   onOpenMealModal,
   onProfileClick,
 }: MeasuresProps) {
+  const measureGradientId = useId();
+
+  if (activeFollowUpView === "carnet") {
+    const MEAL_SLOTS: MealSlot[] = ["petit-dejeuner", "dejeuner", "diner", "en-cas"];
+    const mealLabels: Record<MealSlot, string> = {
+      "petit-dejeuner": "Petit-déjeuner",
+      "dejeuner": "Déjeuner",
+      "diner": "Dîner",
+      "en-cas": "En-cas",
+    };
+    const rowTypes = [
+      { key: "glucose" as const, label: "Glycémie", unit: "mg/dL" },
+      { key: "bolus" as const, label: "Insuline rapide", unit: "u" },
+      { key: "meal" as const, label: "Glucides", unit: "g" },
+    ];
+    const getCellEntry = (date: string, slot: MealSlot, moment: "avant" | "apres", kind: "glucose" | "bolus" | "meal") =>
+      carnetEntries.find((e) => e.date === date && e.mealSlot === slot && e.moment === moment && e.kind === kind);
+    const glucoseCellBg = (v: number) =>
+      v > 250 ? "bg-[var(--color-danger)]/15 text-[var(--color-danger)]" : v > 180 ? "bg-[var(--color-warning)]/15 text-[var(--color-warning)]" : v < 70 ? "bg-[var(--color-danger)]/12 text-[var(--color-danger)]" : "bg-[var(--color-success)]/12 text-[var(--color-teal)]";
+    const entriesByDate = carnetEntries.reduce<Record<string, CarnetEntry[]>>((acc, e) => {
+      if (!e.mealSlot || !e.moment) return acc;
+      if (!acc[e.date]) acc[e.date] = [];
+      acc[e.date].push(e);
+      return acc;
+    }, {});
+    const sortedDates = Object.keys(entriesByDate).sort((a, b) => b.localeCompare(a));
+    const formatDateHeader = (iso: string) => {
+      const [y, m, d] = iso.split("-").map(Number);
+      const dObj = new Date(y, m - 1, d);
+      return dObj.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    };
+
+    return (
+      <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Carnet diabète">
+        <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
+        <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
+          {[["jour", "Jour"], ["tendances", "Tendances"], ["carnet", "Carnet"]].map(([key, label]) => (
+            <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-inactive)]"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <SectionTitle title="Carnet diabète" />
+        <div className="space-y-5">
+          {sortedDates.map((dateKey) => (
+            <Card key={dateKey} variant="surfaceMint" className="p-0 overflow-hidden">
+              <div className="bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-4 py-3 text-[var(--text-sm)] font-semibold capitalize">
+                {formatDateHeader(dateKey)}
+              </div>
+              <div className="p-3 space-y-4 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)]">
+                {MEAL_SLOTS.map((slot) => (
+                  <div key={slot} className="rounded-[var(--radius-md)] border border-[var(--color-border-subtle)] bg-[var(--color-surface)] overflow-hidden">
+                    <div className="bg-[var(--color-mint)] px-3 py-1.5 text-[var(--text-xs)] font-semibold text-[var(--color-text)]">
+                      {mealLabels[slot]}
+                    </div>
+                    <table className="w-full border-collapse text-[var(--text-sm)]">
+                      <thead>
+                        <tr className="text-[10px] font-medium uppercase tracking-wide text-[var(--color-text-secondary)]">
+                          <th className="w-[5rem] p-2 text-left" scope="col"><span className="sr-only">Type</span></th>
+                          <th className="w-1/2 p-2 text-center border-l border-[var(--color-border-subtle)]" scope="col">Avant</th>
+                          <th className="w-1/2 p-2 text-center border-l border-[var(--color-border-subtle)]" scope="col">Après</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rowTypes.map((row) => (
+                          <tr key={row.key} className="border-t border-[var(--color-border-subtle)]">
+                            <td className="p-1.5 align-middle text-[var(--text-xs)] font-medium text-[var(--color-text-secondary)]">
+                              {row.label}
+                            </td>
+                            {(["avant", "apres"] as const).map((mom) => {
+                              const entry = getCellEntry(dateKey, slot, mom, row.key);
+                              if (row.key === "glucose" && entry?.value != null) {
+                                const bg = glucoseCellBg(entry.value);
+                                return (
+                                  <td key={mom} className="p-1.5 align-middle w-1/2">
+                                    <div className={`rounded-md px-2 py-1.5 text-center text-xs font-semibold tabular-nums ${bg}`}>
+                                      {entry.value} {entry.unit}
+                                    </div>
+                                  </td>
+                                );
+                              }
+                              if (row.key === "bolus" && entry?.value != null) {
+                                return (
+                                  <td key={mom} className="p-1.5 align-middle w-1/2">
+                                    <div className="rounded-md bg-[var(--color-warning)]/12 px-2 py-1.5 text-center text-xs font-semibold tabular-nums text-[var(--color-text)]">
+                                      {entry.value} u
+                                    </div>
+                                  </td>
+                                );
+                              }
+                              if (row.key === "meal" && entry?.value != null) {
+                                return (
+                                  <td key={mom} className="p-1.5 align-middle w-1/2">
+                                    <div className="rounded-md bg-[var(--color-danger)]/10 px-2 py-1.5 text-center text-xs font-semibold tabular-nums text-[var(--color-text)]">
+                                      {entry.value} g
+                                    </div>
+                                  </td>
+                                );
+                              }
+                              return (
+                                <td key={mom} className="p-1.5 align-middle w-1/2">
+                                  <div className="rounded-md border border-dashed border-[var(--color-border-subtle)] bg-[var(--color-bg)]/50 py-1.5 min-h-[1.75rem]" aria-label="Vide" />
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+        <div className="mt-6 flex justify-center">
+          <button type="button" onClick={onOpenMealModal} className="rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-6 py-3.5 font-semibold shadow-md flex items-center gap-2">
+            <Plus className="w-5 h-5" aria-hidden />
+            Ajouter des données
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   if (activeFollowUpView === "tendances") {
     const periodTabs: Array<{ key: MeasurePeriod; label: string }> = [
       { key: "7j", label: "7 jours" },
@@ -214,10 +440,10 @@ export function PatientMeasuresTemplate({
       { key: "90j", label: "90 jours" },
     ];
     const trendStats = [
-      { label: "Glycémie moyenne", value: "232", unit: "mg/dL", cardClass: "bg-[var(--color-teal)] text-white" },
-      { label: "Bolus total", value: "6,37", unit: "u", cardClass: "bg-[var(--color-teal)] text-white" },
-      { label: "Basal total", value: "23,76", unit: "u", cardClass: "bg-[var(--color-teal)] text-white" },
-      { label: "Glucides", value: "3", unit: "g", cardClass: "bg-[var(--color-teal)] text-white" },
+      { label: "Glycémie moyenne", value: "232", unit: "mg/dL", cardClass: "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" },
+      { label: "Bolus total", value: "6,37", unit: "u", cardClass: "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" },
+      { label: "Basal total", value: "23,76", unit: "u", cardClass: "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" },
+      { label: "Glucides", value: "3", unit: "g", cardClass: "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" },
     ];
     const tirLegend = [
       { value: "1%", label: "<54", color: "#364ea1" },
@@ -253,7 +479,7 @@ export function PatientMeasuresTemplate({
             ["tendances", "Tendances"],
             ["carnet", "Carnet"],
           ].map(([key, label]) => (
-            <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-[var(--color-teal)] text-white" : "text-[var(--color-inactive)]"}`}>
+            <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-inactive)]"}`}>
               {label}
             </button>
           ))}
@@ -262,7 +488,7 @@ export function PatientMeasuresTemplate({
           {periodTabs.map((tab) => {
             const isActive = activeMeasurePeriod === tab.key;
             return (
-              <button key={tab.key} type="button" onClick={() => setActiveMeasurePeriod(tab.key)} className={`min-w-[60px] px-2.5 py-1.5 rounded-[14px] text-[12px] font-semibold transition ${isActive ? "bg-[var(--color-teal)] text-white shadow-sm" : "text-[var(--color-text)]"}`}>
+              <button key={tab.key} type="button" onClick={() => setActiveMeasurePeriod(tab.key)} className={`min-w-[60px] px-2.5 py-1.5 rounded-[14px] text-[12px] font-semibold transition ${isActive ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-text)]"}`}>
                 {tab.label}
               </button>
             );
@@ -309,39 +535,56 @@ export function PatientMeasuresTemplate({
             ))}
           </div>
         </Card>
-        <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+        <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="text-[var(--text-section)] text-[var(--color-muted-strong)]">◔</div>
+            <div className="text-[var(--text-section)] text-white/95">◔</div>
             <div>
-              <div className="text-[var(--text-title)] font-semibold text-[var(--color-muted-strong)]">Tendance glycémique</div>
-              <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-1">mg/dL</div>
+              <div className="text-[var(--text-title)] font-semibold text-white">Tendance glycémique</div>
+              <div className="text-[var(--text-sm)] text-white/90 mt-1">mg/dL</div>
             </div>
           </div>
           <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 border border-[var(--color-border-subtle)]">
-            <div className="relative">
-              {[26, 92, 184, 250].map((x) => <div key={x} className="absolute top-0 h-full w-[28px] bg-[#dfe5e8]/70 rounded-md" style={{ left: `${x}px` }} />)}
-              <svg viewBox="0 0 310 240" className="w-full h-[260px] relative z-10">
-                <title>Tendance glycémique</title>
-                {[24, 60, 96, 132, 168, 204].map((y) => <line key={y} x1="0" y1={y} x2="310" y2={y} stroke="#d7e3e1" strokeWidth="1" />)}
-                <defs>
-                  <linearGradient id="trendAreaFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7ccfbe" stopOpacity="0.35" />
-                    <stop offset="100%" stopColor="#7ccfbe" stopOpacity="0.08" />
-                  </linearGradient>
-                </defs>
-                <path d={trendChart.areaPath} fill="url(#trendAreaFill)" />
-                <path d={trendChart.path} fill="none" stroke="#1c8f84" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <div className="mt-2 flex items-center justify-between text-[12px] text-[var(--color-text-secondary)] px-1">{["0h", "4h", "8h", "12h", "16h", "20h", "24h"].map((label) => <span key={label}>{label}</span>)}</div>
+            <div className="relative w-full">
+              {/* Barres en % du viewBox 310 pour scaling sans scroll */}
+              {[(26 / 310) * 100, (92 / 310) * 100, (184 / 310) * 100, (250 / 310) * 100].map((pct) => (
+                <div key={pct} className="absolute top-0 h-full bg-[#dfe5e8]/70 rounded-md" style={{ left: `${pct}%`, width: `${(28 / 310) * 100}%` }} />
+              ))}
+              <svg viewBox="0 0 310 240" className="block w-full h-[260px] relative z-10" preserveAspectRatio="xMidYMid meet">
+                  <title>Tendance glycémique</title>
+                  {[24, 60, 96, 132, 168, 204].map((y) => <line key={y} x1="0" y1={y} x2="310" y2={y} stroke="#d7e3e1" strokeWidth="1" />)}
+                  <defs>
+                    <linearGradient id="trendAreaFill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#7ccfbe" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#7ccfbe" stopOpacity="0.08" />
+                    </linearGradient>
+                  </defs>
+                  <path d={trendChart.areaPath} fill="url(#trendAreaFill)" />
+                  <path d={trendChart.path} fill="none" stroke="#1c8f84" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="mt-2 flex items-center justify-between text-[12px] text-[var(--color-text-secondary)] px-1">{["0h", "4h", "8h", "12h", "16h", "20h", "24h"].map((label) => <span key={label}>{label}</span>)}</div>
+              <div className="mt-3 pt-3 border-t border-[var(--color-border-subtle)] flex flex-wrap items-center justify-center gap-4 text-[12px] text-[var(--color-text-secondary)]">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-success)]" aria-hidden />
+                  70–180 cible
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[var(--color-danger)]" aria-hidden />
+                  Hypo
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 shrink-0 bg-[var(--color-warning)]" style={{ transform: "rotate(45deg)" }} aria-hidden />
+                  Hyper
+                </span>
+              </div>
           </div>
         </Card>
-        <Card variant="surfaceMint" className="p-5 hover:shadow-md active:shadow-lg">
+        <Card variant="surfaceMint" className="p-5 hover:shadow-md active:shadow-lg !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="text-[var(--text-section)] text-[var(--color-muted-strong)]">⚖</div>
+            <div className="text-[var(--text-section)] text-white/95">⚖</div>
             <div>
-              <div className="text-[var(--text-title)] font-semibold text-[var(--color-muted-strong)]">Tendance de poids</div>
-              <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-1">kg</div>
+              <div className="text-[var(--text-title)] font-semibold text-white">Tendance de poids</div>
+              <div className="text-[var(--text-sm)] text-white/90 mt-1">kg</div>
             </div>
           </div>
           <div className="rounded-[var(--radius-lg)] bg-[var(--color-surface)] p-4 border border-[var(--color-border-subtle)] relative overflow-hidden min-h-[220px]">
@@ -366,15 +609,15 @@ export function PatientMeasuresTemplate({
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
         {[["jour", "Jour"], ["tendances", "Tendances"], ["carnet", "Carnet"]].map(([key, label]) => (
-          <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-[var(--color-teal)] text-white" : "text-[var(--color-inactive)]"}`}>
+          <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-inactive)]"}`}>
             {label}
           </button>
         ))}
       </div>
-      <SectionTitle title={role === "patient" ? "Suivi" : `Suivi · ${selectedClinicalPatient.name}`} subtitle={role === "patient" ? "Vue clinique journalière et indicateurs clés" : "Revue clinique structurée du patient sélectionné"} />
+      <SectionTitle title={role === "patient" ? "Suivi" : `Suivi · ${selectedClinicalPatient.name}`} />
       <div className="grid grid-cols-2 gap-3 mb-4">
         {[{ label: "Glycémie moyenne", value: `${chart.stats.avg}`, unit: "mg/dL" }, { label: "Bolus total", value: "0", unit: "u" }, { label: "Basal total", value: "6,5", unit: "u" }, { label: "Glucides", value: "0", unit: "g" }].map((item) => (
-          <div key={item.label} className="rounded-[22px] p-4 text-white shadow-sm bg-[var(--color-teal)]">
+          <div key={item.label} className="rounded-[22px] p-4 text-white shadow-sm bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)]">
             <div className="text-critical-number text-3xl font-bold leading-none">{item.value}<span className="text-xl font-semibold ml-1">{item.unit}</span></div>
             <div className="mt-4 text-base leading-6 opacity-95">{item.label}</div>
           </div>
@@ -416,39 +659,54 @@ export function PatientMeasuresTemplate({
             <Plus className="w-4 h-4" />
           </button>
         </div>
-        <div className="rounded-[24px] bg-[var(--color-surface)] p-4 border border-[var(--color-border-subtle)]">
-          <div className="relative">
-            <div className="absolute inset-x-0 top-[8%] h-[18%] bg-[#fff1e3]/60 rounded-md" />
-            <div className="absolute inset-x-0 top-[32%] h-[42%] bg-[#dff3ef] rounded-md" />
-            <div className="absolute inset-x-0 bottom-[10%] h-[18%] bg-[#fde8e8]/60 rounded-md" />
-            <svg viewBox="0 0 310 190" className="w-full h-[240px] relative z-10">
-              <title>Courbe des glycémies</title>
-              {[20, 55, 90, 125, 160].map((y) => <line key={y} x1="0" y1={y} x2="310" y2={y} stroke="#d7e3e1" strokeWidth="1" />)}
-              <defs>
-                <linearGradient id="measureAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#67b96a" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#67b96a" stopOpacity="0.03" />
-                </linearGradient>
-              </defs>
-              <path d={chart.areaPath} fill="url(#measureAreaGradient)" opacity="0.75" />
-              <path d={chart.path} fill="none" stroke="#58c56d" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-              {chart.points.map((point) => {
-                const fill = point.shape === "hyper" ? "#e7b40d" : point.shape === "hypo" ? "#e04b42" : "#58c56d";
-                const size = point.shape !== "in_range" ? 4.5 : 3;
-                const title = point.shape === "hyper" ? "Au-dessus de la cible" : point.shape === "hypo" ? "Sous la cible" : "Dans la cible";
-                if (point.shape === "hyper") {
-                  const s = size;
-                  return <polygon key={point.index} points={`${point.x},${point.y - s} ${point.x - s},${point.y + s} ${point.x + s},${point.y + s}`} fill={fill} aria-label={`${point.value} mg/dL, ${title}`} />;
-                }
-                if (point.shape === "hypo") {
-                  const s = size;
-                  return <rect key={point.index} x={point.x - s} y={point.y - s} width={s * 2} height={s * 2} fill={fill} aria-label={`${point.value} mg/dL, ${title}`} />;
-                }
-                return <circle key={point.index} cx={point.x} cy={point.y} r={size} fill={fill} aria-label={`${point.value} mg/dL, ${title}`} />;
-              })}
-            </svg>
+        <div className="rounded-2xl bg-white p-4 border border-[var(--color-border)] shadow-sm">
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-muted)]">mg/dL</span>
+            <span className="text-xs text-[var(--color-text-secondary)]">70–180 cible</span>
           </div>
-          <div className="mt-2 flex items-center justify-between text-[12px] text-[var(--color-text-secondary)]">{currentMeasureConfig.xLabels.map((label) => <span key={label}>{label}</span>)}</div>
+          <div className="relative flex gap-3">
+            <div className="flex flex-col justify-between text-[11px] font-medium text-[var(--color-text-secondary)] tabular-nums shrink-0 pt-0.5 pb-6">
+              <span>{chart.stats.max}</span>
+              <span>{Math.round((chart.stats.max + chart.stats.min) / 2)}</span>
+              <span>{chart.stats.min}</span>
+            </div>
+            <div className="relative flex-1 min-w-0">
+              <div className="absolute inset-0 rounded-xl overflow-hidden">
+                <div className="absolute inset-x-0 top-0 h-[18%] bg-[var(--color-danger)]/10" />
+                <div className="absolute inset-x-0 top-[18%] h-[64%] bg-[var(--color-success)]/8" />
+                <div className="absolute inset-x-0 bottom-0 h-[18%] bg-[var(--color-warning)]/12" />
+              </div>
+              <svg viewBox="0 0 310 190" className="w-full h-[220px] relative z-10" aria-labelledby="glycemia-chart-title">
+                <title id="glycemia-chart-title">Courbe des glycémies</title>
+                <defs>
+                  <linearGradient id={measureGradientId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1c8f84" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#1c8f84" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {[20, 55, 90, 125, 160].map((y) => (
+                  <line key={y} x1="0" y1={y} x2="310" y2={y} stroke="var(--color-border-subtle)" strokeWidth="1" strokeDasharray="4 4" />
+                ))}
+                <path d={chart.areaPath} fill={`url(#${measureGradientId})`} />
+                <path d={chart.path} fill="none" stroke="#1c8f84" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-1 flex justify-between text-[13px] font-medium text-[var(--color-text)]">{currentMeasureConfig.xLabels.map((label) => <span key={label}>{label}</span>)}</div>
+          <div className="mt-3 pt-3 border-t border-[var(--color-border-subtle)] flex flex-wrap items-center justify-center gap-4 text-[12px] text-[var(--color-text-secondary)]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-success)]" aria-hidden />
+              70–180 cible
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[var(--color-danger)]" aria-hidden />
+              Hypo
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 shrink-0 bg-[var(--color-warning)]" style={{ transform: "rotate(45deg)" }} aria-hidden />
+              Hyper
+            </span>
+          </div>
         </div>
       </Card>
       <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
@@ -517,6 +775,8 @@ type ExchangesProps = HeaderProps & {
   documentViewMode: "list" | "detail";
   setDocumentViewMode: (mode: "list" | "detail") => void;
   setSelectedDocumentId: (id: string) => void;
+  availableCaregivers: Caregiver[];
+  onStartNewConversation: (caregiver: Caregiver) => void;
 };
 
 export function PatientExchangesTemplate({
@@ -540,12 +800,16 @@ export function PatientExchangesTemplate({
   documentViewMode,
   setDocumentViewMode,
   setSelectedDocumentId,
+  availableCaregivers,
+  onStartNewConversation,
   onProfileClick,
 }: ExchangesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showCallModal, setShowCallModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [callBooked, setCallBooked] = useState(false);
+  const [showCaregiverSearch, setShowCaregiverSearch] = useState(false);
+  const [caregiverSearchQuery, setCaregiverSearchQuery] = useState("");
 
   useEffect(() => {
     if (messageViewMode === "thread" && scrollRef.current) {
@@ -717,12 +981,66 @@ export function PatientExchangesTemplate({
       );
     }
 
+    const filteredCaregivers = availableCaregivers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(caregiverSearchQuery.trim().toLowerCase()) ||
+        (c.role ?? "").toLowerCase().includes(caregiverSearchQuery.trim().toLowerCase())
+    );
+
+    if (showCaregiverSearch) {
+      return (
+        <section aria-label="Choisir un soignant">
+          <button type="button" onClick={() => { setShowCaregiverSearch(false); setCaregiverSearchQuery(""); }} className="mb-3 flex items-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border-transparent px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:shadow-md active:scale-[0.985] transition-all" aria-label="Retour à la liste des messages">
+            ← Retour
+          </button>
+          <div className="mb-3">
+            <label htmlFor="caregiver-search" className="sr-only">Rechercher un soignant</label>
+            <input
+              id="caregiver-search"
+              type="search"
+              value={caregiverSearchQuery}
+              onChange={(e) => setCaregiverSearchQuery(e.target.value)}
+              placeholder="Rechercher par nom ou rôle..."
+              className="caregiver-search-field w-full rounded-[var(--radius-md)] bg-[var(--color-surface)] border border-[var(--color-border)] px-4 py-3 text-[var(--color-text)] placeholder:text-[var(--color-inactive)] outline-none focus:border-[var(--color-teal)]"
+              autoFocus
+            />
+          </div>
+          <div className="space-y-2">
+            {filteredCaregivers.length === 0 ? (
+              <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] py-4 text-center">Aucun soignant trouvé</p>
+            ) : (
+              filteredCaregivers.map((caregiver) => (
+                <button
+                  key={caregiver.id}
+                  type="button"
+                  onClick={() => {
+                    onStartNewConversation(caregiver);
+                    setShowCaregiverSearch(false);
+                    setCaregiverSearchQuery("");
+                  }}
+                  className="w-full rounded-[18px] p-3 text-left bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm hover:shadow-md flex items-center gap-3"
+                >
+                  <div className="w-11 h-11 rounded-full bg-[var(--color-mint)] text-[var(--color-teal-on-mint)] flex items-center justify-center text-sm font-semibold shrink-0">
+                    {caregiver.initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-white">{caregiver.name}</div>
+                    {caregiver.role ? <div className="text-sm text-white/90 mt-0.5">{caregiver.role}</div> : null}
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section aria-label="Liste des conversations">
         <div className="mb-3">
           <Breadcrumbs items={[{ label: "Échanges" }, { label: "Messages" }]} />
         </div>
-        <button type="button" className="w-full rounded-[var(--radius-md)] bg-[var(--color-teal)] text-white py-2.5 font-semibold shadow-sm mb-3 hover:shadow-md">Nouveau message</button>
+        <button type="button" onClick={() => setShowCaregiverSearch(true)} className="w-full rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm mb-3 hover:shadow-md">Nouveau message</button>
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <button type="button" onClick={() => setMessagesCardExpanded(!messagesCardExpanded)} className="w-full flex items-center justify-between gap-3 text-left" aria-label={messagesCardExpanded ? "Réduire les messages" : "Développer les messages"} aria-expanded={messagesCardExpanded}>
             <div>

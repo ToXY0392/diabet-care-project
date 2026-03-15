@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import DiabetCareClinicalMockupPage from "./pages/DiabetCareClinicalMockupPage";
+import PatientShowcasePage from "./pages/PatientShowcasePage";
 import "./styles.css";
 
 if (typeof performance !== "undefined" && performance.mark) {
@@ -9,9 +10,11 @@ if (typeof performance !== "undefined" && performance.mark) {
 }
 
 const root = document.getElementById("root")!;
+const searchParams = new URLSearchParams(window.location.search);
+const isPatientShowcase = searchParams.get("showcase") === "patient";
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <DiabetCareClinicalMockupPage />
+    {isPatientShowcase ? <PatientShowcasePage /> : <DiabetCareClinicalMockupPage />}
   </React.StrictMode>,
 );
 
