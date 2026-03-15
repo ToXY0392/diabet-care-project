@@ -1,6 +1,10 @@
 import { useMemo } from "react";
 
-/** Zone glycémique pour double codage visuel (couleur + forme) */
+/**
+ * Calcule le tracé SVG (ligne + zone remplie) et les points du graphique glycémie.
+ * Seuils hypo/hyper utilisés pour la forme des points (accessibilité / daltoniens).
+ */
+/** Zone glycémique pour double codage visuel (couleur + forme) : hypo = carré, in_range = cercle, hyper = triangle. */
 export type PointZone = "hypo" | "in_range" | "hyper";
 
 const HYPER_THRESHOLD = 180;

@@ -12,6 +12,7 @@ import type {
   PatientProfile,
 } from "../types";
 
+/** Données de démo pour la maquette : patient courant, soignants, threads, documents, graphiques, fiches. À remplacer par des appels API. */
 export const patient: PatientProfile = {
   id: "PAT-001",
   name: "Léa Bernard",
@@ -111,10 +112,12 @@ export const diabeticPatientFiches: DiabeticPatientFiche[] = [
   },
 ];
 
+/** Retourne la fiche diabétologie du patient (une fiche par patientId). */
 export function getFicheByPatientId(patientId: string): DiabeticPatientFiche | undefined {
   return diabeticPatientFiches.find((f) => f.patientId === patientId);
 }
 
+/** Séries glycémie par période (7j, 15j, 30j, 90j) pour les graphiques de la vue Mesures. */
 export const glucoseSeriesByPeriod = {
   "7j": {
     data: [248, 226, 205, 188, 196, 224, 278, 306, 332, 338, 320, 309, 301, 292, 282, 272, 263, 248, 226, 198, 176, 181, 191, 188, 214, 248, 239, 271, 262, 258, 261, 279, 295, 287, 252],

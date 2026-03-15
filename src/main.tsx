@@ -5,6 +5,7 @@ import DiabetCareClinicalMockupPage from "./pages/DiabetCareClinicalMockupPage";
 import PatientShowcasePage from "./pages/PatientShowcasePage";
 import "./styles.css";
 
+/** Point d’entrée unique : page maquette multi-rôles (patient/clinicien) ou showcase patient selon ?showcase=patient */
 if (typeof performance !== "undefined" && performance.mark) {
   performance.mark("app-boot-start");
 }

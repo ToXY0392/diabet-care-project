@@ -11,6 +11,7 @@ export default function BottomNavigation<T extends string>({ items, activeKey, o
   const navRef = useRef<HTMLElement>(null);
   const [pillStyle, setPillStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
 
+  // Positionner le pill (fond dégradé) sous l’onglet actif pour l’animation de transition.
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+/** Cadre téléphone (390×844) : barre de statut factice, zone de contenu, nav du bas, modales. fullscreen = true pour la vue thread (masque header, padding réduit). */
 type PhoneFrameProps = {
   children: ReactNode;
   roleSwitcher: ReactNode;

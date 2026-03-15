@@ -24,6 +24,7 @@ type CockpitProps = BaseProps & {
 export function ClinicianCockpitTemplate({ clinicianInitials, clinicianPatients, onSelectPatient, onPatientsClick }: CockpitProps) {
   const totalAlerts = clinicianPatients.reduce((sum, p) => sum + p.openAlerts, 0);
   const riskySensors = clinicianPatients.filter((p) => p.openAlerts > 0 || p.freshness.includes("58") || p.status === "Données manquantes").length;
+  // Tri : alertes décroissant, puis statut, puis nom.
   const priorityPatients = [...clinicianPatients].sort((a, b) => {
     if (b.openAlerts !== a.openAlerts) return b.openAlerts - a.openAlerts;
     if (a.status !== b.status) return a.status.localeCompare(b.status);

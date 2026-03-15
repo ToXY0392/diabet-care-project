@@ -34,6 +34,10 @@ import { useClinicalMockupState } from "../features/diabetcare/hooks/useClinical
 import { useMeasureChart } from "../features/diabetcare/hooks/useMeasureChart";
 import type { Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, NavItem, PatientTab } from "../features/diabetcare/types";
 
+/**
+ * Page maquette DiabetCare : un seul écran avec bascule patient / clinicien, navigation par onglets,
+ * modales (glycémie, repas, choix capteur) et toasts. Les données sont dérivées des mocks + état local (threads, profil, fiche).
+ */
 export default function DiabetCareClinicalMockupPage() {
   const state = useClinicalMockupState();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -47,6 +51,7 @@ export default function DiabetCareClinicalMockupPage() {
     return () => clearTimeout(t);
   }, [toastMessage]);
 
+  // Données dérivées : config graphique selon période, documents filtrés par source, threads triés (non lus en premier), thread/document/patient sélectionnés.
   const currentMeasureConfig = glucoseSeriesByPeriod[state.activeMeasurePeriod];
   const chart = useMeasureChart(currentMeasureConfig.data);
   const visibleHistoryRows = state.historyExpanded ? historyRows : historyRows.slice(0, 1);
@@ -57,6 +62,7 @@ export default function DiabetCareClinicalMockupPage() {
   const visibleThreads = state.messagesCardExpanded ? sortedThreads : sortedThreads.slice(0, 3);
   const selectedThread = threads.find((item) => item.id === state.selectedThreadId) ?? threads[0];
 
+  /** Crée un thread vide si le soignant n’a pas encore de conversation, puis ouvre le thread. */
   const startNewConversation = (caregiver: Caregiver) => {
     const existing = patientThreadsState.find((t) => t.id === caregiver.id);
     if (existing) {
@@ -98,6 +104,7 @@ export default function DiabetCareClinicalMockupPage() {
     { key: "notes", label: "Notes" },
   ];
 
+  /** Bascule patient ↔ clinicien et réinitialise onglet, échanges, compte et vue messages. */
   const switchRole = (nextRole: "patient" | "clinician") => {
     state.setRole(nextRole);
     state.setActiveTab(nextRole === "patient" ? "accueil" : "cockpit");
@@ -135,6 +142,7 @@ export default function DiabetCareClinicalMockupPage() {
     state.setActiveTab("patient_view");
   };
 
+  /** Affiche le template correspondant au rôle et à l’onglet actif (patient : accueil, capteur, mesures, échanges, profil ; clinicien : cockpit, patients, fiche, etc.). */
   const renderActiveScreen = () => {
     if (state.role === "patient") {
       switch (state.activeTab) {
@@ -152,6 +160,7 @@ export default function DiabetCareClinicalMockupPage() {
             />
           );
         case "capteur":
+          // openSensorParamsOnCapteurTab = true lorsque l’utilisateur vient de Compte > Paramètres > Paramètres du capteur.
           return (
             <PatientSensorTemplate
               role={state.role}
@@ -225,6 +234,7 @@ export default function DiabetCareClinicalMockupPage() {
               onSaveProfile={(data) => setPatientState((prev) => ({ ...prev, ...data }))}
               onSaveFiche={(data) => setPatientFicheState((prev) => ({ ...(prev ?? getFicheByPatientId(patientState.id)!), ...data } as DiabeticPatientFiche))}
               patientFiche={patientFicheState ?? getFicheByPatientId(patientState.id)}
+              // Paramètres : Paramètres du capteur → onglet Capteur + params ; Documents partagés → Échanges > Documents ; Déconnexion → rôle soignant + Cockpit.
               onOpenSensorParams={() => {
                 state.setActiveTab("capteur");
                 state.setOpenSensorParamsOnCapteurTab(true);
@@ -383,6 +393,7 @@ export default function DiabetCareClinicalMockupPage() {
       fullscreen={isInThread}
       bottomNavigation={!isInThread ? (
         state.role === "patient" ? (
+          // En quittant l’onglet Capteur, on réinitialise openSensorParamsOnCapteurTab pour ne pas rouvrir les paramètres au prochain passage.
           <BottomNavigation items={patientNavItems} activeKey={state.activeTab as PatientTab} onChange={(tab) => { state.setActiveTab(tab); if (tab !== "capteur") state.setOpenSensorParamsOnCapteurTab(false); }} />
         ) : (
           <BottomNavigation items={clinicianNavItems} activeKey={state.activeTab as ClinicianTab} onChange={state.setActiveTab} />

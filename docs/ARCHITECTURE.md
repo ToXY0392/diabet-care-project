@@ -17,9 +17,13 @@ L'application DiabetCare est construite comme un prototype interactif robuste ut
 ## Gestion de l'État
 L'état de la maquette est centralisé dans le hook `useClinicalMockupState`. Il gère :
 - Le rôle actif (Patient ou Clinicien).
-- L'onglet de navigation actif.
-- Les données des modales (saisie de repas, glycémie).
-- La sélection des patients cliniques.
+- L'onglet de navigation actif (accueil, capteur, mesures, échanges, profil pour le patient).
+- Les sous-onglets (Échanges : messages / documents ; Profil : profil / paramètres).
+- L’ouverture des paramètres du capteur depuis l’onglet Paramètres (`openSensorParamsOnCapteurTab`), réinitialisée à la sortie de l’onglet Capteur.
+- Les données des modales (saisie de repas, glycémie, ajout de fichier dans Échanges).
+- La sélection des patients cliniques, threads, documents et notes.
+
+Les templates patient exposent des callbacks pour les actions (ex. `onOpenSensorParams`, `onOpenNotifications`, `onLogout`), branchés en page pour la navigation ou des toasts en mockup.
 
 ## Visualisation (SVG)
 Les graphiques de glycémie et de tendances sont générés dynamiquement en SVG à l'aide de hooks de calcul (`useMeasureChart`) pour simuler des courbes réelles à partir de données statiques.

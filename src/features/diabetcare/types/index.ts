@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 
+/**
+ * Types et contrats de données pour la maquette DiabetCare.
+ * Conçus pour rester sérialisables et compatibles avec une future API Rails (ressources Patient, Document, Note, etc.).
+ */
 export type Role = "patient" | "clinician";
 export type PatientTab = "accueil" | "capteur" | "mesures" | "echanges" | "profil";
 export type ClinicianTab = "cockpit" | "patients" | "patient_view" | "mesures" | "messages" | "docs" | "notes";

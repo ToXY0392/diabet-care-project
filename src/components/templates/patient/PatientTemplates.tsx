@@ -26,6 +26,7 @@ import type {
   Role,
 } from "../../../features/diabetcare/types";
 
+/** Templates des vues patient : tableau de bord, connexions/capteur, mesures, échanges (messages/documents), compte (profil/paramètres), notes. */
 type HeaderProps = {
   role: Role;
   patient: PatientProfile;
@@ -136,6 +137,7 @@ type SensorProps = HeaderProps & {
   initialShowSensorParams?: boolean;
 };
 
+/** Données de démo pour la vue « Paramètres du capteur » (dates, numéro, firmware, etc.). */
 const SENSOR_PARAMS_MOCK = {
   startDate: "12/03/2026, 08:00",
   expirationDate: "22/03/2026, 08:00",
@@ -149,6 +151,7 @@ const SENSOR_PARAMS_MOCK = {
 };
 
 export function PatientSensorTemplate({ role, patient, clinicianInitials, deviceConnections, onOpenProfile, onProfileClick, initialShowSensorParams }: SensorProps) {
+  // Bascule liste Connexions ↔ vue Paramètres du capteur ; initialisé à true si navigation depuis Compte > Paramètres.
   const [showSensorParams, setShowSensorParams] = useState(Boolean(initialShowSensorParams));
   const mainConnection = deviceConnections.find((c) => c.status === "Actif");
   const daysRemaining = patient.sensorDaysRemaining ?? 7;
@@ -926,6 +929,7 @@ export function PatientExchangesTemplate({
   const [callBooked, setCallBooked] = useState(false);
   const [showCaregiverSearch, setShowCaregiverSearch] = useState(false);
   const [caregiverSearchQuery, setCaregiverSearchQuery] = useState("");
+  // État de la modale « Ajouter un fichier » (Échanges > Documents) : visibilité, commentaire optionnel, input file caché.
   const [showAddFileModal, setShowAddFileModal] = useState(false);
   const [addFileComment, setAddFileComment] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -1320,6 +1324,7 @@ export function PatientExchangesTemplate({
           {activeExchangeTab === "messages" ? <div className="animate-[slideFromLeft_0.2s_ease-in-out]">{renderMessagesContent()}</div> : <div className="animate-[slideFromRight_0.2s_ease-in-out]">{renderDocsContent()}</div>}
         </div>
       </section>
+      {/* Modale Ajouter un fichier : overlay ferme au clic ; Annuler/Envoyer ferment et réinitialisent le commentaire. Upload à brancher sur Envoyer. */}
       {showAddFileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" aria-modal="true" role="dialog" aria-labelledby="add-file-modal-title" onClick={() => { setShowAddFileModal(false); setAddFileComment(""); }}>
           <div className="w-full max-w-[340px] rounded-[var(--radius-2xl)] bg-[var(--color-bg)] shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
@@ -1616,6 +1621,7 @@ export function PatientProfileTemplate({
             <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
               <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PARAMÈTRES</div>
               <div className="space-y-3 mt-4">
+                {/* Chaque entrée appelle son callback (branchements dans la page : navigation, toasts, déconnexion). */}
                 {[
                   { id: "sensor", label: "Paramètres du capteur", onClick: onOpenSensorParams },
                   { id: "notifications", label: "Notifications", onClick: onOpenNotifications },

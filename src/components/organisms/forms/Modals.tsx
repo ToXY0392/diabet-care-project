@@ -3,6 +3,7 @@ import Modal from "../../molecules/Modal";
 import type { PatientProfile } from "../../../features/diabetcare/types";
 import iconNoConnectUrl from "../../../public/assets/icon-no-connect.svg?url";
 
+/** Modales de la maquette : choix source glycémie, saisie glycémie manuelle/capteur, saisie repas (glucides, bolus, etc.). */
 type SensorChoiceModalProps = {
   open: boolean;
   onClose: () => void;

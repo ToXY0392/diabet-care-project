@@ -2,6 +2,10 @@ import { useState } from "react";
 
 import type { AccountTab, AnyTab, ExchangeTab, FollowUpView, MeasurePeriod, Role } from "../types";
 
+/**
+ * État global de la maquette single-page : rôle (patient/clinicien), onglet actif, sous-onglets (Échanges, Compte),
+ * modales (glycémie, repas, choix capteur), sélections (thread, document, patient clinique) et données de formulaire.
+ */
 export function useClinicalMockupState() {
   const [role, setRole] = useState<Role>("patient");
   const [activeTab, setActiveTab] = useState<AnyTab>("accueil");
@@ -33,6 +37,7 @@ export function useClinicalMockupState() {
   const [activeMeasurePeriod, setActiveMeasurePeriod] = useState<MeasurePeriod>("7j");
   const [activeFollowUpView, setActiveFollowUpView] = useState<FollowUpView>("jour");
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  /** Si true, l’onglet Capteur s’ouvre directement sur la vue Paramètres du capteur (depuis Compte > Paramètres). Réinitialisé en quittant l’onglet Capteur. */
   const [openSensorParamsOnCapteurTab, setOpenSensorParamsOnCapteurTab] = useState(false);
 
   return {

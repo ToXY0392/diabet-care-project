@@ -145,4 +145,11 @@ Focus : Prise de décision rapide.
 ```
 
 ---
+
+## Comportements implémentés (maquette)
+
+- **Compte > Paramètres** : liste d’entrées cliquables (Paramètres du capteur → onglet Capteur + vue paramètres ; Notifications, Historique, Sécurité → toasts « Bientôt disponible » ; Documents partagés → onglet Échanges > Documents ; Déconnexion → bascule soignant + Cockpit).
+- **Échanges > Documents** : « Choisir un fichier » ouvre une modale Ajouter un fichier (parcourir/glisser, commentaire optionnel, Annuler / Envoyer).
+
+---
 *Note: Ces wireframes représentent la hiérarchie visuelle implémentée dans les fichiers templates.tsx.*
