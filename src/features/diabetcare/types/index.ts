@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
  */
 export type Role = "patient" | "clinician";
 export type PatientTab = "accueil" | "capteur" | "mesures" | "echanges" | "profil";
-export type ClinicianTab = "cockpit" | "patients" | "patient_view" | "mesures" | "messages" | "docs" | "notes";
+export type ClinicianTab = "cockpit" | "patients" | "patient_view" | "echanges" | "mesures" | "notes" | "compte";
 export type AnyTab = PatientTab | ClinicianTab;
 export type Tone = "neutral" | "active" | "hypo" | "hyper" | "info";
 export type MeasurePeriod = "7j" | "15j" | "30j" | "90j";
@@ -132,6 +132,16 @@ export type DiabeticPatientFiche = {
 export type ClinicianProfile = {
   name: string;
   initials: string;
+};
+
+/** Rendez-vous soignant : date/heure, patient, type. Sérialisable pour API Rails. */
+export type Appointment = {
+  id: string;
+  date: string;
+  time: string;
+  patientId: string;
+  patientName: string;
+  type: string;
 };
 
 export type DeviceConnection = {

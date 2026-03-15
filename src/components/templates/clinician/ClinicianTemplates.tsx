@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
-import Badge from "../../atoms/Badge";
 import Card from "../../molecules/Card";
 import SectionTitle from "../../molecules/SectionTitle";
 import HeaderPill from "../../organisms/app-shell/HeaderPill";
-import type { ClinicalPatient, DiabeticPatientFiche, NoteItem, PatientProfile } from "../../../features/diabetcare/types";
+import type { Appointment, ClinicalPatient, ClinicianTab, DiabeticPatientFiche, NoteItem, PatientProfile } from "../../../features/diabetcare/types";
 
 type BaseProps = {
   patient: PatientProfile;
@@ -12,84 +11,79 @@ type BaseProps = {
   onProfileClick: () => void;
 };
 
-function ScreenHeader({ clinicianInitials, onPatientsClick }: { clinicianInitials: string; onPatientsClick: () => void }) {
-  return <HeaderPill dateLabel="Mercredi 11 mars" initials={clinicianInitials} onProfileClick={onPatientsClick} />;
+function ScreenHeader({ clinicianInitials, onProfileClick }: { clinicianInitials: string; onProfileClick: () => void }) {
+  return <HeaderPill initials={clinicianInitials} onProfileClick={onProfileClick} />;
+}
+
+function formatRdvTime(date: string, time: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const day = new Date(y, m - 1, d).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+  const [h, min] = time.split(":");
+  return `${day} · ${h}h${min}`;
 }
 
 type CockpitProps = BaseProps & {
   clinicianPatients: ClinicalPatient[];
-  onSelectPatient: (id: string) => void;
+  appointments: Appointment[];
+  onDocumentsClick?: () => void;
+  onMessagesClick?: () => void;
+  onCapteurClick?: () => void;
+  onOpenPlanning?: () => void;
 };
 
-export function ClinicianCockpitTemplate({ clinicianInitials, clinicianPatients, onSelectPatient, onPatientsClick }: CockpitProps) {
-  const totalAlerts = clinicianPatients.reduce((sum, p) => sum + p.openAlerts, 0);
-  const riskySensors = clinicianPatients.filter((p) => p.openAlerts > 0 || p.freshness.includes("58") || p.status === "Données manquantes").length;
-  // Tri : alertes décroissant, puis statut, puis nom.
-  const priorityPatients = [...clinicianPatients].sort((a, b) => {
-    if (b.openAlerts !== a.openAlerts) return b.openAlerts - a.openAlerts;
-    if (a.status !== b.status) return a.status.localeCompare(b.status);
-    return a.name.localeCompare(b.name);
-  });
+export function ClinicianCockpitTemplate({ clinicianInitials, clinicianPatients, appointments, onPatientsClick, onProfileClick, onDocumentsClick, onMessagesClick, onCapteurClick, onOpenPlanning }: CockpitProps) {
+  const nextRdv = appointments.slice(0, 3);
 
   return (
     <section aria-label="Cockpit clinicien">
-      <ScreenHeader clinicianInitials={clinicianInitials} onPatientsClick={onPatientsClick} />
-      <SectionTitle title="Cockpit clinique" subtitle="Alertes, priorités patient et vision populationnelle" />
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <Card variant="default" className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[var(--text-sm)] text-[var(--color-on-teal)]">Alertes ouvertes</div>
-              <div className="text-critical-number text-3xl font-bold text-[var(--color-on-teal)] mt-1">{totalAlerts}</div>
-            </div>
-            <Badge tone="hypo">Priorité</Badge>
-          </div>
-        </Card>
-        <Card variant="default" className="p-4">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="text-[var(--text-sm)] text-[var(--color-on-teal)]">Capteurs à risque</div>
-              <div className="text-critical-number text-3xl font-bold text-[var(--color-on-teal)] mt-1">{riskySensors}</div>
-            </div>
-            <Badge tone="hyper">Surveillance</Badge>
-          </div>
-        </Card>
-        <Card variant="default" className="p-4">
-          <div className="text-[var(--text-sm)] text-[var(--color-on-teal)]">Patients suivis</div>
-          <div className="text-critical-number text-3xl font-bold text-[var(--color-on-teal)] mt-1">{clinicianPatients.length}</div>
-        </Card>
-        <Card variant="default" className="p-4">
-          <div className="text-[var(--text-sm)] text-[var(--color-on-teal)]">TIR médian</div>
-          <div className="text-critical-number text-3xl font-bold text-[var(--color-on-teal)] mt-1">72%</div>
-        </Card>
+      <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
+      <SectionTitle title="Cockpit" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-stretch">
+        <button type="button" onClick={onDocumentsClick} className="w-full text-left rounded-[var(--radius-xl)] shadow-sm transition-all duration-150 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-5 min-h-[100px] flex flex-col text-white hover:shadow-md active:shadow-lg">
+          <span className="text-base font-semibold leading-tight">Documents</span>
+          <span className="text-sm text-white/90 mt-2 block leading-snug">Partagés avec les patients</span>
+        </button>
+        <button type="button" onClick={onPatientsClick} className="w-full text-left rounded-[var(--radius-xl)] shadow-sm transition-all duration-150 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-5 min-h-[100px] flex flex-col text-white hover:shadow-md active:shadow-lg">
+          <span className="text-base font-semibold leading-tight">Mes patients</span>
+          <span className="text-sm text-white/90 mt-2 block leading-snug">{clinicianPatients.length} patient(s) suivi(s)</span>
+        </button>
+        <button type="button" onClick={onMessagesClick} className="w-full text-left rounded-[var(--radius-xl)] shadow-sm transition-all duration-150 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-5 min-h-[100px] flex flex-col text-white hover:shadow-md active:shadow-lg">
+          <span className="text-base font-semibold leading-tight">Messagerie</span>
+          <span className="text-sm text-white/90 mt-2 block leading-snug">Échanges avec les patients</span>
+        </button>
+        <button type="button" onClick={onCapteurClick} className="w-full text-left rounded-[var(--radius-xl)] shadow-sm transition-all duration-150 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-5 min-h-[100px] flex flex-col text-white hover:shadow-md active:shadow-lg">
+          <span className="text-base font-semibold leading-tight">Capteurs</span>
+          <span className="text-sm text-white/90 mt-2 block leading-snug">Données et alertes</span>
+        </button>
       </div>
-      <Card variant="surface" className="p-4 hover:shadow-md active:shadow-lg">
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <div>
-            <div className="text-xs tracking-[0.2em] text-[#2c4443] font-semibold">PRIORITÉ CLINIQUE</div>
-            <div className="text-lg font-semibold text-[#233636] mt-1">Patients à surveiller</div>
-          </div>
-          <button type="button" onClick={onPatientsClick} className="text-[var(--text-sm)] font-semibold text-[var(--color-teal)]">Voir liste</button>
+      <Card variant="surface" className="p-0 border border-[var(--color-border-subtle)] hover:shadow-md active:shadow-lg overflow-hidden">
+        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-gradient-to-r from-[var(--color-teal-deep)] to-[var(--color-teal-end)]">
+          <span className="text-base font-semibold text-white">Mes rendez-vous</span>
+          <button
+            type="button"
+            onClick={onOpenPlanning}
+            className="shrink-0 text-base font-semibold text-white hover:underline focus:underline focus:outline-none transition-all duration-150"
+            aria-label="Ouvrir le planning des rendez-vous"
+          >
+            Voir planning
+          </button>
         </div>
-        <div className="space-y-2">
-          {priorityPatients.slice(0, 3).map((p) => {
-            const statusTone = p.openAlerts > 1 ? "hypo" : p.openAlerts === 1 ? "hyper" : p.tone;
-            return (
-              <button key={p.id} type="button" onClick={() => onSelectPatient(p.id)} className="w-full rounded-[var(--radius-md)] bg-[var(--color-mint)] border border-[var(--color-border)] p-3 text-left hover:shadow-md">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-semibold text-[#233636] truncate">{p.name}</div>
-                    <div className="text-sm text-[#616f73] mt-1 truncate">{p.sensor} · fraîcheur {p.freshness}</div>
-                    <div className="text-xs text-[#616f73] mt-1">{p.lastReading} mg/dL · TIR {p.tir}%</div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2 shrink-0">
-                    <Badge tone={statusTone === "hypo" ? "info" : statusTone === "hyper" ? "neutral" : statusTone}>{p.status}</Badge>
-                    <div className="text-xs text-[#616f73]">{p.openAlerts} alerte(s)</div>
-                  </div>
+        <div className="p-5">
+        <ul className="space-y-2 list-none p-0 m-0">
+          {nextRdv.length === 0 ? (
+            <li className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">Aucun rendez-vous à venir.</li>
+          ) : (
+            nextRdv.map((rdv) => (
+              <li key={rdv.id} className="flex items-baseline justify-between gap-2 py-2 border-b border-[var(--color-border-subtle)] last:border-0">
+                <div>
+                  <span className="text-[var(--text-sm)] font-medium text-[var(--color-text)]">{rdv.patientName}</span>
+                  <span className="text-[var(--text-sm)] text-[var(--color-text-secondary)] ml-2">— {rdv.type}</span>
                 </div>
-              </button>
-            );
-          })}
+                <span className="text-[var(--text-xs)] text-[var(--color-text-secondary)] shrink-0">{formatRdvTime(rdv.date, rdv.time)}</span>
+              </li>
+            ))
+          )}
+        </ul>
         </div>
       </Card>
     </section>
@@ -102,30 +96,29 @@ type PatientsProps = BaseProps & {
   onSelectPatient: (id: string) => void;
 };
 
-export function ClinicianPatientsTemplate({ clinicianInitials, clinicianPatients, selectedClinicalPatientId, onSelectPatient, onPatientsClick }: PatientsProps) {
+export function ClinicianPatientsTemplate({ clinicianInitials, clinicianPatients, selectedClinicalPatientId, onSelectPatient, onPatientsClick, onProfileClick }: PatientsProps) {
   return (
     <section aria-label="Liste des patients">
-      <ScreenHeader clinicianInitials={clinicianInitials} onPatientsClick={onPatientsClick} />
-      <SectionTitle title="Patients" subtitle="Liste surveillée et accès rapide aux dossiers" />
-      <div className="space-y-3">
+      <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
+      <SectionTitle title="Patients" subtitle="Liste des patients suivis" />
+      <ul className="space-y-1 list-none p-0 m-0">
         {clinicianPatients.map((p) => (
-          <button key={p.id} type="button" onClick={() => onSelectPatient(p.id)} className={`w-full rounded-[var(--radius-lg)] p-4 text-left ${selectedClinicalPatientId === p.id ? "bg-[#dfeceb] border border-[var(--color-border-strong)]" : "bg-[#e3e8e7] border border-[var(--color-border)]"}`}>
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-[var(--color-teal)] text-white flex items-center justify-center font-semibold">{p.initials}</div>
-                <div>
-                  <div className="font-semibold text-[var(--color-text)]">{p.name}</div>
-                  <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-1">{p.id} · {p.sensor}</div>
-                </div>
+          <li key={p.id}>
+            <button
+              type="button"
+              onClick={() => onSelectPatient(p.id)}
+              className={`w-full rounded-[var(--radius-md)] py-3 px-4 flex items-center gap-3 text-left transition shadow-sm hover:shadow-md ${selectedClinicalPatientId === p.id ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-2 border-white ring-2 ring-[var(--color-teal)]" : "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border border-transparent"}`}
+            >
+              <div className="w-10 h-10 rounded-full bg-white/25 text-white flex items-center justify-center text-sm font-semibold shrink-0">{p.initials}</div>
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-white truncate">{p.name}</div>
+                <div className="text-[var(--text-sm)] text-white/90 truncate">{p.id} · {p.sensor}</div>
               </div>
-              <div className="text-right">
-                <Badge tone={p.tone}>{p.status}</Badge>
-                <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-2">{p.lastReading} mg/dL · TIR {p.tir}%</div>
-              </div>
-            </div>
-          </button>
+              <span className="text-white shrink-0" aria-hidden>›</span>
+            </button>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
@@ -133,7 +126,6 @@ export function ClinicianPatientsTemplate({ clinicianInitials, clinicianPatients
 type PatientViewProps = BaseProps & {
   selectedClinicalPatient: ClinicalPatient;
   patientFiche: DiabeticPatientFiche | undefined;
-  onGoToTab: (tab: "mesures" | "messages" | "docs" | "notes") => void;
 };
 
 function FicheSection({ title, children }: { title: string; children: ReactNode }) {
@@ -155,13 +147,18 @@ function FicheRow({ label, value }: { label: string; value: string | number | un
   );
 }
 
-export function ClinicianPatientViewTemplate({ clinicianInitials, selectedClinicalPatient, patientFiche, onGoToTab, onPatientsClick }: PatientViewProps) {
+export function ClinicianPatientViewTemplate({ clinicianInitials, selectedClinicalPatient, patientFiche, onPatientsClick, onProfileClick }: PatientViewProps) {
   const diabetesTypeLabel = patientFiche?.diabetesType === "1" ? "Diabète de type 1" : patientFiche?.diabetesType === "2" ? "Diabète de type 2" : "Autre";
 
   return (
     <section aria-label="Fiche patient">
-      <ScreenHeader clinicianInitials={clinicianInitials} onPatientsClick={onPatientsClick} />
-      <SectionTitle title={selectedClinicalPatient.name} subtitle={`Fiche patient · ${selectedClinicalPatient.id}`} action={<Badge tone={selectedClinicalPatient.tone}>{selectedClinicalPatient.status}</Badge>} />
+      <div className="flex items-center gap-3 mb-3">
+        <button type="button" onClick={onPatientsClick} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)] shrink-0" aria-label="Retour à la liste des patients">
+          <span className="text-lg leading-none">←</span>
+        </button>
+        <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">Patients</span>
+      </div>
+      <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <div className="pb-24">
         {patientFiche ? (
           <>
@@ -211,23 +208,6 @@ export function ClinicianPatientViewTemplate({ clinicianInitials, selectedClinic
                 </div>
               </FicheSection>
             </Card>
-            {(patientFiche.allergies ?? patientFiche.comorbidities) && (
-              <Card variant="surface" className="p-5 mb-5">
-                <FicheSection title="ALLERGIES & COMORBIDITÉS">
-                  <div className="space-y-2">
-                    {patientFiche.allergies && <p className="text-[var(--text-sm)] text-[var(--color-text)]"><span className="text-[var(--color-text-secondary)]">Allergies : </span>{patientFiche.allergies}</p>}
-                    {patientFiche.comorbidities && <p className="text-[var(--text-sm)] text-[var(--color-text)]"><span className="text-[var(--color-text-secondary)]">Comorbidités : </span>{patientFiche.comorbidities}</p>}
-                  </div>
-                </FicheSection>
-              </Card>
-            )}
-            {patientFiche.notes && (
-              <Card variant="surface" className="p-5 mb-5">
-                <FicheSection title="NOTES CLINIQUES">
-                  <p className="text-[var(--text-sm)] text-[var(--color-text)] leading-relaxed">{patientFiche.notes}</p>
-                </FicheSection>
-              </Card>
-            )}
           </>
         ) : (
           <Card variant="surface" className="p-5 mb-5">
@@ -246,22 +226,34 @@ export function ClinicianPatientViewTemplate({ clinicianInitials, selectedClinic
             </div>
           </Card>
         )}
-        <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
-          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold mb-3">ACTIONS SOIGNANT</div>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              ["Voir courbe", "mesures"],
-              ["Ouvrir messages", "messages"],
-              ["Voir documents", "docs"],
-              ["Écrire une note", "notes"],
-            ].map(([label, target]) => (
-              <button key={label} type="button" onClick={() => onGoToTab(target as "mesures" | "messages" | "docs" | "notes")} className="rounded-[var(--radius-md)] bg-[var(--color-teal)] text-white py-3 font-semibold">
-                {label}
-              </button>
-            ))}
-          </div>
-        </Card>
       </div>
+    </section>
+  );
+}
+
+type ClinicianCompteProps = BaseProps & {
+  onLogout: () => void;
+};
+
+export function ClinicianCompteTemplate({ patient, clinicianInitials, onProfileClick, onLogout }: ClinicianCompteProps) {
+  return (
+    <section aria-label="Compte soignant">
+      <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
+      <SectionTitle title="Compte" subtitle="Paramètres et sécurité" />
+      <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+        <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PARAMÈTRES</div>
+        <div className="space-y-3 mt-4">
+          <button type="button" className="w-full rounded-[20px] bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border)] p-4 text-left font-semibold hover:shadow-md">
+            Notifications
+          </button>
+          <button type="button" className="w-full rounded-[20px] bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border)] p-4 text-left font-semibold hover:shadow-md">
+            Sécurité du compte
+          </button>
+          <button type="button" onClick={onLogout} className="w-full rounded-[20px] bg-[#fff5f5] text-[#b45309] border border-[#f3d6d6] p-4 text-left font-semibold hover:shadow-md">
+            Déconnexion
+          </button>
+        </div>
+      </Card>
     </section>
   );
 }
@@ -272,12 +264,12 @@ type ClinicianNotesProps = BaseProps & {
   setSelectedNoteId: (id: string) => void;
 };
 
-export function ClinicianNotesTemplate({ clinicianInitials, notes, selectedNoteId, setSelectedNoteId, onPatientsClick }: ClinicianNotesProps) {
+export function ClinicianNotesTemplate({ clinicianInitials, notes, selectedNoteId, setSelectedNoteId, onPatientsClick, onProfileClick }: ClinicianNotesProps) {
   const selectedNote = notes.find((note) => note.id === selectedNoteId) ?? notes[0];
 
   return (
     <section aria-label="Notes thérapeutiques">
-      <ScreenHeader clinicianInitials={clinicianInitials} onPatientsClick={onPatientsClick} />
+      <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <SectionTitle title="Notes thérapeutiques" subtitle="Notes cliniques du patient sélectionné" />
       <div className="grid grid-cols-[126px_1fr] gap-4">
         <div className="space-y-3">
@@ -294,7 +286,7 @@ export function ClinicianNotesTemplate({ clinicianInitials, notes, selectedNoteI
           <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-1">{selectedNote.author} · {selectedNote.date}</div>
           <div className="mt-5 rounded-[var(--radius-lg)] bg-white p-5 text-[var(--color-text)] leading-7 text-[15px]">{selectedNote.content}</div>
           <div className="mt-5 flex gap-3">
-            <button type="button" className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-teal)] text-white py-3 font-semibold">Nouvelle note</button>
+            <button type="button" className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold shadow-sm hover:shadow-md">Nouvelle note</button>
             <button type="button" className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] py-3 font-semibold border border-[var(--color-border)]">Archiver</button>
           </div>
         </Card>

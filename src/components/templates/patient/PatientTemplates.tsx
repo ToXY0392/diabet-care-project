@@ -35,7 +35,7 @@ type HeaderProps = {
 };
 
 function ScreenHeader({ role, patient, clinicianInitials, onProfileClick }: HeaderProps) {
-  return <HeaderPill dateLabel="Mercredi 11 mars" initials={role === "patient" ? patient.initials : clinicianInitials} onProfileClick={onProfileClick} />;
+  return <HeaderPill initials={role === "patient" ? patient.initials : clinicianInitials} onProfileClick={onProfileClick} />;
 }
 
 type DashboardProps = HeaderProps & {
@@ -379,6 +379,12 @@ type MeasuresProps = HeaderProps & {
   setHistoryExpanded: (value: boolean) => void;
   carnetEntries: CarnetEntry[];
   onOpenMealModal: () => void;
+  /** Quand fourni (vue soignant), affiche un lien vers la fiche patient. */
+  onOpenFiche?: () => void;
+  /** Quand fourni (vue soignant), affiche un lien vers les notes. */
+  onOpenNotes?: () => void;
+  /** Quand fourni (vue soignant), affiche le bouton d’import de données (fichier JSON rapport). */
+  onImportData?: (data: unknown) => void;
 };
 
 export function PatientMeasuresTemplate({
@@ -398,10 +404,30 @@ export function PatientMeasuresTemplate({
   carnetEntries,
   onOpenMealModal,
   onProfileClick,
+  onOpenFiche,
+  onOpenNotes,
+  onImportData,
 }: MeasuresProps) {
   const measureGradientId = useId();
+  const importFileInputRef = useRef<HTMLInputElement>(null);
 
-  if (activeFollowUpView === "carnet") {
+  const handleImportFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onImportData) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string) as unknown;
+        onImportData(data);
+      } catch {
+        onImportData({ error: "Fichier JSON invalide" });
+      }
+    };
+    reader.readAsText(file, "UTF-8");
+    e.target.value = "";
+  };
+
+  if (activeFollowUpView === "carnet" && role !== "clinician") {
     const MEAL_SLOTS: MealSlot[] = ["petit-dejeuner", "dejeuner", "diner", "en-cas"];
     const mealLabels: Record<MealSlot, string> = {
       "petit-dejeuner": "Petit-déjeuner",
@@ -435,7 +461,7 @@ export function PatientMeasuresTemplate({
       <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Carnet diabète">
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
         <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
-          {[["jour", "Jour"], ["tendances", "Tendances"], ["carnet", "Carnet"]].map(([key, label]) => (
+          {[["jour", "Jour"], ["carnet", "Carnet"]].map(([key, label]) => (
             <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-inactive)]"}`}>
               {label}
             </button>
@@ -524,7 +550,7 @@ export function PatientMeasuresTemplate({
     );
   }
 
-  if (activeFollowUpView === "tendances") {
+  if (activeFollowUpView === "tendances" || role === "clinician") {
     const periodTabs: Array<{ key: MeasurePeriod; label: string }> = [
       { key: "7j", label: "7 jours" },
       { key: "15j", label: "15 jours" },
@@ -562,21 +588,48 @@ export function PatientMeasuresTemplate({
     const trendChart = buildTrendPath(trendCurve, 310, 220, 18, 14);
     const weightChart = buildTrendPath(weightCurve, 310, 150, 18, 18);
 
+    const followUpTabs = role === "patient" ? [["jour", "Jour"], ["carnet", "Carnet"]] as const : [];
     return (
       <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Tendances glycémiques">
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
+        {followUpTabs.length > 0 && (
         <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
-          {[
-            ["jour", "Jour"],
-            ["tendances", "Tendances"],
-            ["carnet", "Carnet"],
-          ].map(([key, label]) => (
+          {followUpTabs.map(([key, label]) => (
             <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-inactive)]"}`}>
               {label}
             </button>
           ))}
         </div>
-        <div className="flex justify-center gap-2 mb-4">
+        )}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          {role === "clinician" && (onOpenFiche != null || onOpenNotes != null || onImportData != null) && (
+            <div className="flex gap-2 shrink-0">
+              <input
+                ref={importFileInputRef}
+                type="file"
+                accept=".json,application/json"
+                onChange={handleImportFileChange}
+                className="hidden"
+                aria-hidden="true"
+              />
+              {onOpenFiche && (
+                <button type="button" onClick={onOpenFiche} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-4 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md">
+                  Fiche patient
+                </button>
+              )}
+              {onOpenNotes && (
+                <button type="button" onClick={onOpenNotes} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-4 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md">
+                  Notes
+                </button>
+              )}
+              {onImportData && (
+                <button type="button" onClick={() => importFileInputRef.current?.click()} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-4 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md">
+                  Importer des données
+                </button>
+              )}
+            </div>
+          )}
+          <div className="flex justify-center gap-2 flex-1 min-w-0">
           {periodTabs.map((tab) => {
             const isActive = activeMeasurePeriod === tab.key;
             return (
@@ -585,6 +638,7 @@ export function PatientMeasuresTemplate({
               </button>
             );
           })}
+          </div>
         </div>
         <div className="grid grid-cols-4 gap-2 mb-5">
           {trendStats.map((item) => (
@@ -700,7 +754,7 @@ export function PatientMeasuresTemplate({
     <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Suivi patient">
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
-        {[["jour", "Jour"], ["tendances", "Tendances"], ["carnet", "Carnet"]].map(([key, label]) => (
+        {[["jour", "Jour"], ["carnet", "Carnet"]].map(([key, label]) => (
           <button key={key} type="button" onClick={() => setActiveFollowUpView(key as FollowUpView)} className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition ${activeFollowUpView === key ? "bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm" : "text-[var(--color-inactive)]"}`}>
             {label}
           </button>
@@ -1167,8 +1221,12 @@ export function PatientExchangesTemplate({
           <Breadcrumbs items={[{ label: "Échanges" }, { label: "Messages" }]} />
         </div>
         <div className="flex gap-3 mb-3">
-          <button type="button" onClick={() => setShowCaregiverSearch(true)} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Nouveau message</button>
-          <button type="button" onClick={() => { setShowCaregiverSearch(true); onAddCaregiver?.(); }} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Ajouter soignant</button>
+          <button type="button" onClick={() => setShowCaregiverSearch(true)} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">
+            {role === "clinician" ? "Envoyer un message" : "Nouveau message"}
+          </button>
+          {role === "patient" && (
+            <button type="button" onClick={() => { setShowCaregiverSearch(true); onAddCaregiver?.(); }} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Ajouter soignant</button>
+          )}
         </div>
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <button type="button" onClick={() => setMessagesCardExpanded(!messagesCardExpanded)} className="w-full flex items-center justify-between gap-3 text-left" aria-label={messagesCardExpanded ? "Réduire les messages" : "Développer les messages"} aria-expanded={messagesCardExpanded}>
@@ -1288,9 +1346,9 @@ export function PatientExchangesTemplate({
           </div>
         </Card>
         <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
-          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">DÉPOSER UN DOCUMENT</div>
+          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">{role === "clinician" ? "ENVOYER UN DOCUMENT AU PATIENT" : "DÉPOSER UN DOCUMENT"}</div>
           <div className="rounded-[22px] bg-[var(--color-mint)] p-5">
-            <div className="text-[17px] font-semibold text-[var(--color-text)]">Envoyer un document au soignant</div>
+            <div className="text-[17px] font-semibold text-[var(--color-text)]">{role === "clinician" ? "Envoyer un document au patient" : "Envoyer un document au soignant"}</div>
             <div className="text-sm text-[var(--color-text-secondary)] mt-2">PDF, photo d'ordonnance, bilan glycémique ou résultat de laboratoire.</div>
             <div className="mt-4 flex gap-3">
               <button type="button" onClick={() => setShowAddFileModal(true)} className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold">Choisir un fichier</button>
@@ -1314,7 +1372,10 @@ export function PatientExchangesTemplate({
     <>
       <section aria-label="Échanges">
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-        <SectionTitle title="Échanges" subtitle="Messagerie et documents partagés avec le soignant" />
+        <SectionTitle
+          title={role === "clinician" ? (activeExchangeTab === "messages" ? `Messages · ${selectedClinicalPatient.name}` : `Documents · ${selectedClinicalPatient.name}`) : "Échanges"}
+          subtitle={role === "clinician" ? "Conversation et documents avec le patient" : "Messagerie et documents partagés avec le soignant"}
+        />
         <div className="mb-3 flex items-center justify-center">
           <div className="relative bg-[#f1f5f6] rounded-full p-1 flex gap-1 border border-[var(--color-border)] w-full overflow-hidden">
             <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-[var(--color-teal)] transition-all duration-200 ease-in-out ${activeExchangeTab === "messages" ? "left-1" : "left-[calc(50%+2px)]"}`} />
@@ -1335,7 +1396,7 @@ export function PatientExchangesTemplate({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" aria-modal="true" role="dialog" aria-labelledby="add-file-modal-title" onClick={() => { setShowAddFileModal(false); setAddFileComment(""); }}>
           <div className="w-full max-w-[340px] rounded-[var(--radius-2xl)] bg-[var(--color-bg)] shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
             <h2 id="add-file-modal-title" className="text-[var(--text-section)] font-semibold text-[var(--color-text)] m-0 mb-4">Ajouter un fichier</h2>
-            <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mb-4">Envoyez un document au soignant (PDF, image, bilan…).</p>
+            <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mb-4">{role === "clinician" ? "Envoyez un document au patient (PDF, image, bilan…)." : "Envoyez un document au soignant (PDF, image, bilan…)."}</p>
             <input ref={fileInputRef} type="file" accept=".pdf,image/*" className="hidden" onChange={() => {}} />
             <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full rounded-[var(--radius-md)] border-2 border-dashed border-[var(--color-border)] bg-[var(--color-mint)]/30 py-6 text-[var(--color-teal-on-mint)] font-medium text-sm mb-4">
               Parcourir ou glisser un fichier

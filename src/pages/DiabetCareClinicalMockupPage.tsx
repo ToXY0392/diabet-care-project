@@ -3,10 +3,14 @@ import { BarChart3, Home, Settings } from "lucide-react";
 
 import Toast from "../components/atoms/Toast";
 import BottomNavigation from "../components/organisms/app-shell/BottomNavigation";
+import ClinicianDesktopLayout from "../components/organisms/app-shell/ClinicianDesktopLayout";
 import PhoneFrame from "../components/organisms/app-shell/PhoneFrame";
 import RoleSwitcher from "../components/organisms/app-shell/RoleSwitcher";
+import AgendaModal from "../components/organisms/forms/AgendaModal";
+import CapteursModal from "../components/organisms/forms/CapteursModal";
+import ClinicianNoteModal from "../components/organisms/forms/ClinicianNoteModal";
 import { GlycemiaModalForm, MealModalForm, SensorChoiceModal } from "../components/organisms/forms/Modals";
-import { ClinicianCockpitTemplate, ClinicianNotesTemplate, ClinicianPatientViewTemplate, ClinicianPatientsTemplate } from "../components/templates/clinician/ClinicianTemplates";
+import { ClinicianCockpitTemplate, ClinicianCompteTemplate, ClinicianNotesTemplate, ClinicianPatientViewTemplate, ClinicianPatientsTemplate } from "../components/templates/clinician/ClinicianTemplates";
 import {
   PatientDashboardTemplate,
   PatientExchangesTemplate,
@@ -17,6 +21,7 @@ import {
 } from "../components/templates/patient/PatientTemplates";
 import {
   availableCaregivers,
+  clinicianAppointments,
   clinicianPatients,
   clinicianProfile,
   clinicianThreads,
@@ -32,7 +37,7 @@ import {
 } from "../features/diabetcare/data/mockData";
 import { useClinicalMockupState } from "../features/diabetcare/hooks/useClinicalMockupState";
 import { useMeasureChart } from "../features/diabetcare/hooks/useMeasureChart";
-import type { Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, NavItem, PatientTab } from "../features/diabetcare/types";
+import type { Appointment, Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, NavItem, PatientTab } from "../features/diabetcare/types";
 
 /**
  * Page maquette DiabetCare : un seul écran avec bascule patient / clinicien, navigation par onglets,
@@ -44,12 +49,27 @@ export default function DiabetCareClinicalMockupPage() {
   const [patientThreadsState, setPatientThreadsState] = useState<ConversationThread[]>(patientThreads);
   const [patientState, setPatientState] = useState(patient);
   const [patientFicheState, setPatientFicheState] = useState<DiabeticPatientFiche | null>(null);
+  const [agendaModalOpen, setAgendaModalOpen] = useState(false);
+  const [capteursModalOpen, setCapteursModalOpen] = useState(false);
+  const [clinicianNoteModalOpen, setClinicianNoteModalOpen] = useState(false);
+  const [clinicianQuickNotes, setClinicianQuickNotes] = useState<Record<string, string>>({});
+  const [importedReportData, setImportedReportData] = useState<unknown>(null);
+
+  const sortedAppointments: Appointment[] = [...clinicianAppointments].sort(
+    (a, b) => (a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time))
+  );
 
   useEffect(() => {
     if (!toastMessage) return;
     const t = setTimeout(() => setToastMessage(null), 2500);
     return () => clearTimeout(t);
   }, [toastMessage]);
+
+  useEffect(() => {
+    if (state.role === "clinician" && state.activeTab === "mesures") {
+      state.setActiveFollowUpView("tendances");
+    }
+  }, [state.role, state.activeTab]);
 
   // Données dérivées : config graphique selon période, documents filtrés par source, threads triés (non lus en premier), thread/document/patient sélectionnés.
   const currentMeasureConfig = glucoseSeriesByPeriod[state.activeMeasurePeriod];
@@ -98,10 +118,10 @@ export default function DiabetCareClinicalMockupPage() {
     { key: "cockpit", label: "Cockpit" },
     { key: "patients", label: "Patients" },
     { key: "patient_view", label: "Fiche" },
+    { key: "echanges", label: "Échanges" },
     { key: "mesures", label: "Courbes" },
-    { key: "messages", label: "Messages" },
-    { key: "docs", label: "Docs" },
     { key: "notes", label: "Notes" },
+    { key: "compte", label: "Compte" },
   ];
 
   /** Bascule patient ↔ clinicien et réinitialise onglet, échanges, compte et vue messages. */
@@ -116,7 +136,7 @@ export default function DiabetCareClinicalMockupPage() {
   };
 
   const openProfile = () => {
-    state.setActiveTab(state.role === "patient" ? "profil" : "patients");
+    state.setActiveTab(state.role === "patient" ? "profil" : "compte");
     if (state.role === "patient") state.setActiveAccountTab("profil");
   };
 
@@ -133,13 +153,22 @@ export default function DiabetCareClinicalMockupPage() {
     state.setMessageViewMode("list");
   };
 
-  const goToClinicianTab = (tab: "mesures" | "messages" | "docs" | "notes") => {
-    state.setActiveTab(tab);
+  const goToClinicianTab = (tab: ClinicianTab | "messages" | "docs") => {
+    if (tab === "messages") {
+      state.setActiveTab("echanges");
+      state.setActiveExchangeTab("messages");
+    } else if (tab === "docs") {
+      state.setActiveTab("echanges");
+      state.setActiveExchangeTab("documents");
+    } else {
+      state.setActiveTab(tab);
+    }
   };
 
   const selectClinicianPatient = (id: string) => {
     state.setSelectedClinicalPatientId(id);
-    state.setActiveTab("patient_view");
+    state.setActiveTab("mesures");
+    state.setActiveFollowUpView("tendances");
   };
 
   /** Affiche le template correspondant au rôle et à l’onglet actif (patient : accueil, capteur, mesures, échanges, profil ; clinicien : cockpit, patients, fiche, etc.). */
@@ -262,14 +291,22 @@ export default function DiabetCareClinicalMockupPage() {
     switch (state.activeTab) {
       case "cockpit":
         return (
-          <ClinicianCockpitTemplate
-            patient={patient}
-            clinicianInitials={clinicianProfile.initials}
-            clinicianPatients={clinicianPatients}
-            onSelectPatient={selectClinicianPatient}
-            onPatientsClick={() => state.setActiveTab("patients")}
-            onProfileClick={openProfile}
-          />
+          <>
+            <ClinicianCockpitTemplate
+              patient={patient}
+              clinicianInitials={clinicianProfile.initials}
+              clinicianPatients={clinicianPatients}
+              appointments={sortedAppointments}
+              onPatientsClick={() => state.setActiveTab("patients")}
+              onProfileClick={openProfile}
+              onDocumentsClick={() => { state.setActiveTab("echanges"); state.setActiveExchangeTab("documents"); }}
+              onMessagesClick={() => { state.setActiveTab("echanges"); state.setActiveExchangeTab("messages"); }}
+              onCapteurClick={() => setCapteursModalOpen(true)}
+              onOpenPlanning={() => setAgendaModalOpen(true)}
+            />
+            <AgendaModal open={agendaModalOpen} appointments={sortedAppointments} onClose={() => setAgendaModalOpen(false)} />
+            <CapteursModal open={capteursModalOpen} patients={clinicianPatients} onClose={() => setCapteursModalOpen(false)} />
+          </>
         );
       case "patients":
         return (
@@ -285,73 +322,75 @@ export default function DiabetCareClinicalMockupPage() {
         );
       case "patient_view":
         return (
-          <ClinicianPatientViewTemplate
-            patient={patient}
-            clinicianInitials={clinicianProfile.initials}
-            selectedClinicalPatient={selectedClinicalPatient}
-            patientFiche={getFicheByPatientId(selectedClinicalPatient.id)}
-            onGoToTab={goToClinicianTab}
-            onPatientsClick={() => state.setActiveTab("patients")}
-            onProfileClick={openProfile}
-          />
+          <>
+            <div className="mb-4 py-2">
+              <h2 className="text-xl font-semibold text-[var(--color-text)]">{selectedClinicalPatient.name}</h2>
+            </div>
+            <ClinicianPatientViewTemplate
+              patient={patient}
+              clinicianInitials={clinicianProfile.initials}
+              selectedClinicalPatient={selectedClinicalPatient}
+              patientFiche={getFicheByPatientId(selectedClinicalPatient.id)}
+              onPatientsClick={() => state.setActiveTab("patients")}
+              onProfileClick={openProfile}
+            />
+          </>
         );
       case "mesures":
         return (
-          <PatientMeasuresTemplate
-            role={state.role}
-            patient={patient}
-            clinicianInitials={clinicianProfile.initials}
-            selectedClinicalPatient={selectedClinicalPatient}
-            activeFollowUpView={state.activeFollowUpView}
-            setActiveFollowUpView={state.setActiveFollowUpView}
-            activeMeasurePeriod={state.activeMeasurePeriod}
-            setActiveMeasurePeriod={state.setActiveMeasurePeriod}
-            chart={chart}
-            currentMeasureConfig={currentMeasureConfig}
-            visibleHistoryRows={visibleHistoryRows}
-            historyExpanded={state.historyExpanded}
-            setHistoryExpanded={state.setHistoryExpanded}
-            carnetEntries={carnetEntries}
-            onOpenMealModal={() => state.setShowMealModal(true)}
-            onProfileClick={() => state.setActiveTab("patients")}
-          />
+          <>
+            <div className="mb-4 py-2">
+              <h2 className="text-xl font-semibold text-[var(--color-text)]">{selectedClinicalPatient.name}</h2>
+            </div>
+            <PatientMeasuresTemplate
+              role={state.role}
+              patient={patient}
+              clinicianInitials={clinicianProfile.initials}
+              selectedClinicalPatient={selectedClinicalPatient}
+              activeFollowUpView={state.activeFollowUpView}
+              setActiveFollowUpView={state.setActiveFollowUpView}
+              activeMeasurePeriod={state.activeMeasurePeriod}
+              setActiveMeasurePeriod={state.setActiveMeasurePeriod}
+              chart={chart}
+              currentMeasureConfig={currentMeasureConfig}
+              visibleHistoryRows={visibleHistoryRows}
+              historyExpanded={state.historyExpanded}
+              setHistoryExpanded={state.setHistoryExpanded}
+              carnetEntries={carnetEntries}
+              onOpenMealModal={() => state.setShowMealModal(true)}
+              onProfileClick={() => state.setActiveTab("patients")}
+              onOpenFiche={state.role === "clinician" ? () => state.setActiveTab("patient_view") : undefined}
+              onOpenNotes={state.role === "clinician" ? () => setClinicianNoteModalOpen(true) : undefined}
+              onImportData={
+                state.role === "clinician"
+                  ? (data) => {
+                      if (data && typeof data === "object" && "error" in data) {
+                        setToastMessage("Fichier JSON invalide");
+                        return;
+                      }
+                      setImportedReportData(data);
+                      setToastMessage("Données importées");
+                    }
+                  : undefined
+              }
+            />
+            <ClinicianNoteModal
+              open={clinicianNoteModalOpen}
+              patientName={selectedClinicalPatient.name}
+              initialContent={clinicianQuickNotes[selectedClinicalPatient.id] ?? ""}
+              onClose={() => setClinicianNoteModalOpen(false)}
+              onSave={(content) => setClinicianQuickNotes((prev) => ({ ...prev, [selectedClinicalPatient.id]: content }))}
+            />
+          </>
         );
-      case "messages":
+      case "echanges":
         return (
           <PatientExchangesTemplate
             role={state.role}
             patient={patient}
             clinicianInitials={clinicianProfile.initials}
             selectedClinicalPatient={selectedClinicalPatient}
-            activeExchangeTab="messages"
-            setActiveExchangeTab={state.setActiveExchangeTab}
-            messageViewMode={state.messageViewMode}
-            setMessageViewMode={state.setMessageViewMode}
-            selectedThread={selectedThread}
-            selectedThreadId={state.selectedThreadId}
-            setSelectedThreadId={state.setSelectedThreadId}
-            visibleThreads={visibleThreads}
-            messagesCardExpanded={state.messagesCardExpanded}
-            setMessagesCardExpanded={state.setMessagesCardExpanded}
-            providerDocuments={providerDocuments}
-            patientDocuments={patientDocuments}
-            selectedDocument={selectedDocument}
-            documentViewMode={state.documentViewMode}
-            setDocumentViewMode={state.setDocumentViewMode}
-            setSelectedDocumentId={state.setSelectedDocumentId}
-            availableCaregivers={availableCaregivers}
-            onStartNewConversation={() => {}}
-            onProfileClick={() => state.setActiveTab("patients")}
-          />
-        );
-      case "docs":
-        return (
-          <PatientExchangesTemplate
-            role={state.role}
-            patient={patient}
-            clinicianInitials={clinicianProfile.initials}
-            selectedClinicalPatient={selectedClinicalPatient}
-            activeExchangeTab="documents"
+            activeExchangeTab={state.activeExchangeTab}
             setActiveExchangeTab={state.setActiveExchangeTab}
             messageViewMode={state.messageViewMode}
             setMessageViewMode={state.setMessageViewMode}
@@ -384,31 +423,33 @@ export default function DiabetCareClinicalMockupPage() {
             onProfileClick={openProfile}
           />
         );
+      case "compte":
+        return (
+          <ClinicianCompteTemplate
+            patient={patient}
+            clinicianInitials={clinicianProfile.initials}
+            onPatientsClick={() => state.setActiveTab("patients")}
+            onProfileClick={openProfile}
+            onLogout={() => {
+              setToastMessage("Déconnexion");
+              state.setRole("patient");
+              state.setActiveTab("profil");
+            }}
+          />
+        );
       default:
         return null;
     }
   };
 
   const isInThread = (state.role === "patient" && state.activeTab === "echanges" && state.activeExchangeTab === "messages" && state.messageViewMode === "thread")
-    || (state.role === "clinician" && state.activeTab === "messages" && state.messageViewMode === "thread");
+    || (state.role === "clinician" && state.activeTab === "echanges" && state.activeExchangeTab === "messages" && state.messageViewMode === "thread");
 
-  return (
-    <PhoneFrame
-      roleSwitcher={<RoleSwitcher role={state.role} onSwitchRole={switchRole} />}
-      fullscreen={isInThread}
-      bottomNavigation={!isInThread ? (
-        state.role === "patient" ? (
-          // En quittant l’onglet Capteur, on réinitialise openSensorParamsOnCapteurTab pour ne pas rouvrir les paramètres au prochain passage.
-          <BottomNavigation items={patientNavItems} activeKey={state.activeTab as PatientTab} onChange={(tab) => { state.setActiveTab(tab); if (tab !== "capteur") state.setOpenSensorParamsOnCapteurTab(false); }} />
-        ) : (
-          <BottomNavigation items={clinicianNavItems} activeKey={state.activeTab as ClinicianTab} onChange={state.setActiveTab} />
-        )
-      ) : null}
-      modals={
-        <>
-          <GlycemiaModalForm
-            open={state.showGlycemiaModal}
-            glycemiaInput={state.glycemiaInput}
+  const modalsBlock = (
+    <>
+      <GlycemiaModalForm
+        open={state.showGlycemiaModal}
+        glycemiaInput={state.glycemiaInput}
             setGlycemiaInput={state.setGlycemiaInput}
             onClose={() => state.setShowGlycemiaModal(false)}
             onManualSave={() => {
@@ -455,9 +496,39 @@ export default function DiabetCareClinicalMockupPage() {
             }}
             onOpenSensorChoice={() => state.setShowSensorChoiceModal(true)}
           />
-          <SensorChoiceModal open={state.showSensorChoiceModal} onClose={() => state.setShowSensorChoiceModal(false)} />
-        </>
-      }
+      <SensorChoiceModal open={state.showSensorChoiceModal} onClose={() => state.setShowSensorChoiceModal(false)} />
+    </>
+  );
+
+  // Soignant : layout bureau (header + sidebar), jamais dans le cadre téléphone.
+  if (state.role === "clinician") {
+    return (
+      <div key="clinician-layout" data-layout="clinician-desktop" className="min-h-screen w-full">
+        <ClinicianDesktopLayout
+          activeTab={state.activeTab as ClinicianTab}
+          onNavigate={state.setActiveTab}
+          onProfileClick={openProfile}
+          clinicianInitials={clinicianProfile.initials}
+          roleSwitcher={<RoleSwitcher role={state.role} onSwitchRole={switchRole} />}
+          modals={modalsBlock}
+        >
+          {renderActiveScreen()}
+        </ClinicianDesktopLayout>
+        {toastMessage ? <Toast message={toastMessage} variant="success" /> : null}
+      </div>
+    );
+  }
+
+  // Patient : cadre téléphone + barre de navigation en bas.
+  return (
+    <PhoneFrame
+      key="patient-layout"
+      roleSwitcher={<RoleSwitcher role={state.role} onSwitchRole={switchRole} />}
+      fullscreen={isInThread}
+      bottomNavigation={!isInThread ? (
+        <BottomNavigation items={patientNavItems} activeKey={state.activeTab as PatientTab} onChange={(tab) => { state.setActiveTab(tab); if (tab !== "capteur") state.setOpenSensorParamsOnCapteurTab(false); }} />
+      ) : null}
+      modals={modalsBlock}
     >
       {renderActiveScreen()}
       {toastMessage ? <Toast message={toastMessage} variant="success" /> : null}

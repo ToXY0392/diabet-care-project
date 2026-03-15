@@ -1,13 +1,13 @@
 type HeaderPillProps = {
-  dateLabel: string;
+  dateLabel?: string;
   initials: string;
   onProfileClick: () => void;
 };
 
 export default function HeaderPill({ dateLabel, initials, onProfileClick }: HeaderPillProps) {
   return (
-    <header className="flex items-center justify-between mb-3">
-      <div className="bg-[#e7f4f2] text-[#1c8f84] border border-[#1c8f84]/30 text-sm font-semibold px-4 py-2 rounded-full">{dateLabel}</div>
+    <header className={`flex items-center mb-3 ${dateLabel ? "justify-between" : "justify-end"}`}>
+      {dateLabel ? <div className="bg-[#e7f4f2] text-[#1c8f84] border border-[#1c8f84]/30 text-sm font-semibold px-4 py-2 rounded-full">{dateLabel}</div> : null}
       <button
         type="button"
         onClick={onProfileClick}

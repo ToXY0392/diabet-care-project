@@ -1,4 +1,5 @@
 import type {
+  Appointment,
   Caregiver,
   CarnetEntry,
   ClinicalPatient,
@@ -37,6 +38,16 @@ export const clinicianPatients: ClinicalPatient[] = [
   { id: "PAT-001", name: "Léa Bernard", initials: "LB", sensor: "Dexcom G7", freshness: "5 min", status: "À surveiller", tone: "info", lastReading: 118, tir: 74, openAlerts: 1 },
   { id: "PAT-002", name: "Lucas Moreau", initials: "LM", sensor: "FreeStyle Libre", freshness: "14 min", status: "Stable", tone: "active", lastReading: 132, tir: 81, openAlerts: 0 },
   { id: "PAT-003", name: "Nina Roche", initials: "NR", sensor: "Dexcom G7", freshness: "58 min", status: "Données manquantes", tone: "hyper", lastReading: 186, tir: 61, openAlerts: 2 },
+];
+
+/** Rendez-vous soignant (triés par date/heure). */
+export const clinicianAppointments: Appointment[] = [
+  { id: "rdv-1", date: "2026-03-14", time: "09:00", patientId: "PAT-001", patientName: "Léa Bernard", type: "Suivi diabétologie" },
+  { id: "rdv-2", date: "2026-03-14", time: "10:30", patientId: "PAT-003", patientName: "Nina Roche", type: "Bilan glycémique" },
+  { id: "rdv-3", date: "2026-03-14", time: "14:00", patientId: "PAT-002", patientName: "Lucas Moreau", type: "Contrôle trimestriel" },
+  { id: "rdv-4", date: "2026-03-15", time: "09:30", patientId: "PAT-001", patientName: "Léa Bernard", type: "Télédiab" },
+  { id: "rdv-5", date: "2026-03-16", time: "11:00", patientId: "PAT-003", patientName: "Nina Roche", type: "Suivi capteur" },
+  { id: "rdv-6", date: "2026-03-17", time: "08:00", patientId: "PAT-002", patientName: "Lucas Moreau", type: "Suivi diabétologie" },
 ];
 
 /** Fiches patients diabétiques (une par patient clinique). */
