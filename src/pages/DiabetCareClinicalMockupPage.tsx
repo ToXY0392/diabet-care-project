@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BarChart3, Home, Settings } from "lucide-react";
 
 import Toast from "../components/atoms/Toast";
@@ -38,7 +38,7 @@ import {
 } from "../features/diabetcare/data/mockData";
 import { useClinicalMockupState } from "../features/diabetcare/hooks/useClinicalMockupState";
 import { useMeasureChart } from "../features/diabetcare/hooks/useMeasureChart";
-import type { Appointment, Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, DocumentItem, NavItem, PatientTab } from "../features/diabetcare/types";
+import type { AnyTab, Appointment, Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, DocumentItem, NavItem, PatientTab, Role } from "../features/diabetcare/types";
 
 /**
  * Page maquette DiabetCare : un seul écran avec bascule patient / clinicien, navigation par onglets,
@@ -60,6 +60,9 @@ export default function DiabetCareClinicalMockupPage() {
   const [clinicianAddedDocuments, setClinicianAddedDocuments] = useState<DocumentItem[]>([]);
   const [removedDocumentIds, setRemovedDocumentIds] = useState<string[]>([]);
 
+  const skipHistoryPushRef = useRef(false);
+  const initialHistoryReplacedRef = useRef(false);
+
   const sortedAppointments: Appointment[] = [...clinicianAppointments].sort(
     (a, b) => (a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time))
   );
@@ -75,6 +78,39 @@ export default function DiabetCareClinicalMockupPage() {
       state.setActiveFollowUpView("tendances");
     }
   }, [state.role, state.activeTab]);
+
+  // Synchronisation avec l’historique navigateur : replaceState au montage, pushState à chaque navigation, popstate pour le bouton Retour.
+  useEffect(() => {
+    const stateForHistory = {
+      role: state.role,
+      tab: state.activeTab,
+      patientId: state.selectedClinicalPatientId,
+    };
+    if (!initialHistoryReplacedRef.current) {
+      initialHistoryReplacedRef.current = true;
+      window.history.replaceState(stateForHistory, "", window.location.pathname + window.location.search);
+      return;
+    }
+    if (skipHistoryPushRef.current) {
+      skipHistoryPushRef.current = false;
+      return;
+    }
+    window.history.pushState(stateForHistory, "", window.location.pathname + window.location.search);
+  }, [state.role, state.activeTab, state.selectedClinicalPatientId]);
+
+  useEffect(() => {
+    const onPopState = (e: PopStateEvent) => {
+      const s = e.state as { role?: Role; tab?: AnyTab; patientId?: string } | null;
+      if (s) {
+        skipHistoryPushRef.current = true;
+        if (s.role) state.setRole(s.role);
+        if (s.tab) state.setActiveTab(s.tab);
+        if (s.patientId) state.setSelectedClinicalPatientId(s.patientId);
+      }
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   // Données dérivées : config graphique selon période, documents filtrés par source, threads triés (non lus en premier), thread/document/patient sélectionnés.
   const currentMeasureConfig = glucoseSeriesByPeriod[state.activeMeasurePeriod];

@@ -324,6 +324,12 @@ export function ClinicianNotesTemplate({
 
   return (
     <section aria-label="Notes thérapeutiques">
+      <div className="flex items-center gap-3 mb-3">
+        <button type="button" onClick={onPatientsClick} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)] shrink-0" aria-label="Retour à la liste des patients">
+          <span className="text-lg leading-none">←</span>
+        </button>
+        <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">Patients</span>
+      </div>
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <SectionTitle title="Notes thérapeutiques" subtitle="Notes cliniques par patient" />
       <div className="grid grid-cols-[180px_1fr] gap-4">
@@ -438,8 +444,8 @@ export function ClinicianDocumentsTemplate({
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <SectionTitle title="Documents" subtitle="Gestion des documents par patient" />
       <div className="grid grid-cols-[180px_1fr] gap-4">
-        <div className="space-y-4">
-          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PATIENTS</div>
+        <div className="space-y-2">
+          <div className="text-center text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PATIENTS</div>
           <div className="space-y-2">
             {patients.map((p) => (
               <button

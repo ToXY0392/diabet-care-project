@@ -762,6 +762,14 @@ export function PatientMeasuresTemplate({
 
   return (
     <section className="pb-24 animate-[softTabSlide_0.35s_ease-out]" aria-label="Suivi patient">
+      {role === "clinician" && onGoHome && (
+        <div className="flex items-center gap-3 mb-3">
+          <button type="button" onClick={onGoHome} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)] shrink-0" aria-label="Retour à la liste des patients">
+            <span className="text-lg leading-none">←</span>
+          </button>
+          <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">Patients</span>
+        </div>
+      )}
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
         {[["jour", "Jour"], ["carnet", "Carnet"]].map(([key, label]) => (
@@ -1381,6 +1389,14 @@ export function PatientExchangesTemplate({
   return (
     <>
       <section aria-label="Échanges">
+        {role === "clinician" && (
+          <div className="flex items-center gap-3 mb-3">
+            <button type="button" onClick={onProfileClick} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)] shrink-0" aria-label="Retour à la liste des patients">
+              <span className="text-lg leading-none">←</span>
+            </button>
+            <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">Patients</span>
+          </div>
+        )}
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
         <SectionTitle
           title={role === "clinician" ? (activeExchangeTab === "messages" ? `Messages · ${selectedClinicalPatient.name}` : `Documents · ${selectedClinicalPatient.name}`) : "Échanges"}
