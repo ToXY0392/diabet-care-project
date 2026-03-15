@@ -193,6 +193,7 @@ export default function PatientShowcasePage() {
             activeAccountTab={activeAccountTab}
             setActiveAccountTab={setActiveAccountTab}
             onProfileClick={() => {}}
+            onEditProfile={() => {}}
           />
         </PhoneFrame>
 

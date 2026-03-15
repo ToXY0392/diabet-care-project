@@ -88,6 +88,43 @@ export type PatientProfile = {
   sensorDaysTotal?: number;
 };
 
+/** Type de diabète */
+export type DiabetesType = "1" | "2" | "autre";
+
+/** Fiche patient diabétique : identité, diabétologie, traitement, capteur, contacts. */
+export type DiabeticPatientFiche = {
+  patientId: string;
+  /** Identité */
+  lastName: string;
+  firstName: string;
+  birthDate: string;
+  /** Contact */
+  phone?: string;
+  email?: string;
+  /** Diabétologie */
+  diabetesType: DiabetesType;
+  dateDiagnosis: string;
+  lastHbA1c?: number;
+  lastHbA1cDate?: string;
+  targetGlucoseMin: number;
+  targetGlucoseMax: number;
+  /** Traitement (insuline, pompe, antidiabétiques oraux) */
+  treatmentSummary: string;
+  /** Capteur / CGM */
+  sensorType: string;
+  lastCalibration?: string;
+  /** Médecin / équipe */
+  treatingPhysician: string;
+  physicianPhone?: string;
+  /** Urgence */
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  /** Clinique */
+  allergies?: string;
+  comorbidities?: string;
+  notes?: string;
+};
+
 export type ClinicianProfile = {
   name: string;
   initials: string;

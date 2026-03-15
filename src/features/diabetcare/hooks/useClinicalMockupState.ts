@@ -33,6 +33,7 @@ export function useClinicalMockupState() {
   const [activeMeasurePeriod, setActiveMeasurePeriod] = useState<MeasurePeriod>("7j");
   const [activeFollowUpView, setActiveFollowUpView] = useState<FollowUpView>("jour");
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [openSensorParamsOnCapteurTab, setOpenSensorParamsOnCapteurTab] = useState(false);
 
   return {
     role,
@@ -95,5 +96,7 @@ export function useClinicalMockupState() {
     setActiveFollowUpView,
     historyExpanded,
     setHistoryExpanded,
+    openSensorParamsOnCapteurTab,
+    setOpenSensorParamsOnCapteurTab,
   };
 }

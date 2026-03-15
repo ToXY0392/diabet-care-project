@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import Badge from "../../atoms/Badge";
 import Card from "../../molecules/Card";
 import SectionTitle from "../../molecules/SectionTitle";
 import HeaderPill from "../../organisms/app-shell/HeaderPill";
-import type { ClinicalPatient, NoteItem, PatientProfile } from "../../../features/diabetcare/types";
+import type { ClinicalPatient, DiabeticPatientFiche, NoteItem, PatientProfile } from "../../../features/diabetcare/types";
 
 type BaseProps = {
   patient: PatientProfile;
@@ -130,44 +131,136 @@ export function ClinicianPatientsTemplate({ clinicianInitials, clinicianPatients
 
 type PatientViewProps = BaseProps & {
   selectedClinicalPatient: ClinicalPatient;
+  patientFiche: DiabeticPatientFiche | undefined;
   onGoToTab: (tab: "mesures" | "messages" | "docs" | "notes") => void;
 };
 
-export function ClinicianPatientViewTemplate({ clinicianInitials, selectedClinicalPatient, onGoToTab, onPatientsClick }: PatientViewProps) {
+function FicheSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="mb-5">
+      <h3 className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function FicheRow({ label, value }: { label: string; value: string | number | undefined }) {
+  if (value === undefined || value === "") return null;
+  return (
+    <div className="flex justify-between gap-3 py-1.5 border-b border-[var(--color-border-subtle)] last:border-0">
+      <span className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">{label}</span>
+      <span className="text-[var(--text-sm)] font-medium text-[var(--color-text)] text-right">{value}</span>
+    </div>
+  );
+}
+
+export function ClinicianPatientViewTemplate({ clinicianInitials, selectedClinicalPatient, patientFiche, onGoToTab, onPatientsClick }: PatientViewProps) {
+  const diabetesTypeLabel = patientFiche?.diabetesType === "1" ? "Diabète de type 1" : patientFiche?.diabetesType === "2" ? "Diabète de type 2" : "Autre";
+
   return (
     <section aria-label="Fiche patient">
       <ScreenHeader clinicianInitials={clinicianInitials} onPatientsClick={onPatientsClick} />
       <SectionTitle title={selectedClinicalPatient.name} subtitle={`Fiche patient · ${selectedClinicalPatient.id}`} action={<Badge tone={selectedClinicalPatient.tone}>{selectedClinicalPatient.status}</Badge>} />
-      <Card variant="surface" className="p-5">
-        <div className="grid grid-cols-2 gap-4">
-          {[
-            ["Dernière lecture", `${selectedClinicalPatient.lastReading} mg/dL`],
-            ["Freshness", selectedClinicalPatient.freshness],
-            ["Capteur", selectedClinicalPatient.sensor],
-            ["Alertes ouvertes", String(selectedClinicalPatient.openAlerts)],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-[22px] bg-white p-4">
-              <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">{label}</div>
-              <div className="text-critical-number text-lg font-semibold text-[var(--color-text)] mt-1">{value}</div>
+      <div className="pb-24">
+        {patientFiche ? (
+          <>
+            <Card variant="surface" className="p-5 mb-5">
+              <FicheSection title="IDENTITÉ">
+                <div className="space-y-0">
+                  <FicheRow label="Nom" value={`${patientFiche.lastName} ${patientFiche.firstName}`} />
+                  <FicheRow label="Date de naissance" value={patientFiche.birthDate} />
+                  <FicheRow label="Téléphone" value={patientFiche.phone} />
+                  <FicheRow label="Email" value={patientFiche.email} />
+                </div>
+              </FicheSection>
+            </Card>
+            <Card variant="surface" className="p-5 mb-5">
+              <FicheSection title="DIABÉTOLOGIE">
+                <div className="space-y-0">
+                  <FicheRow label="Type de diabète" value={diabetesTypeLabel} />
+                  <FicheRow label="Date du diagnostic" value={patientFiche.dateDiagnosis} />
+                  <FicheRow label="HbA1c (dernière)" value={patientFiche.lastHbA1c != null ? `${patientFiche.lastHbA1c} % (${patientFiche.lastHbA1cDate ?? ""})` : undefined} />
+                  <FicheRow label="Cible glycémie" value={`${patientFiche.targetGlucoseMin} – ${patientFiche.targetGlucoseMax} mg/dL`} />
+                </div>
+              </FicheSection>
+            </Card>
+            <Card variant="surface" className="p-5 mb-5">
+              <FicheSection title="TRAITEMENT">
+                <p className="text-[var(--text-sm)] text-[var(--color-text)] leading-relaxed">{patientFiche.treatmentSummary}</p>
+              </FicheSection>
+            </Card>
+            <Card variant="surface" className="p-5 mb-5">
+              <FicheSection title="CAPTEUR / CGM">
+                <div className="space-y-0">
+                  <FicheRow label="Modèle" value={patientFiche.sensorType} />
+                  <FicheRow label="Dernier calibrage" value={patientFiche.lastCalibration} />
+                  <FicheRow label="Dernière lecture" value={`${selectedClinicalPatient.lastReading} mg/dL`} />
+                  <FicheRow label="Fraîcheur" value={selectedClinicalPatient.freshness} />
+                  <FicheRow label="Alertes ouvertes" value={String(selectedClinicalPatient.openAlerts)} />
+                </div>
+              </FicheSection>
+            </Card>
+            <Card variant="surface" className="p-5 mb-5">
+              <FicheSection title="MÉDECIN & URGENCE">
+                <div className="space-y-0">
+                  <FicheRow label="Médecin traitant" value={patientFiche.treatingPhysician} />
+                  <FicheRow label="Tél. médecin" value={patientFiche.physicianPhone} />
+                  <FicheRow label="Contact urgence" value={patientFiche.emergencyContact} />
+                  <FicheRow label="Tél. urgence" value={patientFiche.emergencyPhone} />
+                </div>
+              </FicheSection>
+            </Card>
+            {(patientFiche.allergies ?? patientFiche.comorbidities) && (
+              <Card variant="surface" className="p-5 mb-5">
+                <FicheSection title="ALLERGIES & COMORBIDITÉS">
+                  <div className="space-y-2">
+                    {patientFiche.allergies && <p className="text-[var(--text-sm)] text-[var(--color-text)]"><span className="text-[var(--color-text-secondary)]">Allergies : </span>{patientFiche.allergies}</p>}
+                    {patientFiche.comorbidities && <p className="text-[var(--text-sm)] text-[var(--color-text)]"><span className="text-[var(--color-text-secondary)]">Comorbidités : </span>{patientFiche.comorbidities}</p>}
+                  </div>
+                </FicheSection>
+              </Card>
+            )}
+            {patientFiche.notes && (
+              <Card variant="surface" className="p-5 mb-5">
+                <FicheSection title="NOTES CLINIQUES">
+                  <p className="text-[var(--text-sm)] text-[var(--color-text)] leading-relaxed">{patientFiche.notes}</p>
+                </FicheSection>
+              </Card>
+            )}
+          </>
+        ) : (
+          <Card variant="surface" className="p-5 mb-5">
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                ["Dernière lecture", `${selectedClinicalPatient.lastReading} mg/dL`],
+                ["Freshness", selectedClinicalPatient.freshness],
+                ["Capteur", selectedClinicalPatient.sensor],
+                ["Alertes ouvertes", String(selectedClinicalPatient.openAlerts)],
+              ].map(([label, value]) => (
+                <div key={label} className="rounded-[22px] bg-white p-4">
+                  <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">{label}</div>
+                  <div className="text-critical-number text-lg font-semibold text-[var(--color-text)] mt-1">{value}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </Card>
-      <Card variant="surface" className="p-5 mt-5 hover:shadow-md active:shadow-lg">
-        <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold mb-3">ACTIONS SOIGNANT</div>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            ["Voir courbe", "mesures"],
-            ["Ouvrir messages", "messages"],
-            ["Voir documents", "docs"],
-            ["Écrire une note", "notes"],
-          ].map(([label, target]) => (
-            <button key={label} type="button" onClick={() => onGoToTab(target as "mesures" | "messages" | "docs" | "notes")} className="rounded-[var(--radius-md)] bg-[var(--color-teal)] text-white py-3 font-semibold">
-              {label}
-            </button>
-          ))}
-        </div>
-      </Card>
+          </Card>
+        )}
+        <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold mb-3">ACTIONS SOIGNANT</div>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              ["Voir courbe", "mesures"],
+              ["Ouvrir messages", "messages"],
+              ["Voir documents", "docs"],
+              ["Écrire une note", "notes"],
+            ].map(([label, target]) => (
+              <button key={label} type="button" onClick={() => onGoToTab(target as "mesures" | "messages" | "docs" | "notes")} className="rounded-[var(--radius-md)] bg-[var(--color-teal)] text-white py-3 font-semibold">
+                {label}
+              </button>
+            ))}
+          </div>
+        </Card>
+      </div>
     </section>
   );
 }

@@ -22,6 +22,7 @@ import {
   clinicianThreads,
   deviceConnections,
   documents,
+  getFicheByPatientId,
   glucoseSeriesByPeriod,
   carnetEntries,
   historyRows,
@@ -31,12 +32,14 @@ import {
 } from "../features/diabetcare/data/mockData";
 import { useClinicalMockupState } from "../features/diabetcare/hooks/useClinicalMockupState";
 import { useMeasureChart } from "../features/diabetcare/hooks/useMeasureChart";
-import type { Caregiver, ClinicianTab, ConversationThread, NavItem, PatientTab } from "../features/diabetcare/types";
+import type { Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, NavItem, PatientTab } from "../features/diabetcare/types";
 
 export default function DiabetCareClinicalMockupPage() {
   const state = useClinicalMockupState();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [patientThreadsState, setPatientThreadsState] = useState<ConversationThread[]>(patientThreads);
+  const [patientState, setPatientState] = useState(patient);
+  const [patientFicheState, setPatientFicheState] = useState<DiabeticPatientFiche | null>(null);
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -139,7 +142,7 @@ export default function DiabetCareClinicalMockupPage() {
           return (
             <PatientDashboardTemplate
               role={state.role}
-              patient={patient}
+              patient={patientState}
               clinicianInitials={clinicianProfile.initials}
               patientThreads={patientThreads}
               onOpenMealModal={() => state.setShowMealModal(true)}
@@ -152,18 +155,19 @@ export default function DiabetCareClinicalMockupPage() {
           return (
             <PatientSensorTemplate
               role={state.role}
-              patient={patient}
+              patient={patientState}
               clinicianInitials={clinicianProfile.initials}
               deviceConnections={deviceConnections}
               onOpenProfile={() => state.setActiveTab("profil")}
               onProfileClick={openProfile}
+              initialShowSensorParams={state.openSensorParamsOnCapteurTab}
             />
           );
         case "mesures":
           return (
             <PatientMeasuresTemplate
               role={state.role}
-              patient={patient}
+              patient={patientState}
               clinicianInitials={clinicianProfile.initials}
               selectedClinicalPatient={selectedClinicalPatient}
               activeFollowUpView={state.activeFollowUpView}
@@ -184,7 +188,7 @@ export default function DiabetCareClinicalMockupPage() {
           return (
             <PatientExchangesTemplate
               role={state.role}
-              patient={patient}
+              patient={patientState}
               clinicianInitials={clinicianProfile.initials}
               selectedClinicalPatient={selectedClinicalPatient}
               activeExchangeTab={state.activeExchangeTab}
@@ -212,11 +216,31 @@ export default function DiabetCareClinicalMockupPage() {
           return (
             <PatientProfileTemplate
               role={state.role}
-              patient={patient}
+              patient={patientState}
               clinicianInitials={clinicianProfile.initials}
               activeAccountTab={state.activeAccountTab}
               setActiveAccountTab={state.setActiveAccountTab}
               onProfileClick={openProfile}
+              onEditProfile={() => {}}
+              onSaveProfile={(data) => setPatientState((prev) => ({ ...prev, ...data }))}
+              onSaveFiche={(data) => setPatientFicheState((prev) => ({ ...(prev ?? getFicheByPatientId(patientState.id)!), ...data } as DiabeticPatientFiche))}
+              patientFiche={patientFicheState ?? getFicheByPatientId(patientState.id)}
+              onOpenSensorParams={() => {
+                state.setActiveTab("capteur");
+                state.setOpenSensorParamsOnCapteurTab(true);
+              }}
+              onOpenNotifications={() => setToastMessage("Notifications — Bientôt disponible")}
+              onOpenSyncHistory={() => setToastMessage("Historique de synchronisation — Bientôt disponible")}
+              onOpenSharedDocuments={() => {
+                state.setActiveTab("echanges");
+                state.setActiveExchangeTab("documents");
+              }}
+              onOpenAccountSecurity={() => setToastMessage("Sécurité du compte — Bientôt disponible")}
+              onLogout={() => {
+                setToastMessage("Déconnexion");
+                state.setRole("clinician");
+                state.setActiveTab("cockpit");
+              }}
             />
           );
         default:
@@ -254,6 +278,7 @@ export default function DiabetCareClinicalMockupPage() {
             patient={patient}
             clinicianInitials={clinicianProfile.initials}
             selectedClinicalPatient={selectedClinicalPatient}
+            patientFiche={getFicheByPatientId(selectedClinicalPatient.id)}
             onGoToTab={goToClinicianTab}
             onPatientsClick={() => state.setActiveTab("patients")}
             onProfileClick={openProfile}
@@ -358,7 +383,7 @@ export default function DiabetCareClinicalMockupPage() {
       fullscreen={isInThread}
       bottomNavigation={!isInThread ? (
         state.role === "patient" ? (
-          <BottomNavigation items={patientNavItems} activeKey={state.activeTab as PatientTab} onChange={state.setActiveTab} />
+          <BottomNavigation items={patientNavItems} activeKey={state.activeTab as PatientTab} onChange={(tab) => { state.setActiveTab(tab); if (tab !== "capteur") state.setOpenSensorParamsOnCapteurTab(false); }} />
         ) : (
           <BottomNavigation items={clinicianNavItems} activeKey={state.activeTab as ClinicianTab} onChange={state.setActiveTab} />
         )

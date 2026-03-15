@@ -1,5 +1,5 @@
 import { useId, useRef, useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { ChevronLeft, Plus } from "lucide-react";
 
 import Badge from "../../atoms/Badge";
 import Breadcrumbs from "../../atoms/Breadcrumbs";
@@ -15,6 +15,7 @@ import type {
   ClinicalPatient,
   ConversationThread,
   DeviceConnection,
+  DiabeticPatientFiche,
   DocumentItem,
   FollowUpView,
   HistoryRow,
@@ -131,13 +132,30 @@ type SensorProps = HeaderProps & {
   patient: PatientProfile;
   deviceConnections: DeviceConnection[];
   onOpenProfile: () => void;
+  /** When true, the sensor params view is shown on mount (e.g. when navigating from Paramètres). */
+  initialShowSensorParams?: boolean;
 };
 
-export function PatientSensorTemplate({ role, patient, clinicianInitials, deviceConnections, onOpenProfile, onProfileClick }: SensorProps) {
+const SENSOR_PARAMS_MOCK = {
+  startDate: "12/03/2026, 08:00",
+  expirationDate: "22/03/2026, 08:00",
+  sensorNumber: "XXXX",
+  lastCalibration: "Aucune",
+  serialNumber: "000000000000",
+  firmware: "0.0.0.0",
+  softwareNumber: "SW00000",
+  smartphoneModel: "Exemple appareil",
+  receiverPaired: false,
+};
+
+export function PatientSensorTemplate({ role, patient, clinicianInitials, deviceConnections, onOpenProfile, onProfileClick, initialShowSensorParams }: SensorProps) {
+  const [showSensorParams, setShowSensorParams] = useState(Boolean(initialShowSensorParams));
   const mainConnection = deviceConnections.find((c) => c.status === "Actif");
   const daysRemaining = patient.sensorDaysRemaining ?? 7;
   const daysTotal = patient.sensorDaysTotal ?? 10;
   const filledSegments = Math.min(Math.max(0, daysRemaining), daysTotal);
+
+  const openParams = () => setShowSensorParams(true);
 
   const connectionCards: Array<{ id: string; icon: string; title: string; subtitle: string; onClick?: () => void }> = [
     {
@@ -145,14 +163,7 @@ export function PatientSensorTemplate({ role, patient, clinicianInitials, device
       icon: "sensor",
       title: patient.sensor,
       subtitle: mainConnection ? `${daysRemaining} jours restants · Sync ${mainConnection.lastSync}` : `${daysRemaining} jours restants`,
-      onClick: onOpenProfile,
-    },
-    {
-      id: "parametres",
-      icon: "settings",
-      title: "Paramètres du capteur",
-      subtitle: "Configurer le capteur et les alertes.",
-      onClick: onOpenProfile,
+      onClick: openParams,
     },
   ];
 
@@ -213,6 +224,76 @@ export function PatientSensorTemplate({ role, patient, clinicianInitials, device
     return null;
   };
 
+  if (showSensorParams) {
+    const m = SENSOR_PARAMS_MOCK;
+    return (
+      <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Paramètres du capteur">
+        <div className="flex items-center gap-3 mb-4">
+          <button type="button" onClick={() => setShowSensorParams(false)} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]" aria-label="Retour aux connexions">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-[var(--text-section)] font-semibold text-[var(--color-text)] m-0">Connexions</h1>
+        </div>
+        <div className="rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-4 text-white mb-4">
+          <div className="flex items-center gap-4">
+            <ConnectionIcon type="sensor" />
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold">Capteur</div>
+              <div className="text-[var(--text-sm)] text-white/90 mt-0.5">{daysRemaining} jours restants</div>
+              <div className="mt-2 flex gap-0.5">
+                {Array.from({ length: daysTotal }).map((_, i) => (
+                  <div key={i} className={`h-1.5 flex-1 rounded-sm ${i < filledSegments ? "bg-white" : "bg-white/30"}`} aria-hidden />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        <Card variant="surfaceMint" className="p-4 mb-4 !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
+          <div className="flex justify-between text-[var(--text-sm)] mb-2">
+            <span className="text-white/90">Démarrer le capteur</span>
+            <span className="font-medium text-white tabular-nums">{m.startDate}</span>
+          </div>
+          <div className="flex justify-between text-[var(--text-sm)]">
+            <span className="text-white/90">Expiration du capteur</span>
+            <span className="font-medium text-white tabular-nums">{m.expirationDate}</span>
+          </div>
+        </Card>
+        <div className="space-y-2 mb-5">
+          <button type="button" className="w-full rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 text-[var(--text-sm)] font-semibold uppercase tracking-wide shadow-sm">
+            Remplacer le capteur
+          </button>
+          <button type="button" className="w-full rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 text-[var(--text-sm)] font-semibold uppercase tracking-wide shadow-sm">
+            Arrêter la session du capteur
+          </button>
+        </div>
+        <h2 className="text-[var(--text-xs)] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-3">Appareils d&apos;affichage</h2>
+        <Card variant="surfaceMint" className="p-4 mb-4 !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
+          <div className="flex justify-between items-center text-[var(--text-sm)] mb-3">
+            <span className="text-white/90">Smartphone</span>
+            <span className="font-medium text-white">{m.smartphoneModel}</span>
+          </div>
+          <div className="flex justify-between items-center text-[var(--text-sm)]">
+            <span className="text-white/90">Récepteur</span>
+            <span className="font-medium text-white">{m.receiverPaired ? "Jumelé" : "Non jumelé"}</span>
+          </div>
+        </Card>
+        <h2 className="text-[var(--text-xs)] font-semibold uppercase tracking-wide text-[var(--color-text-secondary)] mb-3">Capteur</h2>
+        <Card variant="surfaceMint" className="p-4 mb-4 !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
+          <div className="space-y-3 text-[var(--text-sm)]">
+            <div className="flex justify-between"><span className="text-white/90">Numéro du capteur</span><span className="font-medium tabular-nums text-white">{m.sensorNumber}</span></div>
+            <div className="flex justify-between"><span className="text-white/90">Dernier calibrage</span><span className="font-medium text-white">{m.lastCalibration}</span></div>
+            <div className="flex justify-between"><span className="text-white/90">SN</span><span className="font-medium tabular-nums text-white">{m.serialNumber}</span></div>
+            <div className="flex justify-between"><span className="text-white/90">Micrologiciel</span><span className="font-medium tabular-nums text-white">{m.firmware}</span></div>
+            <div className="flex justify-between"><span className="text-white/90">Numéro de logiciel</span><span className="font-medium tabular-nums text-white">{m.softwareNumber}</span></div>
+          </div>
+          <p className="text-[var(--text-xs)] text-white/80 mt-4 pt-3 border-t border-white/20">
+            La session du capteur dure jusqu&apos;à {daysTotal} jours.
+          </p>
+        </Card>
+      </section>
+    );
+  }
+
   return (
     <section className="pb-24" aria-label="Connexions">
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
@@ -241,6 +322,14 @@ export function PatientSensorTemplate({ role, patient, clinicianInitials, device
               <svg className="w-5 h-5 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><path d="M9 18l6-6-6-6" /></svg>
             </button>
           ))}
+          <button
+            type="button"
+            className="w-auto min-w-0 mx-auto flex rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border-0 py-2.5 px-4 items-center justify-center gap-2 text-white shadow-sm hover:shadow-md active:shadow-md transition-shadow text-[var(--text-sm)] font-medium"
+            aria-label="Nouveau capteur"
+          >
+            <svg className="w-4 h-4 text-white shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><path d="M12 5v14M5 12h14" /></svg>
+            <span>Nouveau capteur</span>
+          </button>
         </div>
       </div>
       <div>
@@ -646,26 +735,26 @@ export function PatientMeasuresTemplate({
         </div>
         <div className="flex items-center justify-between text-sm text-[var(--color-muted)]"><div>% des données recueillies par CGM</div><div className="font-semibold">27%</div></div>
       </Card>
-      <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+      <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
-            <div className="text-2xl">◔</div>
+            <div className="text-2xl text-white">◔</div>
             <div>
-              <div className="text-[var(--text-title)] font-semibold text-[var(--color-muted-strong)]">Glycémies</div>
-              <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-1">mg/dL</div>
+              <div className="text-[var(--text-title)] font-semibold text-white">Glycémies</div>
+              <div className="text-[var(--text-sm)] text-white/90 mt-1">mg/dL</div>
             </div>
           </div>
-          <button type="button" onClick={onOpenMealModal} className="w-9 h-9 rounded-full bg-[var(--color-teal)] text-white flex items-center justify-center" title="Ajouter un repas" aria-label="Ajouter un repas">
+          <button type="button" onClick={onOpenMealModal} className="w-9 h-9 rounded-full bg-white/30 text-white flex items-center justify-center" title="Ajouter un repas" aria-label="Ajouter un repas">
             <Plus className="w-4 h-4" />
           </button>
         </div>
-        <div className="rounded-2xl bg-white p-4 border border-[var(--color-border)] shadow-sm">
+        <div className="rounded-2xl bg-[var(--color-mint)] p-4 border border-[var(--color-border)] shadow-sm">
           <div className="flex items-baseline gap-2 mb-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-muted)]">mg/dL</span>
-            <span className="text-xs text-[var(--color-text-secondary)]">70–180 cible</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-teal-on-mint)]">mg/dL</span>
+            <span className="text-xs text-[var(--color-teal-on-mint)]/90">70–180 cible</span>
           </div>
           <div className="relative flex gap-3">
-            <div className="flex flex-col justify-between text-[11px] font-medium text-[var(--color-text-secondary)] tabular-nums shrink-0 pt-0.5 pb-6">
+            <div className="flex flex-col justify-between text-[11px] font-medium text-[var(--color-teal-on-mint)] tabular-nums shrink-0 pt-0.5 pb-6">
               <span>{chart.stats.max}</span>
               <span>{Math.round((chart.stats.max + chart.stats.min) / 2)}</span>
               <span>{chart.stats.min}</span>
@@ -692,8 +781,8 @@ export function PatientMeasuresTemplate({
               </svg>
             </div>
           </div>
-          <div className="mt-1 flex justify-between text-[13px] font-medium text-[var(--color-text)]">{currentMeasureConfig.xLabels.map((label) => <span key={label}>{label}</span>)}</div>
-          <div className="mt-3 pt-3 border-t border-[var(--color-border-subtle)] flex flex-wrap items-center justify-center gap-4 text-[12px] text-[var(--color-text-secondary)]">
+          <div className="mt-1 flex justify-between text-[13px] font-medium text-[var(--color-teal-on-mint)]">{currentMeasureConfig.xLabels.map((label) => <span key={label}>{label}</span>)}</div>
+          <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex flex-wrap items-center justify-center gap-4 text-[12px] text-[var(--color-teal-on-mint)]">
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-success)]" aria-hidden />
               70–180 cible
@@ -709,27 +798,54 @@ export function PatientMeasuresTemplate({
           </div>
         </div>
       </Card>
-      <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
+      <Card variant="surfaceMint" className="p-5 mb-5 hover:shadow-md active:shadow-lg !bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white shadow-sm">
         <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-3">
-            <div className="text-2xl">✎</div>
-            <div className="text-[var(--text-title)] font-semibold text-[var(--color-muted-strong)]">Injections d'insuline & glucides</div>
+            <div className="text-2xl text-white">✎</div>
+            <div className="text-[var(--text-title)] font-semibold text-white">Injections d'insuline & glucides</div>
           </div>
-          <button type="button" onClick={onOpenMealModal} className="w-9 h-9 rounded-full bg-[var(--color-teal)] text-white flex items-center justify-center" title="Ajouter un repas" aria-label="Ajouter un repas">
+          <button type="button" onClick={onOpenMealModal} className="w-9 h-9 rounded-full bg-white/30 text-white flex items-center justify-center" title="Ajouter un repas" aria-label="Ajouter un repas">
             <Plus className="w-4 h-4" />
           </button>
         </div>
-        <div className="rounded-[24px] bg-[var(--color-surface)] p-4 border border-[var(--color-border-subtle)]">
-          <div className="flex items-center justify-between text-sm text-[var(--color-text-secondary)] mb-3"><span>u/h</span><span>u</span></div>
-          <div className="relative h-[180px]">
-            <div className="absolute inset-x-0 bottom-4 h-[2px] bg-[#4b9fb7]" />
-            {[12, 32, 54, 77, 102, 128, 164, 188, 215, 242, 268, 296].map((x) => <div key={x} className="absolute bottom-0 w-[2px] h-3 bg-[#c8d2d1]" style={{ left: `${x}px` }} />)}
-          </div>
-          <div className="mt-2 flex items-center justify-between text-[12px] text-[var(--color-text-secondary)]"><span>0h</span><span>4h</span><span>8h</span><span>12h</span><span>16h</span><span>20h</span><span>24h</span></div>
-          <div className="mt-5 flex items-center justify-end gap-5 text-sm text-[var(--color-muted)]">
-            {["Glucides", "Bolus", "Basal"].map((label) => (
-              <div key={label} className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-teal)] inline-block" />{label}</div>
-            ))}
+        <div className="rounded-[24px] bg-[var(--color-mint)] p-4 border border-[var(--color-border)]">
+          <div className="flex items-center justify-between text-sm text-[var(--color-teal-on-mint)] mb-3"><span>u/h</span><span>u</span></div>
+          {(() => {
+            const hours = [0, 4, 8, 12, 16, 20, 24];
+            const basal = [1, 1, 1, 1, 1, 1, 1];
+            const bolus = [5, 0, 4, 0, 6, 0, 0];
+            const glucides = [45, 0, 60, 25, 50, 0, 0];
+            const maxBolus = Math.max(...bolus, 1);
+            const maxGlucides = Math.max(...glucides, 1);
+            const maxBasal = Math.max(...basal, 1);
+            return (
+              <div className="relative h-[180px]">
+                <div className="absolute inset-x-0 bottom-0 h-[2px] bg-[var(--color-border)]" />
+                <div className="absolute inset-x-0 top-0 bottom-6 flex gap-0.5 items-end">
+                  {hours.slice(0, -1).map((_, i) => (
+                    <div key={i} className="flex-1 flex flex-col justify-end gap-1 pb-6" style={{ minWidth: 0 }}>
+                      <div className="rounded-sm bg-[var(--color-teal)]/40 w-full flex items-center justify-center overflow-hidden" style={{ height: `${(basal[i] / maxBasal) * 28}px`, minHeight: "6px" }} title={`Basal ${basal[i]} u/h`}>
+                        {basal[i] > 0 && <span className="text-[9px] font-medium text-[var(--color-teal-on-mint)] leading-none whitespace-nowrap">{basal[i]} u/h</span>}
+                      </div>
+                      <div className="rounded-sm bg-[var(--color-teal)] w-full flex items-center justify-center overflow-hidden" style={{ height: `${(bolus[i] / maxBolus) * 44}px`, minHeight: bolus[i] ? "8px" : 0 }} title={`Bolus ${bolus[i]} u`}>
+                        {bolus[i] > 0 && <span className="text-[9px] font-medium text-white leading-none whitespace-nowrap">{bolus[i]} u</span>}
+                      </div>
+                      <div className="rounded-sm bg-[#4b9fb7] w-full flex items-center justify-center overflow-hidden" style={{ height: `${(glucides[i] / maxGlucides) * 52}px`, minHeight: glucides[i] ? "8px" : 0 }} title={`Glucides ${glucides[i]} g`}>
+                        {glucides[i] > 0 && <span className="text-[9px] font-medium text-white leading-none whitespace-nowrap">{glucides[i]} g</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="absolute inset-x-0 bottom-0 flex text-[10px] text-[var(--color-teal-on-mint)]">
+                  {hours.map((h) => <span key={h} className="flex-1 text-center">{h}h</span>)}
+                </div>
+              </div>
+            );
+          })()}
+          <div className="mt-6 flex items-center justify-center gap-5 text-sm text-[var(--color-teal-on-mint)]">
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#4b9fb7] inline-block" />Glucides</div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-teal)] inline-block" />Bolus</div>
+            <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[var(--color-teal)]/50 inline-block" />Basal</div>
           </div>
         </div>
       </Card>
@@ -810,6 +926,9 @@ export function PatientExchangesTemplate({
   const [callBooked, setCallBooked] = useState(false);
   const [showCaregiverSearch, setShowCaregiverSearch] = useState(false);
   const [caregiverSearchQuery, setCaregiverSearchQuery] = useState("");
+  const [showAddFileModal, setShowAddFileModal] = useState(false);
+  const [addFileComment, setAddFileComment] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (messageViewMode === "thread" && scrollRef.current) {
@@ -1116,7 +1235,6 @@ export function PatientExchangesTemplate({
         <div className="mb-3">
           <Breadcrumbs items={[{ label: "Échanges" }, { label: "Documents" }]} />
         </div>
-        <SectionTitle title="Documents" subtitle={role === "patient" ? "Documents reçus et fichiers envoyés au soignant" : `Documents · ${selectedClinicalPatient.name}`} />
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">ENVOYÉS PAR LE SOIGNANT</div>
           <div className="space-y-3">
@@ -1139,17 +1257,6 @@ export function PatientExchangesTemplate({
           </div>
         </Card>
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
-          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">DÉPOSER UN DOCUMENT</div>
-          <div className="rounded-[22px] bg-[var(--color-mint)] p-5">
-            <div className="text-[17px] font-semibold text-[var(--color-text)]">Envoyer un document au soignant</div>
-            <div className="text-sm text-[var(--color-text-secondary)] mt-2">PDF, photo d'ordonnance, bilan glycémique ou résultat de laboratoire.</div>
-            <div className="mt-4 flex gap-3">
-              <button type="button" className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold">Choisir un fichier</button>
-              <button type="button" className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold border border-transparent">Prendre une photo</button>
-            </div>
-          </div>
-        </Card>
-        <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
           <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">MES DOCUMENTS ENVOYÉS</div>
           <div className="space-y-3">
             {patientDocuments.length === 0 ? (
@@ -1170,6 +1277,17 @@ export function PatientExchangesTemplate({
             ))}
           </div>
         </Card>
+        <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">DÉPOSER UN DOCUMENT</div>
+          <div className="rounded-[22px] bg-[var(--color-mint)] p-5">
+            <div className="text-[17px] font-semibold text-[var(--color-text)]">Envoyer un document au soignant</div>
+            <div className="text-sm text-[var(--color-text-secondary)] mt-2">PDF, photo d'ordonnance, bilan glycémique ou résultat de laboratoire.</div>
+            <div className="mt-4 flex gap-3">
+              <button type="button" onClick={() => setShowAddFileModal(true)} className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold">Choisir un fichier</button>
+              <button type="button" className="flex-1 rounded-[18px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-3 font-semibold border border-transparent">Prendre une photo</button>
+            </div>
+          </div>
+        </Card>
       </section>
     );
   };
@@ -1183,24 +1301,48 @@ export function PatientExchangesTemplate({
   }
 
   return (
-    <section aria-label="Échanges">
-      <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-      <SectionTitle title="Échanges" subtitle="Messagerie et documents partagés avec le soignant" />
-      <div className="mb-3 flex items-center justify-center">
-        <div className="relative bg-[#f1f5f6] rounded-full p-1 flex gap-1 border border-[var(--color-border)] w-full overflow-hidden">
-          <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-[var(--color-teal)] transition-all duration-200 ease-in-out ${activeExchangeTab === "messages" ? "left-1" : "left-[calc(50%+2px)]"}`} />
-          <button type="button" onClick={() => setActiveExchangeTab("messages")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeExchangeTab === "messages" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
-            Messages
-          </button>
-          <button type="button" onClick={() => setActiveExchangeTab("documents")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeExchangeTab === "documents" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
-            Documents
-          </button>
+    <>
+      <section aria-label="Échanges">
+        <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
+        <SectionTitle title="Échanges" subtitle="Messagerie et documents partagés avec le soignant" />
+        <div className="mb-3 flex items-center justify-center">
+          <div className="relative bg-[#f1f5f6] rounded-full p-1 flex gap-1 border border-[var(--color-border)] w-full overflow-hidden">
+            <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-[var(--color-teal)] transition-all duration-200 ease-in-out ${activeExchangeTab === "messages" ? "left-1" : "left-[calc(50%+2px)]"}`} />
+            <button type="button" onClick={() => setActiveExchangeTab("messages")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeExchangeTab === "messages" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
+              Messages
+            </button>
+            <button type="button" onClick={() => setActiveExchangeTab("documents")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeExchangeTab === "documents" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
+              Documents
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="relative overflow-hidden min-h-0 flex-1">
-        {activeExchangeTab === "messages" ? <div className="animate-[slideFromLeft_0.2s_ease-in-out]">{renderMessagesContent()}</div> : <div className="animate-[slideFromRight_0.2s_ease-in-out]">{renderDocsContent()}</div>}
-      </div>
-    </section>
+        <div className="relative overflow-hidden min-h-0 flex-1">
+          {activeExchangeTab === "messages" ? <div className="animate-[slideFromLeft_0.2s_ease-in-out]">{renderMessagesContent()}</div> : <div className="animate-[slideFromRight_0.2s_ease-in-out]">{renderDocsContent()}</div>}
+        </div>
+      </section>
+      {showAddFileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" aria-modal="true" role="dialog" aria-labelledby="add-file-modal-title" onClick={() => { setShowAddFileModal(false); setAddFileComment(""); }}>
+          <div className="w-full max-w-[340px] rounded-[var(--radius-2xl)] bg-[var(--color-bg)] shadow-xl p-5" onClick={(e) => e.stopPropagation()}>
+            <h2 id="add-file-modal-title" className="text-[var(--text-section)] font-semibold text-[var(--color-text)] m-0 mb-4">Ajouter un fichier</h2>
+            <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mb-4">Envoyez un document au soignant (PDF, image, bilan…).</p>
+            <input ref={fileInputRef} type="file" accept=".pdf,image/*" className="hidden" onChange={() => {}} />
+            <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full rounded-[var(--radius-md)] border-2 border-dashed border-[var(--color-border)] bg-[var(--color-mint)]/30 py-6 text-[var(--color-teal-on-mint)] font-medium text-sm mb-4">
+              Parcourir ou glisser un fichier
+            </button>
+            <label className="block text-[var(--text-xs)] font-semibold text-[var(--color-text-secondary)] mb-1.5">Commentaire (optionnel)</label>
+            <textarea value={addFileComment} onChange={(e) => setAddFileComment(e.target.value)} placeholder="Ex. Ordonnance du 14/03" className="w-full rounded-[var(--radius-md)] bg-[var(--color-surface)] border border-[var(--color-border)] px-4 py-2.5 text-[var(--color-text)] text-sm min-h-[80px] placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-teal)]" rows={3} />
+            <div className="flex gap-3 mt-5">
+              <button type="button" onClick={() => { setShowAddFileModal(false); setAddFileComment(""); }} className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-teal-on-mint)] py-2.5 text-sm font-semibold border border-[var(--color-border)]">
+                Annuler
+              </button>
+              <button type="button" onClick={() => { setShowAddFileModal(false); setAddFileComment(""); }} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 text-sm font-semibold">
+                Envoyer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1235,7 +1377,36 @@ type ProfileProps = HeaderProps & {
   patient: PatientProfile;
   activeAccountTab: AccountTab;
   setActiveAccountTab: (tab: AccountTab) => void;
+  onEditProfile?: () => void;
+  onSaveProfile?: (data: Partial<PatientProfile>) => void;
+  onSaveFiche?: (data: Partial<DiabeticPatientFiche>) => void;
+  patientFiche?: DiabeticPatientFiche | null;
+  /** Called when the user taps "Paramètres du capteur" in the Paramètres tab (navigate to Connexions and open params). */
+  onOpenSensorParams?: () => void;
+  /** Called when the user taps "Notifications". */
+  onOpenNotifications?: () => void;
+  /** Called when the user taps "Historique de synchronisation". */
+  onOpenSyncHistory?: () => void;
+  /** Called when the user taps "Documents partagés". */
+  onOpenSharedDocuments?: () => void;
+  /** Called when the user taps "Sécurité du compte". */
+  onOpenAccountSecurity?: () => void;
+  /** Called when the user taps "Déconnexion". */
+  onLogout?: () => void;
 };
+
+function FicheRow({ label, value }: { label: string; value: string | number | undefined }) {
+  if (value === undefined || value === "") return null;
+  return (
+    <div className="flex justify-between gap-3 py-1.5 border-b border-[var(--color-border-subtle)] last:border-0">
+      <span className="text-[var(--text-sm)] text-[var(--color-text-secondary)]">{label}</span>
+      <span className="text-[var(--text-sm)] font-medium text-[var(--color-text)] text-right">{value}</span>
+    </div>
+  );
+}
+
+const inputClass = "w-full rounded-[var(--radius-md)] bg-[var(--color-mint)] border border-[var(--color-border)] px-4 py-2.5 text-base font-medium text-[#0f1f1e] placeholder:text-[#0f1f1e]/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-teal)]";
+const labelClass = "block text-[var(--text-xs)] font-semibold text-white/90 mb-1.5";
 
 export function PatientProfileTemplate({
   role,
@@ -1244,7 +1415,56 @@ export function PatientProfileTemplate({
   activeAccountTab,
   setActiveAccountTab,
   onProfileClick,
+  onEditProfile,
+  onSaveProfile,
+  onSaveFiche,
+  patientFiche,
+  onOpenSensorParams,
+  onOpenNotifications,
+  onOpenSyncHistory,
+  onOpenSharedDocuments,
+  onOpenAccountSecurity,
+  onLogout,
 }: ProfileProps) {
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editName, setEditName] = useState(patient.name);
+  const [editInitials, setEditInitials] = useState(patient.initials);
+  const [editFiche, setEditFiche] = useState<DiabeticPatientFiche | null>(null);
+
+  useEffect(() => {
+    setEditName(patient.name);
+    setEditInitials(patient.initials);
+  }, [patient.name, patient.initials]);
+
+  const openEdit = () => {
+    setEditName(patient.name);
+    setEditInitials(patient.initials);
+    setEditFiche(patientFiche ? { ...patientFiche } : null);
+    setShowEditForm(true);
+    onEditProfile?.();
+  };
+
+  const cancelEdit = () => {
+    setShowEditForm(false);
+    setEditName(patient.name);
+    setEditInitials(patient.initials);
+    setEditFiche(null);
+  };
+
+  const saveEdit = () => {
+    if (editFiche) {
+      onSaveProfile?.({ name: `${editFiche.firstName} ${editFiche.lastName}`.trim(), initials: editInitials });
+      onSaveFiche?.(editFiche);
+    } else {
+      onSaveProfile?.({ name: editName, initials: editInitials });
+    }
+    setShowEditForm(false);
+    setEditFiche(null);
+  };
+
+  const displayName = showEditForm && editFiche ? `${editFiche.firstName} ${editFiche.lastName}`.trim() || editName : (showEditForm ? editName : patient.name);
+  const displayInitials = showEditForm && editFiche ? ((editFiche.lastName.trim().slice(0, 1) + editFiche.firstName.trim().slice(0, 1)).toUpperCase() || editInitials) : (showEditForm ? editInitials : patient.initials);
+
   return (
     <section aria-label="Compte patient">
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
@@ -1260,49 +1480,157 @@ export function PatientProfileTemplate({
           </button>
         </div>
       </div>
-      <div className="relative overflow-hidden min-h-[320px]">
+      <div className="relative min-h-[320px]">
         {activeAccountTab === "profil" ? (
-          <div className="animate-[slideFromLeft_0.2s_ease-in-out] space-y-4">
+          <div className="animate-[slideFromLeft_0.2s_ease-in-out] space-y-4 pb-24">
             <Card variant="surface" className="p-4 hover:shadow-md active:shadow-lg">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full bg-[var(--color-mint)] flex items-center justify-center text-[var(--color-teal-on-mint)] text-xl font-semibold shrink-0">{patient.initials}</div>
-                <div className="min-w-0">
-                  <div className="text-xl font-semibold text-white truncate">{patient.name}</div>
+                <div className="w-14 h-14 rounded-full bg-[var(--color-mint)] flex items-center justify-center text-[var(--color-teal-on-mint)] text-xl font-semibold shrink-0">{showEditForm ? displayInitials : patient.initials}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-xl font-semibold text-white truncate">{showEditForm ? displayName : patient.name}</div>
                   <div className="text-sm text-white/90 mt-1">{patient.sensor}</div>
                   <div className="text-sm text-white/80 mt-1">Synchronisé {patient.syncAgo}</div>
                 </div>
+                <button
+                  type="button"
+                  onClick={showEditForm ? cancelEdit : openEdit}
+                  className="shrink-0 rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-teal-on-mint)] px-4 py-2 text-sm font-semibold border border-[var(--color-border)] hover:shadow-md active:scale-[0.98] transition-transform"
+                  aria-label={showEditForm ? "Fermer sans enregistrer" : "Modifier le profil"}
+                >
+                  {showEditForm ? "Fermer" : "Modifier"}
+                </button>
               </div>
+              {showEditForm && (
+                <div className="mt-5 pt-5 border-t border-[var(--color-border-subtle)] space-y-5 animate-[slideFromLeft_0.2s_ease-in-out]">
+                  <p className="text-[var(--text-xs)] font-semibold text-white/80 uppercase tracking-wide">Modifier ma fiche</p>
+                  {editFiche ? (
+                    <>
+                      <div>
+                        <p className={labelClass}>Identité</p>
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                          <input type="text" value={editFiche.lastName} onChange={(e) => setEditFiche((f) => (f ? { ...f, lastName: e.target.value } : null))} className={inputClass} placeholder="Nom" />
+                          <input type="text" value={editFiche.firstName} onChange={(e) => setEditFiche((f) => (f ? { ...f, firstName: e.target.value } : null))} className={inputClass} placeholder="Prénom" />
+                        </div>
+                        <input type="text" value={editFiche.birthDate} onChange={(e) => setEditFiche((f) => (f ? { ...f, birthDate: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Date de naissance (AAAA-MM-JJ)" />
+                        <input type="tel" value={editFiche.phone ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, phone: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Téléphone" />
+                        <input type="email" value={editFiche.email ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, email: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Email" />
+                      </div>
+                      <div>
+                        <p className={labelClass}>Diabétologie</p>
+                        <select value={editFiche.diabetesType} onChange={(e) => setEditFiche((f) => (f ? { ...f, diabetesType: e.target.value as "1" | "2" | "autre" } : null))} className={inputClass}>
+                          <option value="1">Diabète de type 1</option>
+                          <option value="2">Diabète de type 2</option>
+                          <option value="autre">Autre</option>
+                        </select>
+                        <input type="text" value={editFiche.dateDiagnosis} onChange={(e) => setEditFiche((f) => (f ? { ...f, dateDiagnosis: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Date du diagnostic" />
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <input type="number" step={0.1} value={editFiche.lastHbA1c ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, lastHbA1c: e.target.value ? Number(e.target.value) : undefined } : null))} className={inputClass} placeholder="HbA1c %" />
+                          <input type="text" value={editFiche.lastHbA1cDate ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, lastHbA1cDate: e.target.value } : null))} className={inputClass} placeholder="Date HbA1c" />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <input type="number" value={editFiche.targetGlucoseMin} onChange={(e) => setEditFiche((f) => (f ? { ...f, targetGlucoseMin: Number(e.target.value) } : null))} className={inputClass} placeholder="Cible min (mg/dL)" />
+                          <input type="number" value={editFiche.targetGlucoseMax} onChange={(e) => setEditFiche((f) => (f ? { ...f, targetGlucoseMax: Number(e.target.value) } : null))} className={inputClass} placeholder="Cible max (mg/dL)" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className={labelClass}>Traitement</p>
+                        <textarea value={editFiche.treatmentSummary} onChange={(e) => setEditFiche((f) => (f ? { ...f, treatmentSummary: e.target.value } : null))} className={`${inputClass} min-h-[80px]`} placeholder="Résumé du traitement" rows={3} />
+                      </div>
+                      <div>
+                        <p className={labelClass}>Médecin & urgence</p>
+                        <input type="text" value={editFiche.treatingPhysician} onChange={(e) => setEditFiche((f) => (f ? { ...f, treatingPhysician: e.target.value } : null))} className={inputClass} placeholder="Médecin traitant" />
+                        <input type="tel" value={editFiche.physicianPhone ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, physicianPhone: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Tél. médecin" />
+                        <input type="text" value={editFiche.emergencyContact ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, emergencyContact: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Contact urgence" />
+                        <input type="tel" value={editFiche.emergencyPhone ?? ""} onChange={(e) => setEditFiche((f) => (f ? { ...f, emergencyPhone: e.target.value } : null))} className={`${inputClass} mt-2`} placeholder="Tél. urgence" />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Initiales (affichage)</label>
+                        <input type="text" value={editInitials} onChange={(e) => setEditInitials(e.target.value)} maxLength={4} className={inputClass} placeholder="ex. LB" />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label className={labelClass}>Nom</label>
+                        <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className={inputClass} placeholder="Nom complet" />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Initiales</label>
+                        <input type="text" value={editInitials} onChange={(e) => setEditInitials(e.target.value)} maxLength={4} className={inputClass} placeholder="ex. LB" />
+                      </div>
+                    </>
+                  )}
+                  <div className="flex gap-3">
+                    <button type="button" onClick={saveEdit} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 text-sm font-semibold shadow-sm hover:shadow-md">Enregistrer</button>
+                    <button type="button" onClick={cancelEdit} className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-teal-on-mint)] py-2.5 text-sm font-semibold border border-[var(--color-border)]">Annuler</button>
+                  </div>
+                </div>
+              )}
             </Card>
-            <div>
-              <div className="text-xs tracking-[0.2em] text-[var(--color-label)] font-semibold mb-3">PARAMÈTRES</div>
-              <div className="space-y-3">
-                {[
-                  { title: "Capteur connecté", desc: `${patient.sensor} · synchronisé ${patient.syncAgo}`, icon: "◉" },
-                  { title: "Sources de données", desc: `${patient.source} · télésurveillance active`, icon: "▣" },
-                  { title: "Notifications", desc: "Alertes hypo, hyper et messages médecin", icon: "◌" },
-                  { title: "Confidentialité", desc: "Consentement actif et partage des données", icon: "◍" },
-                  { title: "Sécurité", desc: "Accès au compte et protection des données", icon: "◎" },
-                ].map((item) => (
-                  <button key={item.title} type="button" className="w-full rounded-[20px] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] border border-transparent text-white p-4 text-left flex items-center gap-3 hover:shadow-md">
-                    <div className="w-10 h-10 rounded-full bg-[var(--color-mint)] text-[var(--color-teal-on-mint)] flex items-center justify-center text-base shrink-0">{item.icon}</div>
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-white truncate">{item.title}</div>
-                      <div className="text-sm text-white/90 mt-1 truncate">{item.desc}</div>
-                    </div>
-                    <div className="text-white shrink-0">›</div>
-                  </button>
-                ))}
-              </div>
-            </div>
+            {!showEditForm && patientFiche && (
+              <>
+                <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+                  <h3 className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">IDENTITÉ</h3>
+                  <div className="space-y-0">
+                    <FicheRow label="Nom" value={`${patientFiche.lastName} ${patientFiche.firstName}`} />
+                    <FicheRow label="Date de naissance" value={patientFiche.birthDate} />
+                    <FicheRow label="Téléphone" value={patientFiche.phone} />
+                    <FicheRow label="Email" value={patientFiche.email} />
+                  </div>
+                </Card>
+                <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+                  <h3 className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">DIABÉTOLOGIE</h3>
+                  <div className="space-y-0">
+                    <FicheRow label="Type de diabète" value={patientFiche.diabetesType === "1" ? "Diabète de type 1" : patientFiche.diabetesType === "2" ? "Diabète de type 2" : "Autre"} />
+                    <FicheRow label="Date du diagnostic" value={patientFiche.dateDiagnosis} />
+                    <FicheRow label="HbA1c (dernière)" value={patientFiche.lastHbA1c != null ? `${patientFiche.lastHbA1c} % (${patientFiche.lastHbA1cDate ?? ""})` : undefined} />
+                    <FicheRow label="Cible glycémie" value={`${patientFiche.targetGlucoseMin} – ${patientFiche.targetGlucoseMax} mg/dL`} />
+                  </div>
+                </Card>
+                <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+                  <h3 className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">TRAITEMENT</h3>
+                  <p className="text-[var(--text-sm)] text-[var(--color-text)] leading-relaxed">{patientFiche.treatmentSummary}</p>
+                </Card>
+                <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+                  <h3 className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">CAPTEUR / CGM</h3>
+                  <div className="space-y-0">
+                    <FicheRow label="Modèle" value={patientFiche.sensorType} />
+                    <FicheRow label="Dernier calibrage" value={patientFiche.lastCalibration} />
+                    <FicheRow label="Synchronisation" value={patient.syncAgo} />
+                  </div>
+                </Card>
+                <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
+                  <h3 className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">MÉDECIN & URGENCE</h3>
+                  <div className="space-y-0">
+                    <FicheRow label="Médecin traitant" value={patientFiche.treatingPhysician} />
+                    <FicheRow label="Tél. médecin" value={patientFiche.physicianPhone} />
+                    <FicheRow label="Contact urgence" value={patientFiche.emergencyContact} />
+                    <FicheRow label="Tél. urgence" value={patientFiche.emergencyPhone} />
+                  </div>
+                </Card>
+              </>
+            )}
           </div>
         ) : (
           <div className="animate-[slideFromRight_0.2s_ease-in-out]">
             <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
               <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PARAMÈTRES</div>
               <div className="space-y-3 mt-4">
-                {["Notifications", "Historique de synchronisation", "Documents partagés", "Sécurité du compte", "Déconnexion"].map((item, index) => (
-                  <button key={item} type="button" className={`w-full rounded-[20px] ${index === 4 ? "bg-[#fff5f5] text-[#b45309] border border-[#f3d6d6]" : "bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border)]"} p-4 text-left font-semibold hover:shadow-md`}>
-                    {item}
+                {[
+                  { id: "sensor", label: "Paramètres du capteur", onClick: onOpenSensorParams },
+                  { id: "notifications", label: "Notifications", onClick: onOpenNotifications },
+                  { id: "sync", label: "Historique de synchronisation", onClick: onOpenSyncHistory },
+                  { id: "docs", label: "Documents partagés", onClick: onOpenSharedDocuments },
+                  { id: "security", label: "Sécurité du compte", onClick: onOpenAccountSecurity },
+                  { id: "logout", label: "Déconnexion", onClick: onLogout, isDanger: true },
+                ].map(({ id, label, onClick, isDanger }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={onClick}
+                    className={`w-full rounded-[20px] ${isDanger ? "bg-[#fff5f5] text-[#b45309] border border-[#f3d6d6]" : "bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border)]"} p-4 text-left font-semibold hover:shadow-md`}
+                  >
+                    {label}
                   </button>
                 ))}
               </div>
