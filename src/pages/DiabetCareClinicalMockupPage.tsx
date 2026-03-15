@@ -218,6 +218,7 @@ export default function DiabetCareClinicalMockupPage() {
               setSelectedDocumentId={state.setSelectedDocumentId}
               availableCaregivers={availableCaregivers}
               onStartNewConversation={startNewConversation}
+              onAddCaregiver={() => setToastMessage("Ajouter soignant — Bientôt disponible")}
               onProfileClick={openProfile}
             />
           );
@@ -338,6 +339,8 @@ export default function DiabetCareClinicalMockupPage() {
             documentViewMode={state.documentViewMode}
             setDocumentViewMode={state.setDocumentViewMode}
             setSelectedDocumentId={state.setSelectedDocumentId}
+            availableCaregivers={availableCaregivers}
+            onStartNewConversation={() => {}}
             onProfileClick={() => state.setActiveTab("patients")}
           />
         );
@@ -364,6 +367,8 @@ export default function DiabetCareClinicalMockupPage() {
             documentViewMode={state.documentViewMode}
             setDocumentViewMode={state.setDocumentViewMode}
             setSelectedDocumentId={state.setSelectedDocumentId}
+            availableCaregivers={availableCaregivers}
+            onStartNewConversation={() => {}}
             onProfileClick={() => state.setActiveTab("patients")}
           />
         );

@@ -896,6 +896,8 @@ type ExchangesProps = HeaderProps & {
   setSelectedDocumentId: (id: string) => void;
   availableCaregivers: Caregiver[];
   onStartNewConversation: (caregiver: Caregiver) => void;
+  /** Appelé au clic sur « Ajouter soignant » (inviter un nouveau soignant dans l’app). */
+  onAddCaregiver?: () => void;
 };
 
 export function PatientExchangesTemplate({
@@ -921,6 +923,7 @@ export function PatientExchangesTemplate({
   setSelectedDocumentId,
   availableCaregivers,
   onStartNewConversation,
+  onAddCaregiver,
   onProfileClick,
 }: ExchangesProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -1163,7 +1166,10 @@ export function PatientExchangesTemplate({
         <div className="mb-3">
           <Breadcrumbs items={[{ label: "Échanges" }, { label: "Messages" }]} />
         </div>
-        <button type="button" onClick={() => setShowCaregiverSearch(true)} className="w-full rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm mb-3 hover:shadow-md">Nouveau message</button>
+        <div className="flex gap-3 mb-3">
+          <button type="button" onClick={() => setShowCaregiverSearch(true)} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Nouveau message</button>
+          <button type="button" onClick={() => { setShowCaregiverSearch(true); onAddCaregiver?.(); }} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Ajouter soignant</button>
+        </div>
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <button type="button" onClick={() => setMessagesCardExpanded(!messagesCardExpanded)} className="w-full flex items-center justify-between gap-3 text-left" aria-label={messagesCardExpanded ? "Réduire les messages" : "Développer les messages"} aria-expanded={messagesCardExpanded}>
             <div>
