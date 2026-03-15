@@ -230,7 +230,7 @@ export function PatientSensorTemplate({ role, patient, clinicianInitials, device
   if (showSensorParams) {
     const m = SENSOR_PARAMS_MOCK;
     return (
-      <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Paramètres du capteur">
+      <section className="pb-24 animate-[softTabSlide_0.35s_ease-out]" aria-label="Paramètres du capteur">
         <div className="flex items-center gap-3 mb-4">
           <button type="button" onClick={() => setShowSensorParams(false)} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)]" aria-label="Retour aux connexions">
             <ChevronLeft className="w-5 h-5" />
@@ -385,6 +385,8 @@ type MeasuresProps = HeaderProps & {
   onOpenNotes?: () => void;
   /** Quand fourni (vue soignant), affiche le bouton d’import de données (fichier JSON rapport). */
   onImportData?: (data: unknown) => void;
+  /** Quand fourni (vue soignant), affiche un bouton Accueil pour revenir au cockpit. */
+  onGoHome?: () => void;
 };
 
 export function PatientMeasuresTemplate({
@@ -407,6 +409,7 @@ export function PatientMeasuresTemplate({
   onOpenFiche,
   onOpenNotes,
   onImportData,
+  onGoHome,
 }: MeasuresProps) {
   const measureGradientId = useId();
   const importFileInputRef = useRef<HTMLInputElement>(null);
@@ -458,7 +461,7 @@ export function PatientMeasuresTemplate({
     };
 
     return (
-      <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Carnet diabète">
+      <section className="pb-24 animate-[softTabSlide_0.35s_ease-out]" aria-label="Carnet diabète">
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
         <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
           {[["jour", "Jour"], ["carnet", "Carnet"]].map(([key, label]) => (
@@ -590,7 +593,7 @@ export function PatientMeasuresTemplate({
 
     const followUpTabs = role === "patient" ? [["jour", "Jour"], ["carnet", "Carnet"]] as const : [];
     return (
-      <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Tendances glycémiques">
+      <section className="pb-24 animate-[softTabSlide_0.35s_ease-out]" aria-label="Tendances glycémiques">
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
         {followUpTabs.length > 0 && (
         <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
@@ -746,12 +749,19 @@ export function PatientMeasuresTemplate({
             </div>
           </div>
         </Card>
+        {role === "clinician" && onGoHome && (
+          <div className="mt-4 flex justify-center">
+            <button type="button" onClick={onGoHome} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 px-5 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md">
+              Accueil
+            </button>
+          </div>
+        )}
       </section>
     );
   }
 
   return (
-    <section className="pb-24 animate-[softTabSlide_0.2s_ease-out]" aria-label="Suivi patient">
+    <section className="pb-24 animate-[softTabSlide_0.35s_ease-out]" aria-label="Suivi patient">
       <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <div className="flex rounded-full bg-[#f1f5f6] border border-[var(--color-border)] p-1 mb-5">
         {[["jour", "Jour"], ["carnet", "Carnet"]].map(([key, label]) => (
@@ -1094,12 +1104,12 @@ export function PatientExchangesTemplate({
 
           {/* Modal RDV telephonique */}
           {showCallModal && (
-            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 animate-[fadeInOverlay_0.2s_ease-out]">
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 animate-[fadeInOverlay_0.3s_ease-out]">
               <style>{`
                 @keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
-                @keyframes slideUpModal { from { opacity:0; transform:translateY(24px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+                @keyframes slideUpModal { from { opacity:0; transform:translateY(12px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
               `}</style>
-              <div role="dialog" aria-modal="true" aria-label="Prendre un rendez-vous téléphonique" className="w-[calc(100%-32px)] max-w-[340px] rounded-3xl bg-white border border-[var(--color-border)] shadow-2xl overflow-hidden animate-[slideUpModal_0.25s_ease-out]">
+              <div role="dialog" aria-modal="true" aria-label="Prendre un rendez-vous téléphonique" className="w-[calc(100%-32px)] max-w-[340px] rounded-3xl bg-white border border-[var(--color-border)] shadow-2xl overflow-hidden animate-[slideUpModal_0.35s_ease-out]">
                 {callBooked ? (
                   <div className="p-6 text-center">
                     <div className="w-16 h-16 rounded-full bg-[var(--color-mint)] flex items-center justify-center mx-auto mb-4">
@@ -1388,7 +1398,7 @@ export function PatientExchangesTemplate({
           </div>
         </div>
         <div className="relative overflow-hidden min-h-0 flex-1">
-          {activeExchangeTab === "messages" ? <div className="animate-[slideFromLeft_0.2s_ease-in-out]">{renderMessagesContent()}</div> : <div className="animate-[slideFromRight_0.2s_ease-in-out]">{renderDocsContent()}</div>}
+          {activeExchangeTab === "messages" ? <div className="animate-[slideFromLeft_0.35s_ease-out]">{renderMessagesContent()}</div> : <div className="animate-[slideFromRight_0.35s_ease-out]">{renderDocsContent()}</div>}
         </div>
       </section>
       {/* Modale Ajouter un fichier : overlay ferme au clic ; Annuler/Envoyer ferment et réinitialisent le commentaire. Upload à brancher sur Envoyer. */}
@@ -1554,7 +1564,7 @@ export function PatientProfileTemplate({
       </div>
       <div className="relative min-h-[320px]">
         {activeAccountTab === "profil" ? (
-          <div className="animate-[slideFromLeft_0.2s_ease-in-out] space-y-4 pb-24">
+          <div className="animate-[slideFromLeft_0.35s_ease-out] space-y-4 pb-24">
             <Card variant="surface" className="p-4 hover:shadow-md active:shadow-lg">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-full bg-[var(--color-mint)] flex items-center justify-center text-[var(--color-teal-on-mint)] text-xl font-semibold shrink-0">{showEditForm ? displayInitials : patient.initials}</div>
@@ -1573,7 +1583,7 @@ export function PatientProfileTemplate({
                 </button>
               </div>
               {showEditForm && (
-                <div className="mt-5 pt-5 border-t border-[var(--color-border-subtle)] space-y-5 animate-[slideFromLeft_0.2s_ease-in-out]">
+                <div className="mt-5 pt-5 border-t border-[var(--color-border-subtle)] space-y-5 animate-[slideFromLeft_0.35s_ease-out]">
                   <p className="text-[var(--text-xs)] font-semibold text-white/80 uppercase tracking-wide">Modifier ma fiche</p>
                   {editFiche ? (
                     <>
@@ -1684,7 +1694,7 @@ export function PatientProfileTemplate({
             )}
           </div>
         ) : (
-          <div className="animate-[slideFromRight_0.2s_ease-in-out]">
+          <div className="animate-[slideFromRight_0.35s_ease-out]">
             <Card variant="surface" className="p-5 hover:shadow-md active:shadow-lg">
               <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PARAMÈTRES</div>
               <div className="space-y-3 mt-4">

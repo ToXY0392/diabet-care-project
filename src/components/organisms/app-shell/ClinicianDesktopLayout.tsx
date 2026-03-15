@@ -14,7 +14,8 @@ type ClinicianDesktopLayoutProps = {
 const SIDEBAR_ITEMS: { key: ClinicianTab; label: string }[] = [
   { key: "cockpit", label: "Accueil" },
   { key: "patients", label: "Patients" },
-  { key: "echanges", label: "Échanges" },
+  { key: "documents", label: "Documents" },
+  { key: "echanges", label: "Messagerie" },
   { key: "notes", label: "Notes" },
   { key: "compte", label: "Compte" },
 ];

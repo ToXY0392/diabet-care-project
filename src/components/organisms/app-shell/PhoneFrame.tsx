@@ -21,14 +21,14 @@ export default function PhoneFrame({ children, roleSwitcher, bottomNavigation, m
         </div>
         <div className={`absolute inset-[10px] rounded-[var(--radius-2xl)] bg-[var(--color-bg)] flex flex-col overflow-hidden ${fullscreen ? "px-3 pt-12 pb-2" : "px-5 pt-16 pb-6"}`}>
           <style>{`
-            @keyframes slideFromLeft { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
-            @keyframes slideFromRight { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
-            @keyframes softTabSlide { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: translateX(0); } }
+            @keyframes slideFromLeft { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+            @keyframes slideFromRight { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; transform: translateX(0); } }
+            @keyframes softTabSlide { from { opacity: 0; transform: translateX(6px); } to { opacity: 1; transform: translateX(0); } }
             .scrollbar-hide::-webkit-scrollbar { display: none; }
             .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
           `}</style>
           {!fullscreen && roleSwitcher}
-          <main className={`flex-1 min-h-0 ${fullscreen ? "overflow-hidden" : "pr-1 animate-[softTabSlide_0.2s_ease-out] overflow-y-auto scrollbar-hide"}`} aria-label="Contenu principal">
+          <main className={`flex-1 min-h-0 ${fullscreen ? "overflow-hidden" : "pr-1 animate-[softTabSlide_0.35s_ease-out] overflow-y-auto scrollbar-hide"}`} aria-label="Contenu principal">
             {children}
           </main>
           {bottomNavigation}

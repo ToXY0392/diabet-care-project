@@ -179,11 +179,15 @@ export const carnetEntries: CarnetEntry[] = [
 ];
 
 export const documents: DocumentItem[] = [
-  { id: "ordonnance-mars", title: "Ordonnance mars", category: "Prescription", date: "11 mars 2026", source: "soignant", isNew: true, content: "Insuline rapide avant repas. Maintien du schéma basal actuel. Surveillance CGM continue recommandée avec revue des épisodes bas de fin de matinée." },
-  { id: "compte-rendu", title: "Compte-rendu consultation", category: "Clinique", date: "09 mars 2026", source: "soignant", content: "Temps dans la cible satisfaisant. Quelques épisodes bas en fin de matinée. Réévaluation prévue après une semaine de surveillance continue." },
-  { id: "consentement", title: "Consentement télésurveillance", category: "Administratif", date: "01 mars 2026", source: "soignant", content: "Consentement actif pour le partage des données de surveillance continue du glucose et l'échange de documents cliniques avec l'équipe soignante." },
-  { id: "bilan-mars-patient", title: "Bilan glycémique mars.pdf", category: "PDF", date: "10 mars 2026", source: "patient", status: "Consulté", content: "Document patient transmis à l'équipe soignante avec récapitulatif des mesures, événements et remarques cliniques." },
-  { id: "ordonnance-photo-patient", title: "Ordonnance photo.jpg", category: "Image", date: "07 mars 2026", source: "patient", status: "Envoyé", content: "Capture photo d'ordonnance déposée par le patient et transmise au soignant." },
+  { id: "ordonnance-mars", patientId: "PAT-001", title: "Ordonnance mars", category: "Prescription", date: "11 mars 2026", source: "soignant", isNew: true, content: "Insuline rapide avant repas. Maintien du schéma basal actuel. Surveillance CGM continue recommandée avec revue des épisodes bas de fin de matinée." },
+  { id: "compte-rendu", patientId: "PAT-001", title: "Compte-rendu consultation", category: "Clinique", date: "09 mars 2026", source: "soignant", content: "Temps dans la cible satisfaisant. Quelques épisodes bas en fin de matinée. Réévaluation prévue après une semaine de surveillance continue." },
+  { id: "consentement", patientId: "PAT-001", title: "Consentement télésurveillance", category: "Administratif", date: "01 mars 2026", source: "soignant", content: "Consentement actif pour le partage des données de surveillance continue du glucose et l'échange de documents cliniques avec l'équipe soignante." },
+  { id: "bilan-mars-patient", patientId: "PAT-001", title: "Bilan glycémique mars.pdf", category: "PDF", date: "10 mars 2026", source: "patient", status: "Consulté", content: "Document patient transmis à l'équipe soignante avec récapitulatif des mesures, événements et remarques cliniques." },
+  { id: "ordonnance-photo-patient", patientId: "PAT-001", title: "Ordonnance photo.jpg", category: "Image", date: "07 mars 2026", source: "patient", status: "Envoyé", content: "Capture photo d'ordonnance déposée par le patient et transmise au soignant." },
+  { id: "doc-pat002-1", patientId: "PAT-002", title: "Ordonnance Lucas", category: "Prescription", date: "12 mars 2026", source: "soignant", content: "Poursuite du schéma actuel. Contrôle dans 3 mois." },
+  { id: "doc-pat002-2", patientId: "PAT-002", title: "Résultats HbA1c", category: "Clinique", date: "05 mars 2026", source: "patient", status: "Consulté", content: "Résultats transmis par le patient." },
+  { id: "doc-pat003-1", patientId: "PAT-003", title: "Compte-rendu capteur", category: "Clinique", date: "13 mars 2026", source: "soignant", isNew: true, content: "Vérification du capteur et relance de la synchronisation." },
+  { id: "doc-pat003-2", patientId: "PAT-003", title: "Photo capteur", category: "Image", date: "13 mars 2026", source: "patient", status: "Envoyé", content: "Photo du capteur envoyée par la patiente." },
 ];
 
 /** Soignants inscrits, recherchables par le patient pour créer une discussion */
@@ -296,8 +300,10 @@ export const clinicianThreads: ConversationThread[] = [
 ];
 
 export const therapyNotes: NoteItem[] = [
-  { id: "note-1", title: "Note clinique du jour", author: "Dr Lambert", date: "11 mars 2026 · 12:20", content: "Hypoglycémie brève détectée vers 11:45. Pas d’escalade immédiate. Maintien du traitement avec surveillance rapprochée demain matin." },
-  { id: "note-2", title: "Ajustement précédent", author: "Dr Lambert", date: "08 mars 2026 · 09:10", content: "Réduction légère du risque post-prandial observée. Poursuite du suivi Dexcom et revue des collations intermédiaires." },
+  { id: "note-1", patientId: "PAT-001", title: "Note clinique du jour", author: "Dr Lambert", date: "11 mars 2026 · 12:20", content: "Hypoglycémie brève détectée vers 11:45. Pas d’escalade immédiate. Maintien du traitement avec surveillance rapprochée demain matin." },
+  { id: "note-2", patientId: "PAT-001", title: "Ajustement précédent", author: "Dr Lambert", date: "08 mars 2026 · 09:10", content: "Réduction légère du risque post-prandial observée. Poursuite du suivi Dexcom et revue des collations intermédiaires." },
+  { id: "note-3", patientId: "PAT-002", title: "Contrôle trimestriel", author: "Dr Lambert", date: "10 mars 2026 · 14:00", content: "Tout est stable. Poursuite du schéma actuel. Prochain RDV dans 3 mois." },
+  { id: "note-4", patientId: "PAT-003", title: "Rupture capteur", author: "Dr Lambert", date: "12 mars 2026 · 08:15", content: "Patient signale une rupture de remontée des données. Vérification du capteur et de l'app conseillée." },
 ];
 
 export const deviceConnections: DeviceConnection[] = [

@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
  */
 export type Role = "patient" | "clinician";
 export type PatientTab = "accueil" | "capteur" | "mesures" | "echanges" | "profil";
-export type ClinicianTab = "cockpit" | "patients" | "patient_view" | "echanges" | "mesures" | "notes" | "compte";
+export type ClinicianTab = "cockpit" | "documents" | "patients" | "patient_view" | "echanges" | "mesures" | "notes" | "compte";
 export type AnyTab = PatientTab | ClinicianTab;
 export type Tone = "neutral" | "active" | "hypo" | "hyper" | "info";
 export type MeasurePeriod = "7j" | "15j" | "30j" | "90j";
@@ -58,6 +58,8 @@ export type Caregiver = {
 
 export type DocumentItem = {
   id: string;
+  /** Identifiant du patient concerné (pour la vue soignant, gestion par patient). */
+  patientId?: string;
   title: string;
   category: string;
   date: string;
@@ -69,6 +71,8 @@ export type DocumentItem = {
 
 export type NoteItem = {
   id: string;
+  /** Identifiant du patient concerné (pour la vue soignant). */
+  patientId: string;
   title: string;
   author: string;
   date: string;

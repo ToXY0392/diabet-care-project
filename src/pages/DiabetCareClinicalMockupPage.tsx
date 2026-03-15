@@ -8,9 +8,10 @@ import PhoneFrame from "../components/organisms/app-shell/PhoneFrame";
 import RoleSwitcher from "../components/organisms/app-shell/RoleSwitcher";
 import AgendaModal from "../components/organisms/forms/AgendaModal";
 import CapteursModal from "../components/organisms/forms/CapteursModal";
+import SearchPatientModal from "../components/organisms/forms/SearchPatientModal";
 import ClinicianNoteModal from "../components/organisms/forms/ClinicianNoteModal";
 import { GlycemiaModalForm, MealModalForm, SensorChoiceModal } from "../components/organisms/forms/Modals";
-import { ClinicianCockpitTemplate, ClinicianCompteTemplate, ClinicianNotesTemplate, ClinicianPatientViewTemplate, ClinicianPatientsTemplate } from "../components/templates/clinician/ClinicianTemplates";
+import { ClinicianCockpitTemplate, ClinicianCompteTemplate, ClinicianDocumentsTemplate, ClinicianNotesTemplate, ClinicianPatientViewTemplate, ClinicianPatientsTemplate } from "../components/templates/clinician/ClinicianTemplates";
 import {
   PatientDashboardTemplate,
   PatientExchangesTemplate,
@@ -37,7 +38,7 @@ import {
 } from "../features/diabetcare/data/mockData";
 import { useClinicalMockupState } from "../features/diabetcare/hooks/useClinicalMockupState";
 import { useMeasureChart } from "../features/diabetcare/hooks/useMeasureChart";
-import type { Appointment, Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, NavItem, PatientTab } from "../features/diabetcare/types";
+import type { Appointment, Caregiver, ClinicianTab, ConversationThread, DiabeticPatientFiche, DocumentItem, NavItem, PatientTab } from "../features/diabetcare/types";
 
 /**
  * Page maquette DiabetCare : un seul écran avec bascule patient / clinicien, navigation par onglets,
@@ -51,9 +52,13 @@ export default function DiabetCareClinicalMockupPage() {
   const [patientFicheState, setPatientFicheState] = useState<DiabeticPatientFiche | null>(null);
   const [agendaModalOpen, setAgendaModalOpen] = useState(false);
   const [capteursModalOpen, setCapteursModalOpen] = useState(false);
+  const [searchPatientModalOpen, setSearchPatientModalOpen] = useState(false);
   const [clinicianNoteModalOpen, setClinicianNoteModalOpen] = useState(false);
   const [clinicianQuickNotes, setClinicianQuickNotes] = useState<Record<string, string>>({});
   const [importedReportData, setImportedReportData] = useState<unknown>(null);
+  const [clinicianNoteOverrides, setClinicianNoteOverrides] = useState<Record<string, string>>({});
+  const [clinicianAddedDocuments, setClinicianAddedDocuments] = useState<DocumentItem[]>([]);
+  const [removedDocumentIds, setRemovedDocumentIds] = useState<string[]>([]);
 
   const sortedAppointments: Appointment[] = [...clinicianAppointments].sort(
     (a, b) => (a.date !== b.date ? a.date.localeCompare(b.date) : a.time.localeCompare(b.time))
@@ -75,8 +80,17 @@ export default function DiabetCareClinicalMockupPage() {
   const currentMeasureConfig = glucoseSeriesByPeriod[state.activeMeasurePeriod];
   const chart = useMeasureChart(currentMeasureConfig.data);
   const visibleHistoryRows = state.historyExpanded ? historyRows : historyRows.slice(0, 1);
-  const providerDocuments = documents.filter((item) => item.source === "soignant");
-  const patientDocuments = documents.filter((item) => item.source === "patient");
+  const contextPatientId = state.role === "patient" ? patientState.id : state.selectedClinicalPatientId;
+  const baseProviderDocuments = documents.filter(
+    (item) => item.source === "soignant" && (!item.patientId || item.patientId === contextPatientId)
+  );
+  const addedDocsForContext = clinicianAddedDocuments.filter(
+    (d) => d.source === "soignant" && d.patientId === contextPatientId
+  );
+  const providerDocuments = [...baseProviderDocuments, ...addedDocsForContext];
+  const patientDocuments = documents.filter(
+    (item) => item.source === "patient" && (!item.patientId || item.patientId === contextPatientId)
+  );
   const threads = state.role === "patient" ? patientThreadsState : clinicianThreads;
   const sortedThreads = [...threads].sort((a, b) => (b.unread !== a.unread ? b.unread - a.unread : a.name.localeCompare(b.name)));
   const visibleThreads = state.messagesCardExpanded ? sortedThreads : sortedThreads.slice(0, 3);
@@ -103,7 +117,8 @@ export default function DiabetCareClinicalMockupPage() {
     state.setSelectedThreadId(caregiver.id);
     state.setMessageViewMode("thread");
   };
-  const selectedDocument = documents.find((item) => item.id === state.selectedDocumentId) ?? documents[0];
+  const contextDocs = [...providerDocuments, ...patientDocuments];
+  const selectedDocument = contextDocs.find((d) => d.id === state.selectedDocumentId) ?? contextDocs[0] ?? documents[0];
   const selectedClinicalPatient = clinicianPatients.find((item) => item.id === state.selectedClinicalPatientId) ?? clinicianPatients[0];
 
   const patientNavItems: NavItem<PatientTab>[] = [
@@ -310,15 +325,27 @@ export default function DiabetCareClinicalMockupPage() {
         );
       case "patients":
         return (
-          <ClinicianPatientsTemplate
-            patient={patient}
-            clinicianInitials={clinicianProfile.initials}
-            clinicianPatients={clinicianPatients}
-            selectedClinicalPatientId={state.selectedClinicalPatientId}
-            onSelectPatient={selectClinicianPatient}
-            onPatientsClick={() => state.setActiveTab("patients")}
-            onProfileClick={openProfile}
-          />
+          <>
+            <ClinicianPatientsTemplate
+              patient={patient}
+              clinicianInitials={clinicianProfile.initials}
+              clinicianPatients={clinicianPatients}
+              selectedClinicalPatientId={state.selectedClinicalPatientId}
+              onSelectPatient={selectClinicianPatient}
+              onSearchPatient={() => setSearchPatientModalOpen(true)}
+              onPatientsClick={() => state.setActiveTab("patients")}
+              onProfileClick={openProfile}
+            />
+            <SearchPatientModal
+              open={searchPatientModalOpen}
+              patients={clinicianPatients}
+              onClose={() => setSearchPatientModalOpen(false)}
+              onSelectPatient={(id) => {
+                selectClinicianPatient(id);
+                setSearchPatientModalOpen(false);
+              }}
+            />
+          </>
         );
       case "patient_view":
         return (
@@ -360,7 +387,7 @@ export default function DiabetCareClinicalMockupPage() {
               onOpenMealModal={() => state.setShowMealModal(true)}
               onProfileClick={() => state.setActiveTab("patients")}
               onOpenFiche={state.role === "clinician" ? () => state.setActiveTab("patient_view") : undefined}
-              onOpenNotes={state.role === "clinician" ? () => setClinicianNoteModalOpen(true) : undefined}
+              onOpenNotes={state.role === "clinician" ? () => state.setActiveTab("notes") : undefined}
               onImportData={
                 state.role === "clinician"
                   ? (data) => {
@@ -373,6 +400,7 @@ export default function DiabetCareClinicalMockupPage() {
                     }
                   : undefined
               }
+              onGoHome={state.role === "clinician" ? () => state.setActiveTab("patients") : undefined}
             />
             <ClinicianNoteModal
               open={clinicianNoteModalOpen}
@@ -382,6 +410,49 @@ export default function DiabetCareClinicalMockupPage() {
               onSave={(content) => setClinicianQuickNotes((prev) => ({ ...prev, [selectedClinicalPatient.id]: content }))}
             />
           </>
+        );
+      case "documents":
+        return (
+          <ClinicianDocumentsTemplate
+            patient={{ ...patient, id: selectedClinicalPatient.id, name: selectedClinicalPatient.name, initials: selectedClinicalPatient.initials }}
+            clinicianInitials={clinicianProfile.initials}
+            patients={clinicianPatients}
+            documents={[...documents.filter((d) => !removedDocumentIds.includes(d.id)), ...clinicianAddedDocuments]}
+            selectedPatientId={state.selectedClinicalPatientId}
+            onSelectPatient={(id) => {
+              state.setSelectedClinicalPatientId(id);
+              state.setSelectedDocumentId("");
+            }}
+            selectedDocumentId={state.selectedDocumentId}
+            setSelectedDocumentId={state.setSelectedDocumentId}
+            onAddDocument={(payload) => {
+              const { title, category, content = "", fileName } = payload;
+              const date = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+              const contentWithFile = fileName
+                ? (content ? `${content}\n\nFichier joint : ${fileName}` : `Fichier joint : ${fileName}`)
+                : (content || "—");
+              const newDoc: DocumentItem = {
+                id: `doc-added-${Date.now()}`,
+                patientId: state.selectedClinicalPatientId,
+                title: title || "Sans titre",
+                category: category || "Autre",
+                date,
+                content: contentWithFile,
+                source: "soignant",
+              };
+              setClinicianAddedDocuments((prev) => [...prev, newDoc]);
+              setToastMessage(fileName ? "Document et fichier transférés" : "Document ajouté");
+            }}
+            onEditDocument={() => setToastMessage("Modification à venir")}
+            onDeleteDocument={(id) => {
+              setClinicianAddedDocuments((prev) => prev.filter((d) => d.id !== id));
+              setRemovedDocumentIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+              if (state.selectedDocumentId === id) state.setSelectedDocumentId("");
+              setToastMessage("Document supprimé");
+            }}
+            onPatientsClick={() => state.setActiveTab("patients")}
+            onProfileClick={openProfile}
+          />
         );
       case "echanges":
         return (
@@ -416,9 +487,17 @@ export default function DiabetCareClinicalMockupPage() {
           <ClinicianNotesTemplate
             patient={patient}
             clinicianInitials={clinicianProfile.initials}
+            patients={clinicianPatients}
             notes={therapyNotes}
+            selectedPatientId={state.selectedClinicalPatientId}
+            onSelectPatient={state.setSelectedClinicalPatientId}
             selectedNoteId={state.selectedNoteId}
             setSelectedNoteId={state.setSelectedNoteId}
+            noteContentOverride={clinicianNoteOverrides}
+            onSaveNote={(noteId, content) => {
+              setClinicianNoteOverrides((prev) => ({ ...prev, [noteId]: content }));
+              setToastMessage("Note enregistrée");
+            }}
             onPatientsClick={() => state.setActiveTab("patients")}
             onProfileClick={openProfile}
           />
@@ -506,7 +585,10 @@ export default function DiabetCareClinicalMockupPage() {
       <div key="clinician-layout" data-layout="clinician-desktop" className="min-h-screen w-full">
         <ClinicianDesktopLayout
           activeTab={state.activeTab as ClinicianTab}
-          onNavigate={state.setActiveTab}
+          onNavigate={(tab) => {
+            state.setActiveTab(tab);
+            if (tab === "documents") state.setActiveExchangeTab("documents");
+          }}
           onProfileClick={openProfile}
           clinicianInitials={clinicianProfile.initials}
           roleSwitcher={<RoleSwitcher role={state.role} onSwitchRole={switchRole} />}
