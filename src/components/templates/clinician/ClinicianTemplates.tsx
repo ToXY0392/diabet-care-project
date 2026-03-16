@@ -121,6 +121,15 @@ export function ClinicianPatientsTemplate({ clinicianInitials, clinicianPatients
           <Search className="w-5 h-5 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
           <span>Rechercher un patient dans la liste</span>
         </button>
+        <div className="mt-2 flex justify-end">
+          <button
+            type="button"
+            onClick={onSearchPatient ?? (() => {})}
+            className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          >
+            Nouvelle note
+          </button>
+        </div>
       </div>
       <ul className="space-y-1 list-none p-0 m-0">
         {clinicianPatients.map((p) => (
@@ -327,7 +336,9 @@ export function ClinicianNotesTemplate({
 
   const handleSelectPatient = (patientId: string) => {
     if (patientId === selectedPatientId) {
+      // Re-cliquer sur le même patient ferme le panneau et désélectionne la carte.
       setShowNotePanel(false);
+      onSelectPatient("");
       return;
     }
     setShowNotePanel(true);
@@ -354,6 +365,14 @@ export function ClinicianNotesTemplate({
           <Search className="w-5 h-5 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
           <span>Rechercher un patient dans la liste</span>
         </button>
+        <div className="mt-2 flex justify-end">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          >
+            Nouvelle note
+          </button>
+        </div>
       </div>
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">
@@ -418,9 +437,6 @@ export function ClinicianNotesTemplate({
                         Enregistrer
                       </button>
                     )}
-                    <button type="button" className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)]">
-                      Nouvelle note
-                    </button>
                     <button type="button" className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)]">
                       Archiver
                     </button>

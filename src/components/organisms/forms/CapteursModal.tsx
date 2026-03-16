@@ -21,11 +21,11 @@ export default function CapteursModal({ open, patients, onClose }: CapteursModal
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" aria-modal="true" role="dialog" aria-labelledby="capteurs-title">
       <div className="w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col rounded-[var(--radius-xl)] bg-white border border-[var(--color-border)] shadow-xl">
-        <div className="flex items-center justify-between gap-3 p-4 border-b border-[var(--color-border-subtle)] shrink-0">
-          <h2 id="capteurs-title" className="text-lg font-semibold text-[var(--color-text)]">
+        <div className="flex items-center justify-between gap-3 p-4 border-b border-[var(--color-border-subtle)] shrink-0 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white">
+          <h2 id="capteurs-title" className="text-lg font-semibold">
             Capteurs portés par les patients
           </h2>
-          <button type="button" onClick={onClose} className="w-9 h-9 rounded-full bg-[var(--color-mint)] text-[var(--color-text)] flex items-center justify-center font-semibold" aria-label="Fermer">
+          <button type="button" onClick={onClose} className="w-9 h-9 rounded-full bg-white/15 text-white flex items-center justify-center font-semibold hover:bg-white/25 transition-colors" aria-label="Fermer">
             ×
           </button>
         </div>
@@ -39,15 +39,13 @@ export default function CapteursModal({ open, patients, onClose }: CapteursModal
                   <button
                     type="button"
                     onClick={() => setSelectedPatientId(p.id)}
-                    className={`w-full text-left rounded-[var(--radius-md)] bg-[var(--color-mint)] border p-3 transition-all ${
-                      selectedPatientId === p.id ? "border-[var(--color-teal-deep)] ring-2 ring-[var(--color-teal-deep)]/30" : "border-[var(--color-border)]"
-                    }`}
+                    className="w-full text-left rounded-[var(--radius-md)] border p-3 transition-all bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-white/40 shadow-md"
                   >
-                    <div className="font-semibold text-[var(--color-text)]">{p.name}</div>
-                    <div className="text-sm text-[var(--color-text-secondary)] mt-1">
+                    <div className="font-semibold text-white">{p.name}</div>
+                    <div className="text-sm text-white/90 mt-1">
                       {p.sensor} · fraîcheur {p.freshness}
                     </div>
-                    <div className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    <div className="text-xs text-white/80 mt-1">
                       {p.lastReading} mg/dL · TIR {p.tir}% · {p.status}
                     </div>
                   </button>

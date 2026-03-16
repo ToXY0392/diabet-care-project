@@ -358,7 +358,7 @@ export default function DiabetCareClinicalMockupPage() {
               appointments={sortedAppointments}
               onPatientsClick={() => state.setActiveTab("patients")}
               onProfileClick={openProfile}
-              onDocumentsClick={() => { state.setActiveTab("echanges"); state.setActiveExchangeTab("documents"); }}
+              onDocumentsClick={() => state.setActiveTab("documents")}
               onMessagesClick={() => { state.setActiveTab("echanges"); state.setActiveExchangeTab("messages"); }}
               onNotesClick={() => state.setActiveTab("notes")}
               onCapteurClick={() => setCapteursModalOpen(true)}
