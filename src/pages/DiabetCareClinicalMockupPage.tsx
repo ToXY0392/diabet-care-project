@@ -517,7 +517,27 @@ export default function DiabetCareClinicalMockupPage() {
               onProfileClick={() => state.setActiveTab("patients")}
               onOpenFiche={state.role === "clinician" ? () => state.setActiveTab("patient_view") : undefined}
               onOpenNotes={state.role === "clinician" ? () => state.setActiveTab("notes") : undefined}
-              onOpenMessages={state.role === "clinician" ? () => goToClinicianTab("messages") : undefined}
+              onOpenMessages={
+                state.role === "clinician"
+                  ? () => {
+                      state.setActiveTab("echanges");
+                      state.setActiveExchangeTab("messages");
+                      if (selectedClinicalPatient) {
+                        state.setSelectedClinicalPatientId(selectedClinicalPatient.id);
+                        const threadsForRole = state.role === "patient" ? patientThreadsState : clinicianThreads;
+                        const threadForPatient =
+                          threadsForRole.find((t) => t.name === selectedClinicalPatient.name) ?? threadsForRole[0];
+                        if (threadForPatient) {
+                          state.setSelectedThreadId(threadForPatient.id);
+                          state.setMessageViewMode("thread");
+                        } else {
+                          state.setSelectedThreadId("");
+                          state.setMessageViewMode("list");
+                        }
+                      }
+                    }
+                  : undefined
+              }
               onImportData={
                 state.role === "clinician"
                   ? (data) => {
