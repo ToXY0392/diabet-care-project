@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Pencil, Search, Trash2 } from "lucide-react";
+import { Pencil, Search, Trash2, FileText } from "lucide-react";
 import Card from "../../molecules/Card";
 import SectionTitle from "../../molecules/SectionTitle";
 import AddDocumentModal from "../../organisms/forms/AddDocumentModal";
@@ -578,6 +578,13 @@ export function ClinicianDocumentsTemplate({
                             <div className="text-sm text-[var(--color-text-secondary)] mt-1">{doc.category} · {doc.date}</div>
                           </span>
                           <span className="shrink-0 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              className="w-8 h-8 rounded-full bg-white/85 text-[var(--color-teal)] flex items-center justify-center border border-[var(--color-border)] hover:bg-white"
+                              aria-label={`Télécharger ${doc.title}`}
+                            >
+                              <FileText className="w-4 h-4" aria-hidden />
+                            </button>
                             {onEditDocument && (
                               <span
                                 role="button"

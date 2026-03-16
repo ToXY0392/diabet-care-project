@@ -18,14 +18,11 @@ type ClinicianDesktopLayoutProps = {
 
 const MAIN_NAV_ITEMS: { key: ClinicianTab; label: string; icon: ReactNode }[] = [
   { key: "cockpit", label: "Accueil", icon: <Home className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> },
-];
-
-const DROPDOWN_NAV_ITEMS: { key: ClinicianTab; label: string; icon: ReactNode }[] = [
-  { key: "patients", label: "Patients", icon: <Users className="w-4 h-4 shrink-0" strokeWidth={2} /> },
-  { key: "documents", label: "Documents", icon: <FileText className="w-4 h-4 shrink-0" strokeWidth={2} /> },
-  { key: "echanges", label: "Messagerie", icon: <MessageSquare className="w-4 h-4 shrink-0" strokeWidth={2} /> },
-  { key: "notes", label: "Notes", icon: <StickyNote className="w-4 h-4 shrink-0" strokeWidth={2} /> },
-  { key: "compte", label: "Compte", icon: <User className="w-4 h-4 shrink-0" strokeWidth={2} /> },
+  { key: "patients", label: "Patients", icon: <Users className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> },
+  { key: "documents", label: "Documents", icon: <FileText className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> },
+  { key: "echanges", label: "Messagerie", icon: <MessageSquare className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> },
+  { key: "notes", label: "Notes", icon: <StickyNote className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> },
+  { key: "compte", label: "Compte", icon: <User className="w-3.5 h-3.5 shrink-0" strokeWidth={2} /> },
 ];
 
 /** Layout PC/tablette pour la partie soignant : header horizontal, sidebar de navigation, zone de contenu. */
@@ -52,7 +49,7 @@ export default function ClinicianDesktopLayout({
   const accountTriggerRef = useRef<HTMLButtonElement>(null);
   const accountPanelRef = useRef<HTMLDivElement>(null);
 
-  const isDropdownTab = (DROPDOWN_NAV_ITEMS as { key: ClinicianTab }[]).some(({ key }) => key === activeTab);
+  const isDropdownTab = false;
 
   const handleNavigate = (key: ClinicianTab) => {
     onNavigate(key);
