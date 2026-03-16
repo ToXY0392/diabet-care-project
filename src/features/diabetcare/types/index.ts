@@ -57,6 +57,8 @@ export type ConversationThread = {
   time: string;
   unread: number;
   online?: boolean;
+  /** Lien optionnel vers le patient clinique concerné (vue soignant). */
+  patientId?: string;
   messages: ConversationMessage[];
 };
 
