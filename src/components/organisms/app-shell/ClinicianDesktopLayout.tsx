@@ -11,6 +11,8 @@ type ClinicianDesktopLayoutProps = {
   activeTab: ClinicianTab;
   onNavigate: (tab: ClinicianTab) => void;
   onProfileClick: () => void;
+  /** Déconnexion soignant : retour au rôle patient. Si fourni, le bouton compte affiche un menu Compte / Déconnexion. */
+  onLogout?: () => void;
   clinicianInitials: string;
 };
 
@@ -34,6 +36,7 @@ export default function ClinicianDesktopLayout({
   activeTab,
   onNavigate,
   onProfileClick,
+  onLogout,
   clinicianInitials,
 }: ClinicianDesktopLayoutProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -42,6 +45,12 @@ export default function ClinicianDesktopLayout({
   const dropdownRef = useRef<HTMLLIElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const [accountMenuAnimate, setAccountMenuAnimate] = useState(false);
+  const [accountMenuPosition, setAccountMenuPosition] = useState<{ top: number; right: number } | null>(null);
+  const accountTriggerRef = useRef<HTMLButtonElement>(null);
+  const accountPanelRef = useRef<HTMLDivElement>(null);
 
   const isDropdownTab = (DROPDOWN_NAV_ITEMS as { key: ClinicianTab }[]).some(({ key }) => key === activeTab);
 
@@ -97,6 +106,55 @@ export default function ClinicianDesktopLayout({
       document.removeEventListener("keydown", close);
     };
   }, [dropdownOpen]);
+
+  // Menu compte : ouverture / position / animation
+  useEffect(() => {
+    if (!accountMenuOpen) {
+      setAccountMenuAnimate(false);
+      return;
+    }
+    const raf = requestAnimationFrame(() => setAccountMenuAnimate(true));
+    return () => cancelAnimationFrame(raf);
+  }, [accountMenuOpen]);
+
+  useLayoutEffect(() => {
+    if (!accountMenuOpen) {
+      setAccountMenuPosition(null);
+      return;
+    }
+    if (!accountTriggerRef.current) return;
+    const updatePosition = () => {
+      if (!accountTriggerRef.current) return;
+      const rect = accountTriggerRef.current.getBoundingClientRect();
+      setAccountMenuPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+    };
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, true);
+    window.addEventListener("resize", updatePosition);
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true);
+      window.removeEventListener("resize", updatePosition);
+    };
+  }, [accountMenuOpen]);
+
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent) {
+        if (e.key === "Escape") setAccountMenuOpen(false);
+        return;
+      }
+      const target = e.target as Node;
+      if (accountTriggerRef.current?.contains(target) || accountPanelRef.current?.contains(target)) return;
+      setAccountMenuOpen(false);
+    };
+    document.addEventListener("click", close, true);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("click", close, true);
+      document.removeEventListener("keydown", close);
+    };
+  }, [accountMenuOpen]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-bg)]">
@@ -166,14 +224,56 @@ export default function ClinicianDesktopLayout({
             </li>
           </ul>
         </nav>
-          <button
-            type="button"
-            onClick={onProfileClick}
-            className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-white font-semibold text-xs hover:bg-white/35 transition-colors shrink-0"
-            aria-label="Ouvrir le compte"
-          >
-            {clinicianInitials}
-          </button>
+          {/* Menu déroulant Compte / Déconnexion quand le soignant est connecté */}
+          <>
+            <button
+              ref={accountTriggerRef}
+              type="button"
+              onClick={() => setAccountMenuOpen((open) => !open)}
+              className="w-8 h-8 rounded-full bg-white/25 flex items-center justify-center text-white font-semibold text-xs hover:bg-white/35 transition-colors shrink-0"
+              aria-label="Compte et déconnexion"
+              aria-expanded={accountMenuOpen}
+              aria-haspopup="true"
+            >
+              {clinicianInitials}
+            </button>
+            {accountMenuOpen && accountMenuPosition &&
+              ReactDOM.createPortal(
+                <div
+                  ref={accountPanelRef}
+                  className={`fixed z-[100] min-w-[160px] rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-white/95 shadow-lg backdrop-blur-sm py-1 ${accountMenuAnimate ? "nav-dropdown-panel" : "opacity-0 -translate-y-1"}`}
+                  style={{ top: accountMenuPosition.top, right: accountMenuPosition.right }}
+                  role="menu"
+                  aria-label="Menu compte"
+                >
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="w-full text-left px-4 py-2.5 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-mint)]/50"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      onProfileClick();
+                    }}
+                  >
+                    Compte
+                  </button>
+                  {onLogout && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="w-full text-left px-4 py-2.5 text-sm font-medium text-[#b45309] hover:bg-[#fff5f5]"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        onLogout();
+                      }}
+                    >
+                      Déconnexion
+                    </button>
+                  )}
+                </div>,
+                document.body
+              )}
+          </>
         </div>
       </header>
 

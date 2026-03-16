@@ -436,6 +436,7 @@ type ClinicianDocumentsProps = BaseProps & {
   documents: DocumentItem[];
   selectedPatientId: string;
   onSelectPatient: (patientId: string) => void;
+  onSearchPatient?: () => void;
   selectedDocumentId: string;
   setSelectedDocumentId: (id: string) => void;
   onAddDocument?: (payload: AddDocumentPayload) => void;
@@ -449,6 +450,7 @@ export function ClinicianDocumentsTemplate({
   documents,
   selectedPatientId,
   onSelectPatient,
+  onSearchPatient,
   selectedDocumentId,
   setSelectedDocumentId,
   onAddDocument,
@@ -458,6 +460,7 @@ export function ClinicianDocumentsTemplate({
   onProfileClick,
 }: ClinicianDocumentsProps) {
   const [addDocumentModalOpen, setAddDocumentModalOpen] = useState(false);
+  const [showDocumentPanel, setShowDocumentPanel] = useState(() => Boolean(selectedPatientId));
   const docsForPatient = documents.filter((d) => d.patientId === selectedPatientId);
   const fromSoignant = docsForPatient.filter((d) => d.source === "soignant");
   const fromPatient = docsForPatient.filter((d) => d.source === "patient");
@@ -466,28 +469,51 @@ export function ClinicianDocumentsTemplate({
 
   const showDetail = Boolean(selectedDocumentId && selectedDocument);
 
+  useEffect(() => {
+    if (!selectedPatientId) setShowDocumentPanel(false);
+  }, [selectedPatientId]);
+
+  const handleSelectPatient = (patientId: string) => {
+    if (patientId === selectedPatientId) {
+      setShowDocumentPanel(false);
+      return;
+    }
+    setShowDocumentPanel(true);
+    onSelectPatient(patientId);
+  };
+
   return (
     <section aria-label="Gestion des documents">
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <SectionTitle title="Documents" subtitle="Gestion des documents par patient" />
-      <div className="grid grid-cols-[180px_1fr] gap-4">
-        <div className="space-y-2">
-          <div className="text-center text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PATIENTS</div>
-          <div className="space-y-2">
-            {patients.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => onSelectPatient(p.id)}
-                className={`w-full rounded-[22px] p-3 text-left ${selectedPatientId === p.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
-              >
-                <div className="font-semibold text-sm leading-tight">{p.name}</div>
-                <div className="text-xs mt-1 opacity-80">{p.initials}</div>
-              </button>
-            ))}
-          </div>
+      <div className="flex justify-end mb-3">
+        <button
+          type="button"
+          onClick={onSearchPatient ?? (() => {})}
+          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          aria-label="Rechercher un patient"
+        >
+          <Search className="w-4 h-4 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
+          Rechercher patient
+        </button>
+      </div>
+      <div className="max-w-4xl mx-auto flex flex-col items-center">
+        <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">PATIENTS</div>
+        <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+          {patients.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => handleSelectPatient(p.id)}
+              className={`rounded-[22px] p-3 text-left ${selectedPatientId === p.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
+            >
+              <div className="font-semibold text-sm leading-tight">{p.name}</div>
+              <div className="text-xs mt-1 opacity-80">{p.initials}</div>
+            </button>
+          ))}
         </div>
-        <div className="min-w-0">
+        {showDocumentPanel && selectedPatientId ? (
+          <div className="w-full min-w-0">
           {showDetail ? (
             <Card variant="surface" className="p-5">
               <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold">DOCUMENT</div>
@@ -608,7 +634,12 @@ export function ClinicianDocumentsTemplate({
               </Card>
             </div>
           )}
-        </div>
+          </div>
+        ) : (
+          <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--color-border-mint)] bg-[var(--color-mint)]/30">
+            <p className="text-[var(--color-text-secondary)] text-center px-4">Sélectionnez un patient pour afficher ses documents.</p>
+          </div>
+        )}
       </div>
       {onAddDocument && selectedPatient ? (
         <AddDocumentModal

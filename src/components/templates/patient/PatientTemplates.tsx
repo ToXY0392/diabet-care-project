@@ -361,7 +361,7 @@ export function PatientSensorTemplate({ role, patient, clinicianInitials, device
 
 type MeasuresProps = HeaderProps & {
   role: Role;
-  selectedClinicalPatient: ClinicalPatient;
+  selectedClinicalPatient?: ClinicalPatient;
   activeFollowUpView: FollowUpView;
   setActiveFollowUpView: (view: FollowUpView) => void;
   activeMeasurePeriod: MeasurePeriod;
@@ -780,7 +780,7 @@ export function PatientMeasuresTemplate({
           </button>
         ))}
       </div>
-      <SectionTitle title={role === "patient" ? "Suivi" : `Suivi · ${selectedClinicalPatient.name}`} />
+      <SectionTitle title={role === "patient" ? "Suivi" : (selectedClinicalPatient ? `Suivi · ${selectedClinicalPatient.name}` : "Suivi")} />
       <div className="grid grid-cols-2 gap-3 mb-4">
         {[{ label: "Glycémie moyenne", value: `${chart.stats.avg}`, unit: "mg/dL" }, { label: "Bolus total", value: "0", unit: "u" }, { label: "Basal total", value: "6,5", unit: "u" }, { label: "Glucides", value: "0", unit: "g" }].map((item) => (
           <div key={item.label} className="rounded-[22px] p-4 text-white shadow-sm bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)]">
@@ -951,7 +951,7 @@ export function PatientMeasuresTemplate({
 
 type ExchangesProps = HeaderProps & {
   role: Role;
-  selectedClinicalPatient: ClinicalPatient;
+  selectedClinicalPatient?: ClinicalPatient;
   activeExchangeTab: "messages" | "documents";
   setActiveExchangeTab: (tab: "messages" | "documents") => void;
   messageViewMode: "list" | "thread";
@@ -1274,6 +1274,8 @@ export function PatientExchangesTemplate({
                   type="button"
                   onClick={() => {
                     onStartNewConversation(caregiver);
+                    setSelectedThreadId(caregiver.id);
+                    setMessageViewMode("thread");
                     setShowCaregiverSearch(false);
                     setCaregiverSearchQuery("");
                   }}
@@ -1344,6 +1346,8 @@ export function PatientExchangesTemplate({
                             }
                           } else {
                             onStartNewConversation(item as Caregiver);
+                            setSelectedThreadId(item.id);
+                            setMessageViewMode("thread");
                           }
                           setPatientSearchQuery("");
                           setPatientSearchOpen(false);

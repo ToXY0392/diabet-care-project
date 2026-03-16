@@ -79,6 +79,12 @@ export default function DiabetCareClinicalMockupPage() {
     }
   }, [state.role, state.activeTab]);
 
+  useEffect(() => {
+    if (!state.selectedThreadId && state.messageViewMode === "thread") {
+      state.setMessageViewMode("list");
+    }
+  }, [state.selectedThreadId, state.messageViewMode]);
+
   // Synchronisation avec l’historique navigateur : replaceState au montage, pushState à chaque navigation, popstate pour le bouton Retour.
   useEffect(() => {
     const stateForHistory = {
@@ -130,7 +136,7 @@ export default function DiabetCareClinicalMockupPage() {
   const threads = state.role === "patient" ? patientThreadsState : clinicianThreads;
   const sortedThreads = [...threads].sort((a, b) => (b.unread !== a.unread ? b.unread - a.unread : a.name.localeCompare(b.name)));
   const visibleThreads = state.messagesCardExpanded ? sortedThreads : sortedThreads.slice(0, 3);
-  const selectedThread = threads.find((item) => item.id === state.selectedThreadId) ?? threads[0];
+  const selectedThread = state.selectedThreadId ? threads.find((item) => item.id === state.selectedThreadId) ?? threads[0] : threads[0];
 
   /** Crée un thread vide si le soignant n’a pas encore de conversation, puis ouvre le thread. */
   const startNewConversation = (caregiver: Caregiver) => {
@@ -155,7 +161,7 @@ export default function DiabetCareClinicalMockupPage() {
   };
   const contextDocs = [...providerDocuments, ...patientDocuments];
   const selectedDocument = contextDocs.find((d) => d.id === state.selectedDocumentId) ?? contextDocs[0] ?? documents[0];
-  const selectedClinicalPatient = clinicianPatients.find((item) => item.id === state.selectedClinicalPatientId) ?? clinicianPatients[0];
+  const selectedClinicalPatient = state.selectedClinicalPatientId ? clinicianPatients.find((item) => item.id === state.selectedClinicalPatientId) : undefined;
 
   const patientNavItems: NavItem<PatientTab>[] = [
     { key: "accueil", label: <Home className="w-5 h-5" />, variant: "filledIcon" },
@@ -387,6 +393,31 @@ export default function DiabetCareClinicalMockupPage() {
           </>
         );
       case "patient_view":
+        if (!selectedClinicalPatient) {
+          return (
+            <>
+              <ClinicianPatientsTemplate
+                patient={patient}
+                clinicianInitials={clinicianProfile.initials}
+                clinicianPatients={clinicianPatients}
+                selectedClinicalPatientId={state.selectedClinicalPatientId}
+                onSelectPatient={selectClinicianPatient}
+                onSearchPatient={() => setSearchPatientModalOpen(true)}
+                onPatientsClick={() => state.setActiveTab("patients")}
+                onProfileClick={openProfile}
+              />
+              <SearchPatientModal
+                open={searchPatientModalOpen}
+                patients={clinicianPatients}
+                onClose={() => setSearchPatientModalOpen(false)}
+                onSelectPatient={(id) => {
+                  selectClinicianPatient(id);
+                  setSearchPatientModalOpen(false);
+                }}
+              />
+            </>
+          );
+        }
         return (
           <>
             <div className="mb-4 py-2">
@@ -420,6 +451,31 @@ export default function DiabetCareClinicalMockupPage() {
           </>
         );
       case "mesures":
+        if (!selectedClinicalPatient) {
+          return (
+            <>
+              <ClinicianPatientsTemplate
+                patient={patient}
+                clinicianInitials={clinicianProfile.initials}
+                clinicianPatients={clinicianPatients}
+                selectedClinicalPatientId={state.selectedClinicalPatientId}
+                onSelectPatient={selectClinicianPatient}
+                onSearchPatient={() => setSearchPatientModalOpen(true)}
+                onPatientsClick={() => state.setActiveTab("patients")}
+                onProfileClick={openProfile}
+              />
+              <SearchPatientModal
+                open={searchPatientModalOpen}
+                patients={clinicianPatients}
+                onClose={() => setSearchPatientModalOpen(false)}
+                onSelectPatient={(id) => {
+                  selectClinicianPatient(id);
+                  setSearchPatientModalOpen(false);
+                }}
+              />
+            </>
+          );
+        }
         return (
           <>
             <div className="mb-4 py-2">
@@ -487,7 +543,7 @@ export default function DiabetCareClinicalMockupPage() {
       case "documents":
         return (
           <ClinicianDocumentsTemplate
-            patient={{ ...patient, id: selectedClinicalPatient.id, name: selectedClinicalPatient.name, initials: selectedClinicalPatient.initials }}
+            patient={selectedClinicalPatient ? { ...patient, id: selectedClinicalPatient.id, name: selectedClinicalPatient.name, initials: selectedClinicalPatient.initials } : patient}
             clinicianInitials={clinicianProfile.initials}
             patients={clinicianPatients}
             documents={[...documents.filter((d) => !removedDocumentIds.includes(d.id)), ...clinicianAddedDocuments]}
@@ -496,6 +552,7 @@ export default function DiabetCareClinicalMockupPage() {
               state.setSelectedClinicalPatientId(id);
               state.setSelectedDocumentId("");
             }}
+            onSearchPatient={() => setSearchPatientModalOpen(true)}
             selectedDocumentId={state.selectedDocumentId}
             setSelectedDocumentId={state.setSelectedDocumentId}
             onAddDocument={(payload) => {
@@ -677,6 +734,11 @@ export default function DiabetCareClinicalMockupPage() {
             if (tab === "documents") state.setActiveExchangeTab("documents");
           }}
           onProfileClick={openProfile}
+          onLogout={() => {
+            setToastMessage("Déconnexion");
+            state.setRole("patient");
+            state.setActiveTab("profil");
+          }}
           clinicianInitials={clinicianProfile.initials}
           roleSwitcher={<RoleSwitcher role={state.role} onSwitchRole={switchRole} />}
           modals={modalsBlock}

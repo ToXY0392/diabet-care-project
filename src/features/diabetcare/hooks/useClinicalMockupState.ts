@@ -1,23 +1,76 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { AccountTab, AnyTab, ExchangeTab, FollowUpView, MeasurePeriod, Role } from "../types";
+
+const STORAGE_KEY = "diabetcare-mockup-session";
+
+const PATIENT_TABS: AnyTab[] = ["accueil", "capteur", "mesures", "echanges", "profil"];
+const CLINICIAN_TABS: AnyTab[] = ["cockpit", "documents", "patients", "patient_view", "echanges", "mesures", "notes", "compte"];
+
+function parseStoredSession(raw: string | null): { role: Role; activeTab: AnyTab } | null {
+  if (!raw) return null;
+  try {
+    const data = JSON.parse(raw) as unknown;
+    if (data && typeof data === "object" && "role" in data && "activeTab" in data) {
+      const role = data.role === "clinician" ? "clinician" : "patient";
+      const tab = typeof data.activeTab === "string" ? data.activeTab : null;
+      const validTab = role === "clinician"
+        ? (CLINICIAN_TABS.includes(tab as AnyTab) ? tab : "cockpit")
+        : (PATIENT_TABS.includes(tab as AnyTab) ? tab : "accueil");
+      return { role, activeTab: validTab as AnyTab };
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+function loadSession(): { role: Role; activeTab: AnyTab } | null {
+  const fromLocal = parseStoredSession(typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null);
+  if (fromLocal) return fromLocal;
+  const fromSession = parseStoredSession(typeof sessionStorage !== "undefined" ? sessionStorage.getItem(STORAGE_KEY) : null);
+  return fromSession;
+}
+
+function saveSession(role: Role, activeTab: AnyTab) {
+  const payload = JSON.stringify({ role, activeTab });
+  try {
+    if (typeof localStorage !== "undefined") localStorage.setItem(STORAGE_KEY, payload);
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem(STORAGE_KEY, payload);
+  } catch {
+    // ignore
+  }
+}
 
 /**
  * État global de la maquette single-page : rôle (patient/clinicien), onglet actif, sous-onglets (Échanges, Compte),
  * modales (glycémie, repas, choix capteur), sélections (thread, document, patient clinique) et données de formulaire.
+ * Le rôle et l’onglet actif sont persistés (localStorage + sessionStorage) pour ne pas perdre la « connexion » au rechargement.
  */
 export function useClinicalMockupState() {
-  const [role, setRole] = useState<Role>("patient");
-  const [activeTab, setActiveTab] = useState<AnyTab>("accueil");
+  const [role, setRoleState] = useState<Role>(() => loadSession()?.role ?? "patient");
+  const [activeTab, setActiveTabState] = useState<AnyTab>(() => loadSession()?.activeTab ?? "accueil");
+
+  useEffect(() => {
+    saveSession(role, activeTab);
+  }, [role, activeTab]);
+
+  const setRole = (next: Role) => {
+    const tab = next === "patient" ? "accueil" : "cockpit";
+    setRoleState(next);
+    setActiveTabState(tab);
+    saveSession(next, tab);
+  };
+  const setActiveTab = (tab: AnyTab) => setActiveTabState(tab);
   const [activeExchangeTab, setActiveExchangeTab] = useState<ExchangeTab>("messages");
   const [activeAccountTab, setActiveAccountTab] = useState<AccountTab>("profil");
   const [messageViewMode, setMessageViewMode] = useState<"list" | "thread">("list");
   const [documentViewMode, setDocumentViewMode] = useState<"list" | "detail">("list");
   const [messagesCardExpanded, setMessagesCardExpanded] = useState(false);
-  const [selectedThreadId, setSelectedThreadId] = useState("dr-martin");
-  const [selectedDocumentId, setSelectedDocumentId] = useState("ordonnance-mars");
-  const [selectedNoteId, setSelectedNoteId] = useState("note-1");
-  const [selectedClinicalPatientId, setSelectedClinicalPatientId] = useState("PAT-001");
+  const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [selectedDocumentId, setSelectedDocumentId] = useState("");
+  const [selectedNoteId, setSelectedNoteId] = useState("");
+  const [selectedClinicalPatientId, setSelectedClinicalPatientId] = useState("");
   const [showGlycemiaModal, setShowGlycemiaModal] = useState(false);
   const [showMealModal, setShowMealModal] = useState(false);
   const [showSensorChoiceModal, setShowSensorChoiceModal] = useState(false);
