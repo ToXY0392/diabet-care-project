@@ -1088,6 +1088,13 @@ export function PatientExchangesTemplate({
     }
   }, [messageViewMode, selectedThread.id]);
 
+  // En vue soignant, quitter la discussion (retour à la liste) désélectionne aussi le patient.
+  useEffect(() => {
+    if (role === "clinician" && messageViewMode === "list") {
+      onSelectPatient?.("");
+    }
+  }, [role, messageViewMode]);
+
   const renderMessagesContent = () => {
     if (messageViewMode === "thread") {
       const messages = selectedThread.messages;
@@ -1376,7 +1383,7 @@ export function PatientExchangesTemplate({
             </div>
           </>
         ) : null}
-        <div className="flex gap-3 mb-16 justify-center">
+        <div className="flex gap-3 mb-6 justify-center">
           <button type="button" onClick={() => setShowCaregiverSearch(true)} className="w-auto inline-flex items-center justify-center rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 px-5 font-semibold shadow-sm hover:shadow-md">
             Nouveau message
           </button>
@@ -1384,6 +1391,44 @@ export function PatientExchangesTemplate({
             <button type="button" onClick={() => { setShowCaregiverSearch(true); onAddCaregiver?.(); }} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Ajouter soignant</button>
           )}
         </div>
+        {role === "clinician" && clinicianPatients.length > 0 && (
+          <div className="max-w-4xl mx-auto flex flex-col items-center mb-10">
+            <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">
+              Liste des patients
+            </div>
+            <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {clinicianPatients.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => {
+                    // Si déjà sélectionné → désélection + retour à la liste des conversations.
+                    if (selectedClinicalPatient?.id === p.id) {
+                      onSelectPatient?.("");
+                      setSelectedThreadId("");
+                      setMessageViewMode("list");
+                      return;
+                    }
+                    // Sinon, sélectionner le patient et ouvrir sa conversation s'il en a une.
+                    onSelectPatient?.(p.id);
+                    const threadForPatient = visibleThreads.find((t) => t.name === p.name);
+                    if (threadForPatient) {
+                      setSelectedThreadId(threadForPatient.id);
+                      setMessageViewMode("thread");
+                    } else {
+                      setSelectedThreadId("");
+                      setMessageViewMode("list");
+                    }
+                  }}
+                  className="rounded-[22px] p-3 text-left bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border border-white/40 shadow-sm"
+                >
+                  <div className="font-semibold text-sm leading-tight">{p.name}</div>
+                  <div className="text-xs mt-1 opacity-80">{p.initials}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
           <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">Messages non lus</div>
           <div className="space-y-3">
