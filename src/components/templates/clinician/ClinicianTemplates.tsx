@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Pencil, Search, Trash2 } from "lucide-react";
 import Card from "../../molecules/Card";
 import SectionTitle from "../../molecules/SectionTitle";
-import HeaderPill from "../../organisms/app-shell/HeaderPill";
 import AddDocumentModal from "../../organisms/forms/AddDocumentModal";
 import type { AddDocumentPayload } from "../../organisms/forms/AddDocumentModal";
 import type { Appointment, ClinicalPatient, ClinicianTab, DiabeticPatientFiche, DocumentItem, NoteItem, PatientProfile } from "../../../features/diabetcare/types";
@@ -14,8 +13,8 @@ type BaseProps = {
   onProfileClick: () => void;
 };
 
-function ScreenHeader({ clinicianInitials, onProfileClick }: { clinicianInitials: string; onProfileClick: () => void }) {
-  return <HeaderPill initials={clinicianInitials} onProfileClick={onProfileClick} />;
+function ScreenHeader(_props: { clinicianInitials: string; onProfileClick: () => void }) {
+  return null;
 }
 
 function formatRdvTime(date: string, time: string): string {
@@ -30,11 +29,12 @@ type CockpitProps = BaseProps & {
   appointments: Appointment[];
   onDocumentsClick?: () => void;
   onMessagesClick?: () => void;
+  onNotesClick?: () => void;
   onCapteurClick?: () => void;
   onOpenPlanning?: () => void;
 };
 
-export function ClinicianCockpitTemplate({ clinicianInitials, clinicianPatients, appointments, onPatientsClick, onProfileClick, onDocumentsClick, onMessagesClick, onCapteurClick, onOpenPlanning }: CockpitProps) {
+export function ClinicianCockpitTemplate({ clinicianInitials, clinicianPatients, appointments, onPatientsClick, onProfileClick, onDocumentsClick, onMessagesClick, onNotesClick, onCapteurClick, onOpenPlanning }: CockpitProps) {
   const nextRdv = appointments.slice(0, 3);
 
   return (
@@ -54,6 +54,12 @@ export function ClinicianCockpitTemplate({ clinicianInitials, clinicianPatients,
           <span className="text-base font-semibold leading-tight">Messagerie</span>
           <span className="text-sm text-white/90 mt-2 block leading-snug">Échanges avec les patients</span>
         </button>
+        {onNotesClick && (
+          <button type="button" onClick={onNotesClick} className="w-full text-left rounded-[var(--radius-xl)] shadow-sm transition-all duration-150 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-5 min-h-[100px] flex flex-col text-white hover:shadow-md active:shadow-lg">
+            <span className="text-base font-semibold leading-tight">Notes</span>
+            <span className="text-sm text-white/90 mt-2 block leading-snug">Notes thérapeutiques</span>
+          </button>
+        )}
         <button type="button" onClick={onCapteurClick} className="w-full text-left rounded-[var(--radius-xl)] shadow-sm transition-all duration-150 bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] p-5 min-h-[100px] flex flex-col text-white hover:shadow-md active:shadow-lg">
           <span className="text-base font-semibold leading-tight">Capteurs</span>
           <span className="text-sm text-white/90 mt-2 block leading-snug">Données et alertes</span>
@@ -278,6 +284,7 @@ type ClinicianNotesProps = BaseProps & {
   notes: NoteItem[];
   selectedPatientId: string;
   onSelectPatient: (patientId: string) => void;
+  onSearchPatient?: () => void;
   selectedNoteId: string;
   setSelectedNoteId: (id: string) => void;
   /** Contenu affiché pour la note (surcharge édition). Si non fourni, utilise note.content. */
@@ -291,6 +298,7 @@ export function ClinicianNotesTemplate({
   notes,
   selectedPatientId,
   onSelectPatient,
+  onSearchPatient,
   selectedNoteId,
   setSelectedNoteId,
   noteContentOverride = {},
@@ -324,14 +332,19 @@ export function ClinicianNotesTemplate({
 
   return (
     <section aria-label="Notes thérapeutiques">
-      <div className="flex items-center gap-3 mb-3">
-        <button type="button" onClick={onPatientsClick} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)] shrink-0" aria-label="Retour à la liste des patients">
-          <span className="text-lg leading-none">←</span>
-        </button>
-        <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">Patients</span>
-      </div>
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <SectionTitle title="Notes thérapeutiques" subtitle="Notes cliniques par patient" />
+      <div className="flex justify-end mb-3">
+        <button
+          type="button"
+          onClick={onSearchPatient ?? (() => {})}
+          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          aria-label="Rechercher un patient"
+        >
+          <Search className="w-4 h-4 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
+          Rechercher patient
+        </button>
+      </div>
       <div className="grid grid-cols-[180px_1fr] gap-4">
         <div className="space-y-4">
           <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PATIENTS</div>
@@ -463,13 +476,6 @@ export function ClinicianDocumentsTemplate({
         <div className="min-w-0">
           {showDetail ? (
             <Card variant="surface" className="p-5">
-              <button
-                type="button"
-                onClick={() => setSelectedDocumentId("")}
-                className="text-[var(--text-sm)] font-medium text-[var(--color-teal)] hover:underline mb-3"
-              >
-                ← Retour à la liste
-              </button>
               <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold">DOCUMENT</div>
               <div className="text-xl font-semibold text-[var(--color-text)] mt-1">{selectedDocument.title}</div>
               <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-1">{selectedDocument.category} · {selectedDocument.date}</div>

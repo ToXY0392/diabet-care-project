@@ -352,6 +352,7 @@ export default function DiabetCareClinicalMockupPage() {
               onProfileClick={openProfile}
               onDocumentsClick={() => { state.setActiveTab("echanges"); state.setActiveExchangeTab("documents"); }}
               onMessagesClick={() => { state.setActiveTab("echanges"); state.setActiveExchangeTab("messages"); }}
+              onNotesClick={() => state.setActiveTab("notes")}
               onCapteurClick={() => setCapteursModalOpen(true)}
               onOpenPlanning={() => setAgendaModalOpen(true)}
             />
@@ -387,7 +388,24 @@ export default function DiabetCareClinicalMockupPage() {
         return (
           <>
             <div className="mb-4 py-2">
-              <h2 className="text-xl font-semibold text-[var(--color-text)]">{selectedClinicalPatient.name}</h2>
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 rounded-full bg-[var(--color-teal)] flex items-center justify-center text-white font-semibold text-sm shrink-0" aria-hidden>
+                  {selectedClinicalPatient.initials}
+                </span>
+                <h2 className="text-2xl font-semibold text-[var(--color-text)]">{selectedClinicalPatient.name}</h2>
+              </div>
+              <p className="mt-2 ml-[52px] text-sm text-[var(--color-text-secondary)]">
+                {[
+                  selectedClinicalPatient.age != null ? `${selectedClinicalPatient.age} ans` : null,
+                  selectedClinicalPatient.sex ?? null,
+                  selectedClinicalPatient.height ?? null,
+                  selectedClinicalPatient.weight ?? null,
+                  selectedClinicalPatient.diabetesType ?? null,
+                  selectedClinicalPatient.treatmentType ?? null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || "—"}
+              </p>
             </div>
             <ClinicianPatientViewTemplate
               patient={patient}
@@ -403,7 +421,24 @@ export default function DiabetCareClinicalMockupPage() {
         return (
           <>
             <div className="mb-4 py-2">
-              <h2 className="text-xl font-semibold text-[var(--color-text)]">{selectedClinicalPatient.name}</h2>
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 rounded-full bg-[var(--color-teal)] flex items-center justify-center text-white font-semibold text-sm shrink-0" aria-hidden>
+                  {selectedClinicalPatient.initials}
+                </span>
+                <h2 className="text-2xl font-semibold text-[var(--color-text)]">{selectedClinicalPatient.name}</h2>
+              </div>
+              <p className="mt-2 ml-[52px] text-sm text-[var(--color-text-secondary)]">
+                {[
+                  selectedClinicalPatient.age != null ? `${selectedClinicalPatient.age} ans` : null,
+                  selectedClinicalPatient.sex ?? null,
+                  selectedClinicalPatient.height ?? null,
+                  selectedClinicalPatient.weight ?? null,
+                  selectedClinicalPatient.diabetesType ?? null,
+                  selectedClinicalPatient.treatmentType ?? null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ") || "—"}
+              </p>
             </div>
             <PatientMeasuresTemplate
               role={state.role}
@@ -520,23 +555,35 @@ export default function DiabetCareClinicalMockupPage() {
         );
       case "notes":
         return (
-          <ClinicianNotesTemplate
-            patient={patient}
-            clinicianInitials={clinicianProfile.initials}
-            patients={clinicianPatients}
-            notes={therapyNotes}
-            selectedPatientId={state.selectedClinicalPatientId}
-            onSelectPatient={state.setSelectedClinicalPatientId}
-            selectedNoteId={state.selectedNoteId}
-            setSelectedNoteId={state.setSelectedNoteId}
-            noteContentOverride={clinicianNoteOverrides}
-            onSaveNote={(noteId, content) => {
-              setClinicianNoteOverrides((prev) => ({ ...prev, [noteId]: content }));
-              setToastMessage("Note enregistrée");
-            }}
-            onPatientsClick={() => state.setActiveTab("patients")}
-            onProfileClick={openProfile}
-          />
+          <>
+            <ClinicianNotesTemplate
+              patient={patient}
+              clinicianInitials={clinicianProfile.initials}
+              patients={clinicianPatients}
+              notes={therapyNotes}
+              selectedPatientId={state.selectedClinicalPatientId}
+              onSelectPatient={state.setSelectedClinicalPatientId}
+              onSearchPatient={() => setSearchPatientModalOpen(true)}
+              selectedNoteId={state.selectedNoteId}
+              setSelectedNoteId={state.setSelectedNoteId}
+              noteContentOverride={clinicianNoteOverrides}
+              onSaveNote={(noteId, content) => {
+                setClinicianNoteOverrides((prev) => ({ ...prev, [noteId]: content }));
+                setToastMessage("Note enregistrée");
+              }}
+              onPatientsClick={() => state.setActiveTab("patients")}
+              onProfileClick={openProfile}
+            />
+            <SearchPatientModal
+              open={searchPatientModalOpen}
+              patients={clinicianPatients}
+              onClose={() => setSearchPatientModalOpen(false)}
+              onSelectPatient={(id) => {
+                state.setSelectedClinicalPatientId(id);
+                setSearchPatientModalOpen(false);
+              }}
+            />
+          </>
         );
       case "compte":
         return (

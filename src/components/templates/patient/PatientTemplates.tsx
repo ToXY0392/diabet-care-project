@@ -1,5 +1,5 @@
 import { useId, useRef, useEffect, useState } from "react";
-import { ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Home, Plus } from "lucide-react";
 
 import Badge from "../../atoms/Badge";
 import Breadcrumbs from "../../atoms/Breadcrumbs";
@@ -35,7 +35,8 @@ type HeaderProps = {
 };
 
 function ScreenHeader({ role, patient, clinicianInitials, onProfileClick }: HeaderProps) {
-  return <HeaderPill initials={role === "patient" ? patient.initials : clinicianInitials} onProfileClick={onProfileClick} />;
+  if (role === "clinician") return null;
+  return <HeaderPill initials={patient.initials} onProfileClick={onProfileClick} />;
 }
 
 type DashboardProps = HeaderProps & {
@@ -751,7 +752,8 @@ export function PatientMeasuresTemplate({
         </Card>
         {role === "clinician" && onGoHome && (
           <div className="mt-4 flex justify-center">
-            <button type="button" onClick={onGoHome} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 px-5 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md">
+            <button type="button" onClick={onGoHome} className="flex items-center gap-1.5 rounded-lg py-1.5 px-2.5 text-xs font-medium transition-all duration-150 whitespace-nowrap bg-gradient-to-r from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white/90 hover:bg-white/15 hover:text-white">
+              <Home className="w-3.5 h-3.5 shrink-0" strokeWidth={2} aria-hidden />
               Accueil
             </button>
           </div>

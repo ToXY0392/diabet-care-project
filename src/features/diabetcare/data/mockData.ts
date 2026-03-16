@@ -35,9 +35,9 @@ export const clinicianProfile: ClinicianProfile = {
 };
 
 export const clinicianPatients: ClinicalPatient[] = [
-  { id: "PAT-001", name: "Léa Bernard", initials: "LB", sensor: "Dexcom G7", freshness: "5 min", status: "À surveiller", tone: "info", lastReading: 118, tir: 74, openAlerts: 1 },
-  { id: "PAT-002", name: "Lucas Moreau", initials: "LM", sensor: "FreeStyle Libre", freshness: "14 min", status: "Stable", tone: "active", lastReading: 132, tir: 81, openAlerts: 0 },
-  { id: "PAT-003", name: "Nina Roche", initials: "NR", sensor: "Dexcom G7", freshness: "58 min", status: "Données manquantes", tone: "hyper", lastReading: 186, tir: 61, openAlerts: 2 },
+  { id: "PAT-001", name: "Léa Bernard", initials: "LB", sensor: "Dexcom G7", freshness: "5 min", status: "À surveiller", tone: "info", lastReading: 118, tir: 74, openAlerts: 1, age: 34, sex: "F", height: "162 cm", weight: "58 kg", diabetesType: "Type 1", treatmentType: "Pompe à insuline" },
+  { id: "PAT-002", name: "Lucas Moreau", initials: "LM", sensor: "FreeStyle Libre", freshness: "14 min", status: "Stable", tone: "active", lastReading: 132, tir: 81, openAlerts: 0, age: 52, sex: "M", height: "178 cm", weight: "82 kg", diabetesType: "Type 2", treatmentType: "Metformine" },
+  { id: "PAT-003", name: "Nina Roche", initials: "NR", sensor: "Dexcom G7", freshness: "58 min", status: "Données manquantes", tone: "hyper", lastReading: 186, tir: 61, openAlerts: 2, age: 41, sex: "F", height: "165 cm", weight: "62 kg", diabetesType: "Type 2", treatmentType: "Insuline + metformine" },
 ];
 
 /** Rendez-vous soignant (triés par date/heure). */

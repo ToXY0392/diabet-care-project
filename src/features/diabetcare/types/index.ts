@@ -25,6 +25,18 @@ export type ClinicalPatient = {
   lastReading: number;
   tir: number;
   openAlerts: number;
+  /** Âge (années). */
+  age?: number;
+  /** Sexe (ex. "F", "M", "Non renseigné"). */
+  sex?: string;
+  /** Taille (ex. "165 cm"). */
+  height?: string;
+  /** Poids (ex. "62 kg"). */
+  weight?: string;
+  /** Type de diabète (ex. "Type 2"). */
+  diabetesType?: string;
+  /** Type de traitement (ex. "Insuline + metformine"). */
+  treatmentType?: string;
 };
 
 export type ConversationMessage = {
