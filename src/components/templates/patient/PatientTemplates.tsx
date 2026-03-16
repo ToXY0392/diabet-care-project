@@ -1,5 +1,5 @@
 import { useId, useRef, useEffect, useState } from "react";
-import { ChevronLeft, Home, Plus } from "lucide-react";
+import { ChevronLeft, Home, Plus, Search } from "lucide-react";
 
 import Badge from "../../atoms/Badge";
 import Breadcrumbs from "../../atoms/Breadcrumbs";
@@ -972,6 +972,10 @@ type ExchangesProps = HeaderProps & {
   onStartNewConversation: (caregiver: Caregiver) => void;
   /** Appelé au clic sur « Ajouter soignant » (inviter un nouveau soignant dans l’app). */
   onAddCaregiver?: () => void;
+  /** Liste des patients (vue soignant) pour la barre de sélection. */
+  clinicianPatients?: ClinicalPatient[];
+  /** Sélection d'un patient (vue soignant). */
+  onSelectPatient?: (patientId: string) => void;
 };
 
 export function PatientExchangesTemplate({
@@ -979,6 +983,8 @@ export function PatientExchangesTemplate({
   patient,
   clinicianInitials,
   selectedClinicalPatient,
+  clinicianPatients = [],
+  onSelectPatient,
   activeExchangeTab,
   setActiveExchangeTab,
   messageViewMode,
@@ -1010,6 +1016,59 @@ export function PatientExchangesTemplate({
   const [showAddFileModal, setShowAddFileModal] = useState(false);
   const [addFileComment, setAddFileComment] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [patientSearchOpen, setPatientSearchOpen] = useState(false);
+  const [patientSearchQuery, setPatientSearchQuery] = useState("");
+  const patientSearchRef = useRef<HTMLDivElement>(null);
+  const patientSearchInputRef = useRef<HTMLInputElement>(null);
+
+  const normalizeForSearch = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/\p{Mark}/gu, "");
+
+  const patientSuggestions = (() => {
+    if (role === "clinician" && clinicianPatients.length > 0) {
+      const q = normalizeForSearch(patientSearchQuery.trim());
+      return clinicianPatients.filter(
+        (p) =>
+          !q ||
+          normalizeForSearch(p.name).includes(q) ||
+          normalizeForSearch(p.initials).includes(q)
+      );
+    }
+    if (role === "patient" && availableCaregivers.length > 0) {
+      const q = normalizeForSearch(patientSearchQuery.trim());
+      return availableCaregivers.filter(
+        (c) =>
+          !q ||
+          normalizeForSearch(c.name).includes(q) ||
+          (c.initials && normalizeForSearch(c.initials).includes(q))
+      );
+    }
+    return [];
+  })();
+
+  useEffect(() => {
+    if (!patientSearchOpen) return;
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      if (e instanceof KeyboardEvent) {
+        if (e.key === "Escape") setPatientSearchOpen(false);
+        return;
+      }
+      if (patientSearchRef.current && !patientSearchRef.current.contains(e.target as Node)) setPatientSearchOpen(false);
+    };
+    document.addEventListener("click", close, true);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("click", close, true);
+      document.removeEventListener("keydown", close);
+    };
+  }, [patientSearchOpen]);
+
+  useEffect(() => {
+    if (patientSearchOpen) patientSearchInputRef.current?.focus();
+  }, [patientSearchOpen]);
 
   useEffect(() => {
     if (messageViewMode === "thread" && scrollRef.current) {
@@ -1237,44 +1296,102 @@ export function PatientExchangesTemplate({
 
     return (
       <section aria-label="Liste des conversations">
-        <div className="mb-3">
-          <Breadcrumbs items={[{ label: "Échanges" }, { label: "Messages" }]} />
-        </div>
-        <div className="flex gap-3 mb-3">
-          <button type="button" onClick={() => setShowCaregiverSearch(true)} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">
-            {role === "clinician" ? "Envoyer un message" : "Nouveau message"}
+        {(role === "clinician" && clinicianPatients.length > 0) || (role === "patient" && availableCaregivers.length > 0) ? (
+          <>
+            <div className="relative mb-3" ref={patientSearchRef}>
+              <div
+                className={`flex items-center gap-4 rounded-xl border bg-[var(--color-mint)] transition-all duration-200 ${patientSearchOpen ? "border-[var(--color-teal)]/50 ring-1 ring-[var(--color-teal)]/10 shadow-md" : "border-[var(--color-border-mint)] shadow-sm hover:border-[var(--color-teal)]/30 hover:shadow"}`}
+              >
+                <Search className="w-5 h-5 shrink-0 ml-4 text-[var(--color-teal)]" strokeWidth={2} aria-hidden />
+                <input
+                  ref={patientSearchInputRef}
+                  type="text"
+                  value={patientSearchQuery}
+                  onChange={(e) => setPatientSearchQuery(e.target.value)}
+                  onFocus={() => setPatientSearchOpen(true)}
+                  placeholder={role === "clinician" ? "Rechercher un patient…" : "Rechercher un soignant…"}
+                  className="flex-1 min-w-0 py-3.5 pr-5 pl-0 text-sm font-medium text-[var(--color-teal-on-mint)] bg-transparent border-0 outline-none placeholder:text-[var(--color-teal-on-mint)]/65"
+                  aria-label={role === "clinician" ? "Rechercher un patient" : "Rechercher un soignant"}
+                  aria-expanded={patientSearchOpen}
+                  aria-autocomplete="list"
+                  aria-controls="patient-search-list"
+                  id="patient-search-input"
+                />
+              </div>
+              {patientSearchOpen && (
+                <div
+                  id="patient-search-list"
+                  role="listbox"
+                  className="absolute top-full left-0 right-0 z-10 mt-2 max-h-[280px] overflow-y-auto rounded-2xl border-2 border-[var(--color-border-subtle)] bg-white shadow-xl py-2"
+                >
+                  {patientSuggestions.length === 0 ? (
+                    <p className="py-3 px-3 text-sm text-[var(--color-text-secondary)] text-center">
+                      {patientSearchQuery.trim() ? (role === "clinician" ? "Aucun patient trouvé" : "Aucun soignant trouvé") : "Saisir un nom ou des initiales"}
+                    </p>
+                  ) : (
+                    patientSuggestions.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        role="option"
+                        onClick={() => {
+                          if (role === "clinician") {
+                            onSelectPatient?.(item.id);
+                            const thread = visibleThreads.find((t) => t.name === item.name);
+                            if (thread) {
+                              setSelectedThreadId(thread.id);
+                              setMessageViewMode("thread");
+                            }
+                          } else {
+                            onStartNewConversation(item as Caregiver);
+                          }
+                          setPatientSearchQuery("");
+                          setPatientSearchOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 rounded-lg py-2.5 px-3 text-left text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-mint)] transition-colors"
+                      >
+                        <span className="w-8 h-8 rounded-full bg-[var(--color-teal)]/20 text-[var(--color-teal-on-mint)] flex items-center justify-center text-xs font-semibold shrink-0">{item.initials}</span>
+                        {item.name}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        ) : null}
+        <div className="flex gap-3 mb-16 justify-center">
+          <button type="button" onClick={() => setShowCaregiverSearch(true)} className="w-auto inline-flex items-center justify-center rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 px-5 font-semibold shadow-sm hover:shadow-md">
+            Nouveau message
           </button>
           {role === "patient" && (
             <button type="button" onClick={() => { setShowCaregiverSearch(true); onAddCaregiver?.(); }} className="flex-1 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white py-2.5 font-semibold shadow-sm hover:shadow-md">Ajouter soignant</button>
           )}
         </div>
         <Card variant="surface" className="p-5 mb-5 hover:shadow-md active:shadow-lg">
-          <button type="button" onClick={() => setMessagesCardExpanded(!messagesCardExpanded)} className="w-full flex items-center justify-between gap-3 text-left" aria-label={messagesCardExpanded ? "Réduire les messages" : "Développer les messages"} aria-expanded={messagesCardExpanded}>
-            <div>
-              <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">MES MESSAGES</div>
-              <div className="text-[var(--text-sm)] text-[var(--color-text-secondary)] mt-0.5">Conversations prioritaires et non lus</div>
-            </div>
-          </button>
-          <div className="space-y-3 mt-4">
+          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-3">Messages non lus</div>
+          <div className="space-y-3">
             {visibleThreads.length === 0 ? (
               <p className="text-[var(--text-sm)] text-[var(--color-text-secondary)] py-4 text-center">Aucune conversation</p>
-            ) : visibleThreads.map((thread) => (
-              <button key={thread.id} type="button" onClick={() => { setSelectedThreadId(thread.id); setMessageViewMode("thread"); }} className={`w-full rounded-[18px] p-3 text-left transition ${selectedThreadId === thread.id ? "bg-[#dfeceb] border border-[var(--color-border-strong)]" : "bg-[var(--color-mint)]"} hover:shadow-md`}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="w-11 h-11 rounded-full bg-[var(--color-teal)] text-white flex items-center justify-center text-sm font-semibold shrink-0">{thread.initials}</div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <div className="font-semibold text-[var(--color-text)]">{thread.name}</div>
-                        {thread.unread > 0 ? <Badge tone="teal">{thread.unread} non lu{thread.unread > 1 ? "s" : ""}</Badge> : null}
+            ) : (
+              visibleThreads.slice(0, 3).map((thread) => (
+                <button key={thread.id} type="button" onClick={() => { setSelectedThreadId(thread.id); setMessageViewMode("thread"); }} className={`w-full rounded-[18px] p-3 text-left transition ${selectedThreadId === thread.id ? "bg-[#dfeceb] border border-[var(--color-border-strong)]" : "bg-[var(--color-mint)]"} hover:shadow-md`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-full bg-[var(--color-teal)] text-white flex items-center justify-center text-sm font-semibold shrink-0">{thread.initials}</div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="font-semibold text-[var(--color-text)]">{thread.name}</div>
+                          {thread.unread > 0 ? <Badge tone="teal">{thread.unread} non lu{thread.unread > 1 ? "s" : ""}</Badge> : null}
+                        </div>
+                        <div className="text-sm text-[var(--color-text-secondary)] mt-1 truncate">{thread.preview}</div>
                       </div>
-                      <div className="text-sm text-[var(--color-text-secondary)] mt-1 truncate">{thread.preview}</div>
                     </div>
+                    <div className="text-xs text-[var(--color-text-secondary)] shrink-0">{thread.time}</div>
                   </div>
-                  <div className="text-xs text-[var(--color-text-secondary)] shrink-0">{thread.time}</div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))
+            )}
           </div>
         </Card>
       </section>
@@ -1391,32 +1508,9 @@ export function PatientExchangesTemplate({
   return (
     <>
       <section aria-label="Échanges">
-        {role === "clinician" && (
-          <div className="flex items-center gap-3 mb-3">
-            <button type="button" onClick={onProfileClick} className="w-10 h-10 rounded-full bg-[var(--color-mint)] border border-[var(--color-border)] flex items-center justify-center text-[var(--color-text)] shrink-0" aria-label="Retour à la liste des patients">
-              <span className="text-lg leading-none">←</span>
-            </button>
-            <span className="text-[var(--text-sm)] font-semibold text-[var(--color-text)]">Patients</span>
-          </div>
-        )}
         <ScreenHeader role={role} patient={patient} clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-        <SectionTitle
-          title={role === "clinician" ? (activeExchangeTab === "messages" ? `Messages · ${selectedClinicalPatient.name}` : `Documents · ${selectedClinicalPatient.name}`) : "Échanges"}
-          subtitle={role === "clinician" ? "Conversation et documents avec le patient" : "Messagerie et documents partagés avec le soignant"}
-        />
-        <div className="mb-3 flex items-center justify-center">
-          <div className="relative bg-[#f1f5f6] rounded-full p-1 flex gap-1 border border-[var(--color-border)] w-full overflow-hidden">
-            <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full bg-[var(--color-teal)] transition-all duration-200 ease-in-out ${activeExchangeTab === "messages" ? "left-1" : "left-[calc(50%+2px)]"}`} />
-            <button type="button" onClick={() => setActiveExchangeTab("messages")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeExchangeTab === "messages" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
-              Messages
-            </button>
-            <button type="button" onClick={() => setActiveExchangeTab("documents")} className={`relative z-10 flex-1 rounded-full py-2 text-sm font-semibold transition-all duration-200 active:scale-[0.985] ${activeExchangeTab === "documents" ? "text-white" : "text-[var(--color-text-secondary)]"}`}>
-              Documents
-            </button>
-          </div>
-        </div>
         <div className="relative overflow-hidden min-h-0 flex-1">
-          {activeExchangeTab === "messages" ? <div className="animate-[slideFromLeft_0.35s_ease-out]">{renderMessagesContent()}</div> : <div className="animate-[slideFromRight_0.35s_ease-out]">{renderDocsContent()}</div>}
+          <div className="animate-[slideFromLeft_0.35s_ease-out]">{renderMessagesContent()}</div>
         </div>
       </section>
       {/* Modale Ajouter un fichier : overlay ferme au clic ; Annuler/Envoyer ferment et réinitialisent le commentaire. Upload à brancher sur Envoyer. */}

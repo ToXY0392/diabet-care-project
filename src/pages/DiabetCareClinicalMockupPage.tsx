@@ -280,6 +280,8 @@ export default function DiabetCareClinicalMockupPage() {
               patient={patientState}
               clinicianInitials={clinicianProfile.initials}
               selectedClinicalPatient={selectedClinicalPatient}
+              clinicianPatients={clinicianPatients}
+              onSelectPatient={state.setSelectedClinicalPatientId}
               activeExchangeTab={state.activeExchangeTab}
               setActiveExchangeTab={state.setActiveExchangeTab}
               messageViewMode={state.messageViewMode}
@@ -471,7 +473,7 @@ export default function DiabetCareClinicalMockupPage() {
                     }
                   : undefined
               }
-              onGoHome={state.role === "clinician" ? () => state.setActiveTab("patients") : undefined}
+              onGoHome={state.role === "clinician" ? () => state.setActiveTab("cockpit") : undefined}
             />
             <ClinicianNoteModal
               open={clinicianNoteModalOpen}
@@ -532,6 +534,8 @@ export default function DiabetCareClinicalMockupPage() {
             patient={patient}
             clinicianInitials={clinicianProfile.initials}
             selectedClinicalPatient={selectedClinicalPatient}
+            clinicianPatients={clinicianPatients}
+            onSelectPatient={state.setSelectedClinicalPatientId}
             activeExchangeTab={state.activeExchangeTab}
             setActiveExchangeTab={state.setActiveExchangeTab}
             messageViewMode={state.messageViewMode}

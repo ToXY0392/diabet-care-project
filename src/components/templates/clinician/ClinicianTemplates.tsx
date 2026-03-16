@@ -306,6 +306,7 @@ export function ClinicianNotesTemplate({
   onPatientsClick,
   onProfileClick,
 }: ClinicianNotesProps) {
+  const [showNotePanel, setShowNotePanel] = useState(false);
   const notesForPatient = notes.filter((n) => n.patientId === selectedPatientId);
   const selectedNote = notesForPatient.find((note) => note.id === selectedNoteId) ?? notesForPatient[0];
   const displayContent = selectedNote ? (noteContentOverride[selectedNote.id] ?? selectedNote.content) : "";
@@ -320,7 +321,16 @@ export function ClinicianNotesTemplate({
     if (selectedNote) textareaRef.current?.focus();
   }, [selectedNote?.id]);
 
+  useEffect(() => {
+    if (!selectedPatientId) setShowNotePanel(false);
+  }, [selectedPatientId]);
+
   const handleSelectPatient = (patientId: string) => {
+    if (patientId === selectedPatientId) {
+      setShowNotePanel(false);
+      return;
+    }
+    setShowNotePanel(true);
     onSelectPatient(patientId);
     const firstNoteOfPatient = notes.find((n) => n.patientId === patientId);
     if (firstNoteOfPatient) setSelectedNoteId(firstNoteOfPatient.id);
@@ -345,26 +355,26 @@ export function ClinicianNotesTemplate({
           Rechercher patient
         </button>
       </div>
-      <div className="grid grid-cols-[180px_1fr] gap-4">
-        <div className="space-y-4">
-          <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">PATIENTS</div>
-          <div className="space-y-2">
-            {patients.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => handleSelectPatient(p.id)}
-                className={`w-full rounded-[22px] p-3 text-left ${selectedPatientId === p.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
-              >
-                <div className="font-semibold text-sm leading-tight">{p.name}</div>
-                <div className="text-xs mt-1 opacity-80">{p.initials}</div>
-              </button>
-            ))}
-          </div>
-          {notesForPatient.length > 0 && (
-            <>
-              <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold pt-2">NOTES</div>
+      <div className="max-w-4xl mx-auto flex flex-col items-center">
+        <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">PATIENTS</div>
+        <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+          {patients.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() => handleSelectPatient(p.id)}
+              className={`rounded-[22px] p-3 text-left ${selectedPatientId === p.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
+            >
+              <div className="font-semibold text-sm leading-tight">{p.name}</div>
+              <div className="text-xs mt-1 opacity-80">{p.initials}</div>
+            </button>
+          ))}
+        </div>
+        {showNotePanel ? (
+          <div className={`w-full grid gap-4 ${notesForPatient.length > 0 ? "grid-cols-[180px_1fr]" : ""}`}>
+            {notesForPatient.length > 0 && (
               <div className="space-y-2">
+                <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold">NOTES</div>
                 {notesForPatient.map((note) => (
                   <button
                     key={note.id}
@@ -377,41 +387,45 @@ export function ClinicianNotesTemplate({
                   </button>
                 ))}
               </div>
-            </>
-          )}
-        </div>
-        <Card variant="surface" className="p-5 flex flex-col min-h-0">
-          {selectedNote ? (
-            <div className="flex flex-col min-h-0 flex-1">
-              <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold">NOTE</div>
-              <div className="mt-4 flex-1 min-h-0 flex flex-col">
-                <textarea
-                  ref={textareaRef}
-                  value={editingContent}
-                  onChange={(e) => setEditingContent(e.target.value)}
-                  className="w-full flex-1 min-h-[200px] rounded-[var(--radius-lg)] bg-white border border-[var(--color-border)] p-4 text-[var(--color-text)] leading-7 text-[15px] resize-y"
-                  placeholder="Contenu de la note…"
-                  aria-label="Contenu de la note"
-                />
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2 shrink-0">
-                {onSaveNote && (
-                  <button type="button" onClick={handleSaveNote} className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)] hover:shadow-sm">
-                    Enregistrer
-                  </button>
-                )}
-                <button type="button" className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)]">
-                  Nouvelle note
-                </button>
-                <button type="button" className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)]">
-                  Archiver
-                </button>
-              </div>
-            </div>
-          ) : (
-            <p className="text-[var(--color-text-secondary)]">Aucune note pour ce patient.</p>
-          )}
-        </Card>
+            )}
+            <Card variant="surface" className="p-5 flex flex-col min-h-0">
+              {selectedNote ? (
+                <div className="flex flex-col min-h-0 flex-1">
+                  <div className="text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[#2c4443] font-semibold">NOTE</div>
+                  <div className="mt-4 flex-1 min-h-0 flex flex-col">
+                    <textarea
+                      ref={textareaRef}
+                      value={editingContent}
+                      onChange={(e) => setEditingContent(e.target.value)}
+                      className="w-full flex-1 min-h-[200px] rounded-[var(--radius-lg)] bg-white border border-[var(--color-border)] p-4 text-[var(--color-text)] leading-7 text-[15px] resize-y"
+                      placeholder="Contenu de la note…"
+                      aria-label="Contenu de la note"
+                    />
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2 shrink-0">
+                    {onSaveNote && (
+                      <button type="button" onClick={handleSaveNote} className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)] hover:shadow-sm">
+                        Enregistrer
+                      </button>
+                    )}
+                    <button type="button" className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)]">
+                      Nouvelle note
+                    </button>
+                    <button type="button" className="rounded-[var(--radius-md)] bg-[var(--color-mint)] text-[var(--color-text)] px-4 py-2.5 text-sm font-semibold border border-[var(--color-border)]">
+                      Archiver
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[var(--color-text-secondary)]">Aucune note pour ce patient.</p>
+              )}
+            </Card>
+          </div>
+        ) : (
+          <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--color-border-mint)] bg-[var(--color-mint)]/30">
+            <p className="text-[var(--color-text-secondary)] text-center px-4">Sélectionnez un patient pour afficher ses notes.</p>
+          </div>
+        )}
       </div>
     </section>
   );
