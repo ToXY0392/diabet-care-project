@@ -2,6 +2,20 @@
 
 L'application DiabetCare est construite comme un prototype interactif robuste utilisant React et TypeScript.
 
+## Démarrage rapide du projet
+
+- **Application web (racine du dépôt)**  
+  - Installer les dépendances si nécessaire : `npm install`  
+  - Lancer le serveur de développement : `npm run dev`  
+  - Ouvrir l’URL affichée par Vite dans le navigateur (par défaut `http://localhost:5173`).
+
+- **Application mobile Expo (`mobile/`)**  
+  - Se placer dans le dossier : `cd mobile`  
+  - Lancer Expo : `npm start`  
+  - Scanner le QR code avec l’app **Expo Go** (voir `EXPO_GUIDE.md` pour le détail).
+
+Ces deux applications partagent la même vision produit DiabetCare : la version web sert de prototype riche et la version mobile de base pour une future app native connectée à un backend Rails.
+
 ## Structure des Dossiers
 - `src/components/` : Suit les principes de l'Atomic Design.
     - `atoms/` : Éléments de base (Badge, icônes simples).

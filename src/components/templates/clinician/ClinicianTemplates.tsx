@@ -111,15 +111,15 @@ export function ClinicianPatientsTemplate({ clinicianInitials, clinicianPatients
     <section aria-label="Liste des patients">
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
       <SectionTitle title="Patients" subtitle="Liste des patients suivis" />
-      <div className="flex justify-end mb-3">
+      <div className="mb-3">
         <button
           type="button"
           onClick={onSearchPatient ?? (() => {})}
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          className="w-full flex items-center gap-4 rounded-xl border bg-[var(--color-mint)] transition-all duration-200 border-[var(--color-border-mint)] shadow-sm hover:border-[var(--color-teal)]/30 hover:shadow px-4 py-3 text-[var(--color-text)] text-[var(--text-sm)] font-semibold"
           aria-label="Rechercher un patient"
         >
-          <Search className="w-4 h-4 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
-          Rechercher patient
+          <Search className="w-5 h-5 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
+          <span>Rechercher un patient dans la liste</span>
         </button>
       </div>
       <ul className="space-y-1 list-none p-0 m-0">
@@ -343,27 +343,33 @@ export function ClinicianNotesTemplate({
   return (
     <section aria-label="Notes thérapeutiques">
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-      <SectionTitle title="Notes thérapeutiques" subtitle="Notes cliniques par patient" />
-      <div className="flex justify-end mb-3">
+      <SectionTitle title="Notes thérapeutiques" />
+      <div className="mb-3">
         <button
           type="button"
           onClick={onSearchPatient ?? (() => {})}
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          className="w-full flex items-center gap-4 rounded-xl border bg-[var(--color-mint)] transition-all duration-200 border-[var(--color-border-mint)] shadow-sm hover:border-[var(--color-teal)]/30 hover:shadow px-4 py-3 text-[var(--color-text)] text-[var(--text-sm)] font-semibold"
           aria-label="Rechercher un patient"
         >
-          <Search className="w-4 h-4 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
-          Rechercher patient
+          <Search className="w-5 h-5 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
+          <span>Rechercher un patient dans la liste</span>
         </button>
       </div>
       <div className="max-w-4xl mx-auto flex flex-col items-center">
-        <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">PATIENTS</div>
+        <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">
+          Liste des patients
+        </div>
         <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
           {patients.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => handleSelectPatient(p.id)}
-              className={`rounded-[22px] p-3 text-left ${selectedPatientId === p.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
+              className={`rounded-[22px] p-3 text-left ${
+                selectedPatientId === p.id
+                  ? "bg-[var(--color-teal)] text-white"
+                  : "bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border-mint)]"
+              }`}
             >
               <div className="font-semibold text-sm leading-tight">{p.name}</div>
               <div className="text-xs mt-1 opacity-80">{p.initials}</div>
@@ -380,7 +386,11 @@ export function ClinicianNotesTemplate({
                     key={note.id}
                     type="button"
                     onClick={() => setSelectedNoteId(note.id)}
-                    className={`w-full rounded-[22px] p-3 text-left ${selectedNoteId === note.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
+                    className={`w-full rounded-[22px] p-3 text-left ${
+                      selectedNoteId === note.id
+                        ? "bg-[var(--color-teal)] text-white"
+                        : "bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border-mint)]"
+                    }`}
                   >
                     <div className="font-semibold text-sm leading-tight">{note.title}</div>
                     <div className="text-xs mt-1 opacity-80">{note.author}</div>
@@ -422,8 +432,10 @@ export function ClinicianNotesTemplate({
             </Card>
           </div>
         ) : (
-          <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--color-border-mint)] bg-[var(--color-mint)]/30">
-            <p className="text-[var(--color-text-secondary)] text-center px-4">Sélectionnez un patient pour afficher ses notes.</p>
+          <div className="w-full flex flex-col items-center justify-center min-h-[220px] rounded-[var(--radius-xl)]">
+            <p className="text-base md:text-lg text-[var(--color-text-secondary)] text-center px-4">
+              Sélectionnez un patient pour afficher ses notes.
+            </p>
           </div>
         )}
       </div>
@@ -475,7 +487,10 @@ export function ClinicianDocumentsTemplate({
 
   const handleSelectPatient = (patientId: string) => {
     if (patientId === selectedPatientId) {
+      // Re-cliquer sur le même patient désélectionne et ferme le panneau.
       setShowDocumentPanel(false);
+      onSelectPatient("");
+      setSelectedDocumentId("");
       return;
     }
     setShowDocumentPanel(true);
@@ -485,27 +500,33 @@ export function ClinicianDocumentsTemplate({
   return (
     <section aria-label="Gestion des documents">
       <ScreenHeader clinicianInitials={clinicianInitials} onProfileClick={onProfileClick} />
-      <SectionTitle title="Documents" subtitle="Gestion des documents par patient" />
-      <div className="flex justify-end mb-3">
+      <SectionTitle title="Documents" />
+      <div className="mb-3">
         <button
           type="button"
           onClick={onSearchPatient ?? (() => {})}
-          className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white border-0 py-2 px-3 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md transition-shadow"
+          className="w-full flex items-center gap-4 rounded-xl border bg-[var(--color-mint)] transition-all duration-200 border-[var(--color-border-mint)] shadow-sm hover:border-[var(--color-teal)]/30 hover:shadow px-4 py-3 text-[var(--color-text)] text-[var(--text-sm)] font-semibold"
           aria-label="Rechercher un patient"
         >
-          <Search className="w-4 h-4 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
-          Rechercher patient
+          <Search className="w-5 h-5 shrink-0 stroke-[currentColor]" strokeWidth={2} aria-hidden />
+          <span>Rechercher un patient dans la liste</span>
         </button>
       </div>
       <div className="max-w-4xl mx-auto flex flex-col items-center">
-        <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">PATIENTS</div>
+        <div className="w-full text-[var(--text-xs)] tracking-[var(--tracking-label)] text-[var(--color-label)] font-semibold mb-2">
+          Liste des patients
+        </div>
         <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-6">
           {patients.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => handleSelectPatient(p.id)}
-              className={`rounded-[22px] p-3 text-left ${selectedPatientId === p.id ? "bg-[var(--color-teal)] text-white" : "bg-[#e3e8e7] text-[var(--color-text)] border border-[var(--color-border)]"}`}
+              className={`rounded-[22px] p-3 text-left ${
+                selectedPatientId === p.id
+                  ? "bg-[var(--color-teal)] text-white"
+                  : "bg-[var(--color-mint)] text-[var(--color-text)] border border-[var(--color-border-mint)]"
+              }`}
             >
               <div className="font-semibold text-sm leading-tight">{p.name}</div>
               <div className="text-xs mt-1 opacity-80">{p.initials}</div>
@@ -636,8 +657,10 @@ export function ClinicianDocumentsTemplate({
           )}
           </div>
         ) : (
-          <div className="w-full flex flex-col items-center justify-center min-h-[280px] rounded-[var(--radius-xl)] border-2 border-dashed border-[var(--color-border-mint)] bg-[var(--color-mint)]/30">
-            <p className="text-[var(--color-text-secondary)] text-center px-4">Sélectionnez un patient pour afficher ses documents.</p>
+          <div className="w-full flex flex-col items-center justify-center min-h-[220px] rounded-[var(--radius-xl)]">
+            <p className="text-base md:text-lg text-[var(--color-text-secondary)] text-center px-4">
+              Sélectionnez un patient pour afficher ses documents.
+            </p>
           </div>
         )}
       </div>

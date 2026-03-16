@@ -48,8 +48,8 @@ function saveSession(role: Role, activeTab: AnyTab) {
  * Le rôle et l’onglet actif sont persistés (localStorage + sessionStorage) pour ne pas perdre la « connexion » au rechargement.
  */
 export function useClinicalMockupState() {
-  const [role, setRoleState] = useState<Role>(() => loadSession()?.role ?? "patient");
-  const [activeTab, setActiveTabState] = useState<AnyTab>(() => loadSession()?.activeTab ?? "accueil");
+  const [role, setRoleState] = useState<Role>(() => loadSession()?.role ?? "clinician");
+  const [activeTab, setActiveTabState] = useState<AnyTab>(() => loadSession()?.activeTab ?? "cockpit");
 
   useEffect(() => {
     saveSession(role, activeTab);

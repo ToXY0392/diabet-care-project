@@ -384,6 +384,8 @@ type MeasuresProps = HeaderProps & {
   onOpenFiche?: () => void;
   /** Quand fourni (vue soignant), affiche un lien vers les notes. */
   onOpenNotes?: () => void;
+  /** Quand fourni (vue soignant), affiche un lien vers la messagerie. */
+  onOpenMessages?: () => void;
   /** Quand fourni (vue soignant), affiche le bouton d’import de données (fichier JSON rapport). */
   onImportData?: (data: unknown) => void;
   /** Quand fourni (vue soignant), affiche un bouton Accueil pour revenir au cockpit. */
@@ -409,6 +411,7 @@ export function PatientMeasuresTemplate({
   onProfileClick,
   onOpenFiche,
   onOpenNotes,
+  onOpenMessages,
   onImportData,
   onGoHome,
 }: MeasuresProps) {
@@ -606,7 +609,7 @@ export function PatientMeasuresTemplate({
         </div>
         )}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          {role === "clinician" && (onOpenFiche != null || onOpenNotes != null || onImportData != null) && (
+          {role === "clinician" && (onOpenFiche != null || onOpenNotes != null || onImportData != null || onOpenMessages != null) && (
             <div className="flex gap-2 shrink-0">
               <input
                 ref={importFileInputRef}
@@ -629,6 +632,15 @@ export function PatientMeasuresTemplate({
               {onImportData && (
                 <button type="button" onClick={() => importFileInputRef.current?.click()} className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-4 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md">
                   Importer des données
+                </button>
+              )}
+              {onOpenMessages && (
+                <button
+                  type="button"
+                  onClick={onOpenMessages}
+                  className="rounded-[var(--radius-md)] bg-gradient-to-br from-[var(--color-teal-deep)] to-[var(--color-teal-end)] text-white px-4 py-2.5 text-[var(--text-sm)] font-semibold shadow-sm hover:shadow-md"
+                >
+                  Messages
                 </button>
               )}
             </div>

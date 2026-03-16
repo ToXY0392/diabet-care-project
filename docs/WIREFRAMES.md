@@ -4,39 +4,32 @@ Ce document présente la structure schématique des écrans principaux de l'appl
 
 ---
 
-## 1. Vues Patient
+## 1. Vues Patient (mode "téléphone")
 
 ### A. Tableau de Bord (Accueil)
-Focus : État immédiat et actions prioritaires.
+Focus : état immédiat du capteur + accès rapide aux échanges.
 
 ```text
 +---------------------------------------+
-| [ Date: Mercredi 11 ]        (Initials|
+| [Pill header : Initiales patient]     |
 +---------------------------------------+
 |  Tableau de bord                      |
-|  Vue complète du suivi...             |
 |                                       |
-|  +---------------------------------+  |
-|  | CAPTEUR PRINCIPAL               |  |
-|  | Dexcom G6                       |  |
-|  |                                 |  |
-|  |     118 mg/dL                   |  |
-|  |     Stable · sync 2m            |  |
-|  +---------------------------------+  |
+|          [ Cercle glycémie ]          |
+|          118 mg/dL                    |
+|          Stable · sync 2m             |
 |                                       |
-|        [ BOUTON: AJOUTER REPAS ]      |
+|       [ BOUTON : AJOUTER REPAS ]      |
 |                                       |
-|  +---------------------------------+  |
-|  | NON LU            [Badge: 2]    |  |
-|  | +-----------------------------+ |  |
-|  | | Dr. Martin                  | |  |
-|  | | "Pensez à votre..."   10:30 | |  |
-|  | +-----------------------------+ |  |
-|  | [ Ouvrir ]       [ Voir tout ]  |  |
-|  +---------------------------------+  |
+|  [Card dégradé : Messages non lus]    |
+|   - Titre : "Messages non lus"        |
+|   - Badge : "2 non lus"               |
+|   - Ligne : "Dr Martin" + extrait     |
+|   - Boutons : [Ouvrir] [Voir tout]    |
 |                                       |
 +---------------------------------------+
-| [Home]  [Stats]  [Msg]  [Note] [User] |
+| [Home] [Capteur] [Courbes] [Échanges] |
+|                   [Profil] (icônes)   |
 +---------------------------------------+
 ```
 
@@ -153,3 +146,73 @@ Focus : Prise de décision rapide.
 
 ---
 *Note: Ces wireframes représentent la hiérarchie visuelle implémentée dans les fichiers templates.tsx.*
+
+---
+
+## 3. Vue responsive type "trois colonnes"
+
+Référence inspirée du modèle "Default / Browser – Tablet Portrait – Smartphone" de wireframes classiques, déclinée pour l’app DiabetCare.
+
+### 3.1 Desktop / Browser (Cockpit clinicien)
+
+```text
++------------------------------------------------------------------+
+| [Top bar]                                                        |
+|  DiabetCare | Cockpit | Patients | Courbes | Notes | Documents   |
+|                                   (Profil soignant)              |
++------------------------------------------------------------------+
+| [KPI row]                                                        |
+|  [ Alertes ]  [ Patients ]  [ TIR médian ]  [ Capteurs ]         |
++------------------------------------------------------------------+
+| [Colonne gauche]        | [Colonne centre]     | [Colonne droite]|
+|  Liste patients         |  Graphiques TIR      |  Messages        |
+|  (triable)              |  Courbes glycémie    |  (threads)       |
+|                         |  Injections/glucides |  + détails doc   |
+|                         |                      |                  |
++------------------------------------------------------------------+
+| [Footer léger / mentions si besoin]                              |
++------------------------------------------------------------------+
+```
+
+### 3.2 Tablette portrait (Fiche + courbes)
+
+```text
++--------------------------------------------------+
+| [Barre haute compacte]                           |
+|  ← Patients      Jean Dupont (initiales)   Profil|
++--------------------------------------------------+
+| [Bloc 1 : Fiche synthèse]                        |
+|  - Identité (nom, âge, type diabète)            |
+|  - Capteur / alertes                            |
+|  - Dernière HbA1c                               |
++--------------------------------------------------+
+| [Bloc 2 : Courbes & TIR]                         |
+|  - Onglets : Jour | Tendances | Carnet          |
+|  - Courbe glycémie + légende                    |
+|  - Carte "Temps dans la cible"                  |
++--------------------------------------------------+
+| [Bloc 3 : Actions]                               |
+|  - Boutons : Voir messages / Documents / Notes  |
++--------------------------------------------------+
+```
+
+### 3.3 Smartphone (Vue patient actuelle)
+
+```text
++---------------------------------------+
+| [Pill header : patient]  (switch rôle)|
++---------------------------------------+
+| [Écran principal selon onglet]        |
+|  - Accueil : cercle glycémie, repas   |
+|  - Capteur : connexions + paramètres  |
+|  - Courbes : TIR + graphique + carnet|
+|  - Échanges : messages / documents    |
+|  - Profil : fiche patient + réglages  |
++---------------------------------------+
+| [Bottom nav]                          |
+|  Home | Capteur | Courbes | Échanges  |
+|                      Profil (icône)   |
++---------------------------------------+
+```
+
+Ces trois vues reprennent le même contenu fonctionnel adapté à chaque support : **cockpit multi-colonnes** sur desktop, **pile de blocs lisibles** sur tablette, **flux unique + bottom nav** sur smartphone.

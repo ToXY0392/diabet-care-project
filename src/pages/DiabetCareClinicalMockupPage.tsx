@@ -517,6 +517,7 @@ export default function DiabetCareClinicalMockupPage() {
               onProfileClick={() => state.setActiveTab("patients")}
               onOpenFiche={state.role === "clinician" ? () => state.setActiveTab("patient_view") : undefined}
               onOpenNotes={state.role === "clinician" ? () => state.setActiveTab("notes") : undefined}
+              onOpenMessages={state.role === "clinician" ? () => goToClinicianTab("messages") : undefined}
               onImportData={
                 state.role === "clinician"
                   ? (data) => {
