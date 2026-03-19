@@ -82,6 +82,7 @@ Documentation detaillee :
 
 - Integration Dexcom : `docs/dexcom_integration.md`
 - Vue fonctionnelle du produit : `doc/README.md`
+- Evaluation THP : `docs/evaluation_grille_thp.md`
 
 ## Arborescence utile
 
