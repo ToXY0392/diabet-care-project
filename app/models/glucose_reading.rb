@@ -1,4 +1,5 @@
 class GlucoseReading < ApplicationRecord
+  # Une mesure glycemique peut venir d'une saisie manuelle ou d'un import Dexcom.
   CONTEXTS = %w[fatigue fasting before_meal after_meal bedtime cgm].freeze
   SOURCES = %w[manual dexcom].freeze
 

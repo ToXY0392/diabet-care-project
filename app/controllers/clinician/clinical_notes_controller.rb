@@ -1,5 +1,6 @@
 module Clinician
   class ClinicalNotesController < BaseController
+    # Endpoint JSON des notes cliniques rattachees a un patient suivi.
     before_action :set_clinical_note, only: %i[update destroy]
 
     def index

@@ -1,4 +1,5 @@
 class MedicationSchedule < ApplicationRecord
+  # Un programme de traitement genere automatiquement des rappels sur une plage donnee.
   WEEKDAYS = {
     sunday: 1,
     monday: 2,
@@ -72,6 +73,8 @@ class MedicationSchedule < ApplicationRecord
       end
     end
 
+    # On supprime seulement les rappels encore non pris qui ne correspondent plus
+    # au programme courant sur la fenetre synchronisee.
     medication_reminders.where(scheduled_at: from.beginning_of_day..to.end_of_day, taken_at: nil)
                         .where.not(scheduled_at: expected_times)
                         .destroy_all

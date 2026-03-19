@@ -1,4 +1,5 @@
 class MedicationSchedulesController < ApplicationController
+  # Gere les traitements recurrents et regenere la fenetre de rappels associee.
   before_action :set_medication_schedule, only: %i[show edit update destroy]
 
   def index

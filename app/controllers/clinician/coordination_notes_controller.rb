@@ -1,5 +1,6 @@
 module Clinician
   class CoordinationNotesController < BaseController
+    # Porte la note de coordination globale visible dans l'espace soignant.
     def show
       note = current_clinician.coordination_notes.active.recent_first.first
       render json: serialize_note(note)

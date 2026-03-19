@@ -1,4 +1,5 @@
 class JournalEntriesController < ApplicationController
+  # Journal libre du patient pour noter humeur, activite, symptomes et contexte.
   before_action :set_journal_entry, only: %i[show edit update destroy]
 
   def index

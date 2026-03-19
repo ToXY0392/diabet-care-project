@@ -1,5 +1,6 @@
 module Dexcom
   module Config
+    # Centralise la configuration Dexcom pour eviter de relire ENV partout.
     module_function
 
     def client_id

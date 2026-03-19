@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  # Modele central de l'application, partage entre les parcours patient et soignant.
   ROLES = %w[patient clinician].freeze
 
   has_secure_password

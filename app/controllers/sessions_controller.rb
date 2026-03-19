@@ -1,4 +1,5 @@
 class SessionsController < ApplicationController
+  # Gere l'ouverture et la fermeture de session pour les deux roles.
   skip_before_action :require_login, only: %i[new create]
 
   def new

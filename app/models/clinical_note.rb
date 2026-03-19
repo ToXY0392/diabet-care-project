@@ -1,4 +1,5 @@
 class ClinicalNote < ApplicationRecord
+  # Note clinique rattachee a un patient et saisie par un soignant.
   CATEGORIES = %w[follow_up treatment coordination observation].freeze
 
   belongs_to :clinician, class_name: "User"

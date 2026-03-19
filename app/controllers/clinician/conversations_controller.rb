@@ -1,5 +1,6 @@
 module Clinician
   class ConversationsController < BaseController
+    # Endpoint JSON des fils de discussion clinician <-> patient.
     before_action :set_conversation, only: %i[show mark_read]
 
     def index

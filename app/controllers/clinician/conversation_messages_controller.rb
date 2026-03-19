@@ -1,5 +1,6 @@
 module Clinician
   class ConversationMessagesController < BaseController
+    # Cree les messages d'un fil de discussion deja ouvert par le clinician.
     def create
       conversation = current_clinician.clinician_conversations_as_clinician.find(params[:conversation_id])
       message = conversation.clinician_messages.new(message_params.merge(author: current_clinician, sent_at: Time.zone.now))

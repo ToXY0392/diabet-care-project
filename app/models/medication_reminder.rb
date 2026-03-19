@@ -1,4 +1,5 @@
 class MedicationReminder < ApplicationRecord
+  # Un rappel ponctuel, issu d'un programme recurrent ou saisi manuellement.
   belongs_to :user
   belongs_to :medication_schedule, optional: true
   has_many :health_alerts, dependent: :destroy

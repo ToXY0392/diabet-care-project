@@ -1,4 +1,5 @@
 class HealthAlert < ApplicationRecord
+  # Les alertes regroupent les ecarts glycemiques et les oublis de traitement.
   ALERT_TYPES = %w[hypoglycemia hyperglycemia medication_overdue medication_missed].freeze
   SEVERITIES = %w[warning critical].freeze
 

@@ -1,5 +1,6 @@
 module MedicationSchedules
   class SyncWindow
+    # Resynchronise tous les programmes actifs sur une fenetre calendaire commune.
     def self.call(user:, from:, to:)
       new(user:, from:, to:).call
     end

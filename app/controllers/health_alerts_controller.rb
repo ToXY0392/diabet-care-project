@@ -1,4 +1,5 @@
 class HealthAlertsController < ApplicationController
+  # Expose les alertes de sante et leur cycle de lecture, accuse et resolution.
   def index
     @health_alerts = current_user.health_alerts.recent_first.includes(:glucose_reading, :medication_reminder)
   end

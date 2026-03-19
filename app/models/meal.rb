@@ -1,4 +1,5 @@
 class Meal < ApplicationRecord
+  # Les repas servent a contextualiser les variations glycemiques du patient.
   belongs_to :user
 
   validates :name, presence: true

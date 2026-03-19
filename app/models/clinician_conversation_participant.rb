@@ -1,4 +1,5 @@
 class ClinicianConversationParticipant < ApplicationRecord
+  # Suit la participation et l'etat de lecture de chaque membre d'une conversation.
   ROLES = %w[clinician patient].freeze
 
   belongs_to :clinician_conversation

@@ -1,4 +1,5 @@
 class MealsController < ApplicationController
+  # Permet au patient de contextualiser ses mesures avec ses repas et glucides.
   before_action :set_meal, only: %i[show edit update destroy]
 
   def index

@@ -1,5 +1,6 @@
 module Clinician
   class BaseController < ApplicationController
+    # Base commune des endpoints soignant : authentification, role et scope patient.
     before_action :require_clinician
 
     private

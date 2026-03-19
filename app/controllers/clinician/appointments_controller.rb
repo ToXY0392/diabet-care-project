@@ -1,5 +1,6 @@
 module Clinician
   class AppointmentsController < BaseController
+    # Endpoint JSON pour le planning de suivi du clinician.
     before_action :set_appointment, only: %i[update destroy]
 
     def index

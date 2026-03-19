@@ -1,5 +1,6 @@
 module Dexcom
   class SyncReadings
+    # Importe les mesures Dexcom dans le modele de glycemies de l'application.
     DEFAULT_SYNC_WINDOW = 24.hours
 
     def self.call(user:, start_time: nil, end_time: Time.zone.now, client: nil)
@@ -45,6 +46,9 @@ module Dexcom
 
     def sync_start_time
       return @start_time if @start_time.present?
+      # On garde un leger chevauchement entre deux synchronisations pour relire
+      # sans risque les mesures CGM arrivees en retard; le dedoublonnage se fait
+      # ensuite sur source + external_id.
       return [@connection.last_synced_at - 15.minutes, 30.days.ago].max if @connection.last_synced_at.present?
 
       DEFAULT_SYNC_WINDOW.ago
@@ -54,6 +58,8 @@ module Dexcom
       external_id = record["recordId"]
       return false if external_id.blank?
 
+      # Dexcom peut renvoyer des mesures deja vues sur des fenetres qui se
+      # recouvrent, donc on fait un upsert via l'identifiant fournisseur.
       reading = @user.glucose_readings.find_or_initialize_by(source: "dexcom", external_id: external_id)
 
       reading.assign_attributes(

@@ -1,4 +1,6 @@
 class PatientProfilesController < ApplicationController
+  # Le profil patient centralise les seuils glycemiques et les preferences
+  # utilisees par les calculs du dashboard et des alertes.
   before_action :set_patient_profile
 
   def show

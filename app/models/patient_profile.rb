@@ -1,4 +1,5 @@
 class PatientProfile < ApplicationRecord
+  # Stocke les seuils glycemiques et preferences propres a un patient.
   belongs_to :user
 
   validates :hypo_threshold, :hyper_threshold, :hypo_critical_threshold, :hyper_critical_threshold,

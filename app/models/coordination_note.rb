@@ -1,4 +1,5 @@
 class CoordinationNote < ApplicationRecord
+  # Note globale de coordination visible dans l'espace soignant.
   belongs_to :clinician, class_name: "User"
 
   validates :title, :body, presence: true

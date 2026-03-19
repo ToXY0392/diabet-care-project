@@ -32,6 +32,8 @@ module Clinician
 
     def update_patient_and_record!(patient, record)
       ActiveRecord::Base.transaction do
+        # La modale soignant modifie a la fois des champs du compte utilisateur
+        # et des champs specifiques a la fiche patient, d'ou cette transaction.
         patient.update!(name: patient_record_params[:name], email: patient_record_params[:email])
         record.update!(record_attributes.merge(patient:))
       end

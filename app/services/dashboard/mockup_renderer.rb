@@ -27,6 +27,8 @@ module Dashboard
     end
 
     def call
+      # Le dashboard patient visible et le template soignant vivent dans le
+      # meme fichier source, donc on personnalise chaque moitie separement.
       visible_html, clinician_template = File.read(TEMPLATE_PATH).split(TEMPLATE_MARKER, 2)
       personalize_visible_markup!(visible_html)
       personalize_clinician_markup!(clinician_template)
@@ -574,6 +576,8 @@ module Dashboard
         }
       end.transform_keys { |patient| clinician_patient_id(patient) }
 
+      # La maquette historique relit une partie de son etat depuis localStorage,
+      # donc on l'initialise ici a partir des donnees Rails persistantes.
       <<~JAVASCRIPT
             const persistedCoordinationNote = #{coordination_body.to_json};
             if (persistedCoordinationNote) {
@@ -608,6 +612,8 @@ module Dashboard
     end
 
     def clinician_persistence_bridge_script
+      # Ces wrappers conservent le comportement visuel de la maquette tout en
+      # redirigeant les actions d'ecriture vers les endpoints JSON Rails.
       <<~JAVASCRIPT
             const clinicianApi = #{clinician_api_config.to_json};
 

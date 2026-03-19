@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  # Cree les comptes patient lors du parcours d'inscription public.
   skip_before_action :require_login, only: %i[new create]
 
   def new

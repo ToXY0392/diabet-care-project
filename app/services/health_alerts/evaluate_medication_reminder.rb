@@ -1,5 +1,6 @@
 module HealthAlerts
   class EvaluateMedicationReminder
+    # Transforme l'etat d'un rappel de traitement en alerte exploitable par l'UI.
     def self.call(reminder, reference_time: Time.zone.now)
       new(reminder, reference_time: reference_time).call
     end

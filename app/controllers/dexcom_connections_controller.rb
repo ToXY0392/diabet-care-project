@@ -1,4 +1,5 @@
 class DexcomConnectionsController < ApplicationController
+  # Porte le flux OAuth Dexcom et les synchronisations de mesures CGM.
   def connect
     unless Dexcom::Config.configured?
       redirect_to dashboard_path, alert: "Configuration Dexcom manquante dans les variables d'environnement."

@@ -1,4 +1,5 @@
 class ClinicianConversation < ApplicationRecord
+  # Fil de discussion persistant entre un clinician et un patient.
   STATUSES = %w[active archived closed].freeze
 
   belongs_to :clinician, class_name: "User"

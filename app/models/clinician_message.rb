@@ -1,4 +1,5 @@
 class ClinicianMessage < ApplicationRecord
+  # Message individuel d'une conversation clinician <-> patient.
   belongs_to :clinician_conversation
   belongs_to :author, class_name: "User"
 
@@ -28,6 +29,8 @@ class ClinicianMessage < ApplicationRecord
   end
 
   def increment_unread_for_other_participants!
+    # Chaque nouveau message incremente le compteur des autres participants
+    # pour que les fils a traiter remontent bien dans l'espace soignant.
     clinician_conversation.clinician_conversation_participants.where.not(user_id: author_id).find_each do |participant|
       participant.update!(unread_count: participant.unread_count + 1)
     end

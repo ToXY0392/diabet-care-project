@@ -7,6 +7,7 @@ module Dexcom
   class ApiError < Error; end
 
   class Client
+    # Encapsule les appels HTTP vers l'API Dexcom et la gestion des erreurs.
     def initialize(connection: nil, access_token: nil)
       @connection = connection
       @access_token = access_token || connection&.access_token

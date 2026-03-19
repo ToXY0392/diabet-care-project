@@ -1,4 +1,5 @@
 class MedicationRemindersController < ApplicationController
+  # Gere les rappels ponctuels et declenche les alertes de retard ou d'oubli.
   before_action :set_medication_reminder, only: %i[show edit update destroy mark_taken]
 
   def index

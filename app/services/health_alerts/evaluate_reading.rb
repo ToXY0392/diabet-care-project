@@ -1,5 +1,6 @@
 module HealthAlerts
   class EvaluateReading
+    # Evalue une mesure glycemique et cree ou clot les alertes associees.
     DEDUP_WINDOW = 30.minutes
 
     def self.call(reading)

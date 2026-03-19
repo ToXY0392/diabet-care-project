@@ -1,4 +1,5 @@
 class ClinicianAppointment < ApplicationRecord
+  # Rendez-vous structure entre un soignant et un patient.
   APPOINTMENT_TYPES = %w[in_person teleconsultation follow_up review].freeze
   STATUSES = %w[scheduled preparing confirmed completed cancelled].freeze
 

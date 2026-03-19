@@ -1,5 +1,6 @@
 module Dashboard
   class BuildData
+    # Construit tous les agregats necessaires au dashboard patient sur une fenetre donnee.
     WINDOWS = [7, 14, 30].freeze
     DAYPARTS = {
       "Matin" => 5...11,

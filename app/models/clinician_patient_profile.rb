@@ -1,4 +1,5 @@
 class ClinicianPatientProfile < ApplicationRecord
+  # Complete la fiche patient avec les informations editees depuis l'espace soignant.
   belongs_to :patient, class_name: "User"
 
   validates :patient_id, uniqueness: true

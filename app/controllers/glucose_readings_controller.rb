@@ -1,4 +1,5 @@
 class GlucoseReadingsController < ApplicationController
+  # CRUD des mesures glycemiques manuelles et Dexcom visibles par le patient.
   before_action :set_glucose_reading, only: %i[show edit update destroy]
 
   def index

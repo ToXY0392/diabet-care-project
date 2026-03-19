@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
+  # L'application cible les navigateurs recents utilises par la maquette
+  # interactive et par les notifications navigateur.
   allow_browser versions: :modern
 
   before_action :require_login

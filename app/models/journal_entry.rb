@@ -1,4 +1,5 @@
 class JournalEntry < ApplicationRecord
+  # Espace libre pour relier ressenti, activite et symptomes aux donnees sante.
   MOODS = %w[low neutral good great].freeze
 
   belongs_to :user
