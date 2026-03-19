@@ -81,6 +81,7 @@ Un fichier `.env.example` est versionne pour servir de modele, et un `.env` loca
 Documentation detaillee :
 
 - Integration Dexcom : `docs/dexcom_integration.md`
+- Vue fonctionnelle du produit : `doc/README.md`
 
 ## Arborescence utile
 
