@@ -1,0 +1,23 @@
+demo_record:
+  patient: demo
+  sex: Femme
+  age: 36
+  height: 168 cm
+  weight: 64 kg
+  diagnosis: Diabete type 1
+  treatment: Metformine + Insuline rapide
+  ordonnance: Renouvellement capteurs + schema basal-bolus
+  phone: 06 12 34 56 78
+  contact: Sophie Martin · 06 98 76 54 32
+
+other_record:
+  patient: other
+  sex: Homme
+  age: 42
+  height: 181 cm
+  weight: 80 kg
+  diagnosis: Diabete type 2
+  treatment: Metformine 850 mg
+  ordonnance: Controle trimestriel + renouvellement traitement
+  phone: 06 44 55 66 77
+  contact: Julie Durand · 06 22 11 33 44

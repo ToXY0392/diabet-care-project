@@ -1,0 +1,71 @@
+<% content_for :title, "Occurrence traitement | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Occurrence traitement</p>
+      <h1><%= @medication_reminder.medication_name %></h1>
+      <p class="hero-copy"><%= @medication_reminder.dosage %> • <%= l(@medication_reminder.scheduled_at, format: :long) %></p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour liste", medication_reminders_path, class: "button button-secondary" %>
+      <%= link_to "Modifier", edit_medication_reminder_path(@medication_reminder), class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Traitement</span>
+      <strong><%= @medication_reminder.medication_name %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Dosage</span>
+      <strong><%= @medication_reminder.dosage %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Statut</span>
+      <strong><%= @medication_reminder.status_label %></strong>
+    </article>
+  </section>
+
+  <section class="panel reading-detail">
+    <div>
+      <p class="detail-label">Statut</p>
+      <p><%= @medication_reminder.status_label %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Heure prevue</p>
+      <p><%= l(@medication_reminder.scheduled_at, format: :long) %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Pris a</p>
+      <p><%= @medication_reminder.taken_at.present? ? l(@medication_reminder.taken_at, format: :long) : "Pas encore marque comme pris" %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Instructions</p>
+      <p><%= @medication_reminder.instructions.presence || "Aucune instruction" %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Programme recurrent</p>
+      <p>
+        <% if @medication_reminder.medication_schedule.present? %>
+          <%= link_to @medication_reminder.medication_schedule.medication_name, medication_schedule_path(@medication_reminder.medication_schedule) %>
+        <% else %>
+          Occurrence manuelle
+        <% end %>
+      </p>
+    </div>
+  </section>
+
+  <div class="inline-actions">
+    <% unless @medication_reminder.taken? %>
+      <%= button_to "Marquer comme pris", mark_taken_medication_reminder_path(@medication_reminder), method: :patch, class: "button button-primary" %>
+    <% end %>
+    <%= button_to "Supprimer", @medication_reminder, method: :delete, class: "button button-danger", form: { data: { turbo_confirm: "Supprimer ce rappel ?" } } %>
+  </div>
+</main>

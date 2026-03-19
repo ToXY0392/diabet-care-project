@@ -1,0 +1,26 @@
+<% content_for :title, "Modifier mesure | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Edition</p>
+      <h1>Modifier la mesure glycemique</h1>
+      <p class="hero-copy">Ajustez la valeur, le contexte ou les notes de cette mesure.</p>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Action</span>
+      <strong>Edition mesure</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Objectif</span>
+      <strong>Donnees fiables</strong>
+    </article>
+  </section>
+
+  <section class="panel form-panel">
+    <%= render "form", glucose_reading: @glucose_reading %>
+  </section>
+</main>

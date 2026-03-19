@@ -1,0 +1,25 @@
+morning:
+  user: demo
+  medication_schedule: metformin
+  medication_name: Metformine
+  dosage: 500 mg
+  scheduled_at: <%= Time.zone.now.beginning_of_day + 8.hours %>
+  taken_at: <%= Time.zone.now.beginning_of_day + 8.hours + 10.minutes %>
+  instructions: A prendre au petit dejeuner
+
+noon:
+  user: demo
+  medication_schedule: rapid_insulin
+  medication_name: Insuline rapide
+  dosage: 6 unites
+  scheduled_at: <%= Time.zone.now.beginning_of_day + 12.hours + 30.minutes %>
+  taken_at:
+  instructions: A prendre avant le dejeuner
+
+other_user_reminder:
+  user: other
+  medication_name: Traitement cache
+  dosage: 1 comprime
+  scheduled_at: <%= Time.zone.now.beginning_of_day + 9.hours %>
+  taken_at:
+  instructions: Ne doit pas apparaitre

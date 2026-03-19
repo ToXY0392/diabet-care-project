@@ -1,0 +1,66 @@
+<%= form_with(model: medication_schedule, class: "reading-form") do |form| %>
+  <% if medication_schedule.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(medication_schedule.errors.count, "erreur") %> ont empeche l'enregistrement :</h2>
+      <ul>
+        <% medication_schedule.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div>
+      <%= form.label :medication_name, "Nom du traitement" %>
+      <%= form.text_field :medication_name, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :dosage, "Dosage" %>
+      <%= form.text_field :dosage, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :starts_on, "Date de debut" %>
+      <%= form.date_field :starts_on, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :ends_on, "Date de fin (optionnelle)" %>
+      <%= form.date_field :ends_on, class: "field-input" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :reminder_times, "Heures de prise (format 08:00, 20:00)" %>
+    <%= form.text_field :reminder_times, class: "field-input" %>
+  </div>
+
+  <div>
+    <p class="detail-label">Jours actifs</p>
+    <div class="weekday-grid">
+      <% MedicationSchedule::WEEKDAYS.keys.each do |day| %>
+        <label class="checkbox-row">
+          <%= form.check_box :"#{day}_enabled" %>
+          <span><%= day.to_s.humanize %></span>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :instructions, "Instructions" %>
+    <%= form.text_area :instructions, rows: 4, class: "field-input" %>
+  </div>
+
+  <label class="checkbox-row">
+    <%= form.check_box :active %>
+    <span>Programme actif</span>
+  </label>
+
+  <div class="form-actions">
+    <%= form.submit "Enregistrer", class: "button button-primary" %>
+    <%= link_to "Retour", medication_schedules_path, class: "button button-secondary" %>
+  </div>
+<% end %>

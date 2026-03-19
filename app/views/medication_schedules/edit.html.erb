@@ -1,0 +1,26 @@
+<% content_for :title, "Modifier programme traitement | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Traitements</p>
+      <h1>Modifier le programme recurrent</h1>
+      <p class="hero-copy">Toute modification regenera les prochaines occurrences de prise.</p>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Action</span>
+      <strong>Edition programme</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Effet</span>
+      <strong>Synchronisation des prises</strong>
+    </article>
+  </section>
+
+  <section class="panel form-panel">
+    <%= render "form", medication_schedule: @medication_schedule %>
+  </section>
+</main>

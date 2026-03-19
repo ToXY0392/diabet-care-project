@@ -1,0 +1,19 @@
+demo_follow_up:
+  clinician: clinician
+  patient: demo
+  starts_at: <%= Time.zone.now.beginning_of_day + 16.hours + 30.minutes %>
+  ends_at: <%= Time.zone.now.beginning_of_day + 17.hours %>
+  appointment_type: teleconsultation
+  status: preparing
+  reason: Revue des alertes glycemiques de la journee
+  preparation_notes: Verifier les mesures post-repas
+
+other_review:
+  clinician: clinician
+  patient: other
+  starts_at: <%= 1.day.from_now.beginning_of_day + 10.hours %>
+  ends_at: <%= 1.day.from_now.beginning_of_day + 10.hours + 30.minutes %>
+  appointment_type: follow_up
+  status: confirmed
+  reason: Point de suivi hebdomadaire
+  preparation_notes: Controler l'observance du traitement

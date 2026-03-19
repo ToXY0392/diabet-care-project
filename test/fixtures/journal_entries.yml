@@ -1,0 +1,15 @@
+morning_note:
+  user: demo
+  recorded_at: <%= Time.zone.now.beginning_of_day + 9.hours + 30.minutes %>
+  mood: good
+  activity_minutes: 25
+  symptoms: Legere fatigue
+  notes: Marche rapide ce matin
+
+evening_note:
+  user: demo
+  recorded_at: <%= Time.zone.now.beginning_of_day + 18.hours + 20.minutes %>
+  mood: low
+  activity_minutes: 0
+  symptoms: Soif et maux de tete
+  notes: A surveiller apres le diner

@@ -1,0 +1,85 @@
+<% content_for :title, "Programmes traitements | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Traitements</p>
+      <h1>Programmes recurrents</h1>
+      <p class="hero-copy">Definissez vos regles de prise puis suivez les occurrences generees automatiquement.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Occurrences", medication_reminders_path, class: "button button-secondary" %>
+      <%= link_to "Nouveau programme", new_medication_schedule_path, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Programmes</span>
+      <strong><%= @medication_schedules.count %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Actifs</span>
+      <strong><%= @medication_schedules.count(&:active?) %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Occurrences a venir</span>
+      <strong><%= @upcoming_doses.count %></strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <% if @medication_schedules.any? %>
+      <div class="reading-list">
+        <% @medication_schedules.each do |schedule| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= schedule.medication_name %></p>
+              <p class="reading-meta"><%= schedule.dosage %> • <%= schedule.reminder_time_list.join(", ") %></p>
+              <p class="reading-notes">
+                <span class="status-pill status-pill--<%= schedule.active? ? "taken" : "pending" %>"><%= schedule.active? ? "Actif" : "Inactif" %></span>
+                <span><%= schedule.enabled_weekdays.map { |day| day.to_s.first(3).capitalize }.join(", ") %></span>
+              </p>
+              <% if schedule.instructions.present? %>
+                <p class="reading-notes"><%= schedule.instructions %></p>
+              <% end %>
+            </div>
+
+            <div class="reading-actions">
+              <%= link_to "Voir", schedule, class: "button button-secondary" %>
+              <%= link_to "Modifier", edit_medication_schedule_path(schedule), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucun programme recurrent pour le moment.</p>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Prochaines occurrences</h2>
+      <span>14 jours</span>
+    </div>
+
+    <% if @upcoming_doses.any? %>
+      <div class="reading-list">
+        <% @upcoming_doses.each do |dose| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= dose.medication_name %></p>
+              <p class="reading-meta"><%= dose.dosage %> • <%= l(dose.scheduled_at, format: :long) %></p>
+            </div>
+            <div class="reading-actions">
+              <%= link_to "Voir l'occurrence", medication_reminder_path(dose), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucune occurrence a venir.</p>
+    <% end %>
+  </section>
+</main>

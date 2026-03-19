@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Diabet Care" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Diabet Care">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  </head>
+
+  <body <%= logged_in? ? %(data-controller="notifications" data-notifications-feed-url-value="#{notifications_feed_health_alerts_path(format: :json)}" data-notifications-enabled-value="#{current_user.patient_profile&.browser_notifications_enabled?}") : "" %>>
+    <% if logged_in? %>
+      <header class="app-shell-header">
+        <div class="app-shell">
+          <% initials = current_user.name.split.map { |part| part.first }.join.first(2).upcase %>
+          <%= link_to dashboard_path, class: "app-brand" do %>
+            <span class="app-brand-mark">DC</span>
+            <span class="app-brand-copy">
+              <strong>DiabetCare</strong>
+              <span class="eyebrow">Care dashboard</span>
+            </span>
+          <% end %>
+          <nav class="app-nav">
+            <%= link_to "Dashboard", dashboard_path, class: ("active" if current_page?(dashboard_path)) %>
+            <%= link_to "Mesures", glucose_readings_path, class: ("active" if controller_name == "glucose_readings") %>
+            <%= link_to "Repas", meals_path, class: ("active" if controller_name == "meals") %>
+            <%= link_to "Traitements", medication_schedules_path, class: ("active" if controller_name.in?(%w[medication_schedules medication_reminders])) %>
+            <%= link_to "Journal", journal_entries_path, class: ("active" if controller_name == "journal_entries") %>
+            <%= link_to "Alertes", health_alerts_path, class: ("active" if controller_name == "health_alerts") %>
+            <%= link_to "Mon profil sante", patient_profile_path, class: ("active" if controller_name == "patient_profiles") %>
+          </nav>
+          <div class="app-user">
+            <div class="app-user-chip">
+              <span class="app-user-avatar"><%= initials %></span>
+              <span class="app-user-copy">
+                <strong><%= current_user.name %></strong>
+                <span>Suivi personalise</span>
+              </span>
+            </div>
+            <%= button_to "Se deconnecter", session_path, method: :delete, class: "button button-secondary" %>
+          </div>
+        </div>
+      </header>
+    <% end %>
+
+    <% if notice.present? || alert.present? %>
+      <div class="flash-stack">
+        <% if notice.present? %>
+          <p class="flash-notice"><%= notice %></p>
+        <% end %>
+        <% if alert.present? %>
+          <p class="flash-alert"><%= alert %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>

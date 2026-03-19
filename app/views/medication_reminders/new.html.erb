@@ -1,0 +1,26 @@
+<% content_for :title, "Nouveau traitement | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Creation</p>
+      <h1>Nouveau rappel de traitement</h1>
+      <p class="hero-copy">Ajoutez une prise prevue pour l'afficher dans le dashboard du jour.</p>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Action</span>
+      <strong>Nouvelle prise</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Usage</span>
+      <strong>Occurrence manuelle</strong>
+    </article>
+  </section>
+
+  <section class="panel form-panel">
+    <%= render "form", medication_reminder: @medication_reminder %>
+  </section>
+</main>

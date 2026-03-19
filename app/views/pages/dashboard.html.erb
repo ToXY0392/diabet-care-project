@@ -1,0 +1,327 @@
+<% content_for :title, "Dashboard | DiabetCare" %>
+
+<main class="dashboard-page">
+  <section class="dashboard-hero">
+    <div>
+      <p class="eyebrow">Dashboard patient</p>
+      <h1>Bonjour <%= @patient_name %>, voici votre journee.</h1>
+      <p class="hero-copy">
+        Retrouvez vos indicateurs clefs, vos rappels importants et les prochains
+        points de suivi au meme endroit.
+      </p>
+      <div class="hero-stats">
+        <article class="hero-stat">
+          <span>Fenetre analysee</span>
+          <strong><%= @window %> jours</strong>
+        </article>
+        <article class="hero-stat">
+          <span>Alertes actives</span>
+          <strong><%= @recent_alerts.count %></strong>
+        </article>
+        <article class="hero-stat">
+          <span>Observance</span>
+          <strong><%= @treatment_stats[:adherence_rate] %>%</strong>
+        </article>
+      </div>
+      <div class="header-actions">
+        <%= link_to "Voir les mesures", glucose_readings_path, class: "button button-secondary" %>
+        <%= link_to "Ajouter une mesure", new_glucose_reading_path, class: "button button-primary" %>
+        <%= link_to "Ajouter un repas", new_meal_path, class: "button button-secondary" %>
+        <%= link_to "Nouveau programme traitement", new_medication_schedule_path, class: "button button-secondary" %>
+        <%= link_to "Nouvelle entree journal", new_journal_entry_path, class: "button button-secondary" %>
+        <%= button_tag "Activer notifications", type: "button", class: "button button-secondary", data: { action: "notifications#requestPermission" } %>
+      </div>
+      <p class="notification-hint" data-notifications-target="status"></p>
+      <div class="filter-pills">
+        <% [7, 14, 30].each do |days| %>
+          <%= link_to "#{days} jours", dashboard_path(window: days), class: "filter-pill #{'filter-pill--active' if @window == days}" %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="hero-panel">
+      <span class="hero-label">Profil cible</span>
+      <strong><%= @summary_cards.first[:value] %> de moyenne recente</strong>
+      <p>
+        Cible: <%= @patient_profile.glucose_target_low %>-<%= @patient_profile.glucose_target_high %> mg/dL.
+        Hypo sous <%= @patient_profile.hypo_threshold %>, hyper au-dessus de <%= @patient_profile.hyper_threshold %>.
+      </p>
+      <div class="hero-stats hero-stats--stack">
+        <article class="hero-stat">
+          <span>Notifications</span>
+          <strong><%= @patient_profile.browser_notifications_enabled? ? "Activees" : "Desactivees" %></strong>
+        </article>
+        <article class="hero-stat">
+          <span>Journal recent</span>
+          <strong><%= @recent_journal_count %> entree(s)</strong>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="summary-grid">
+    <% @summary_cards.each do |card| %>
+      <article class="summary-card">
+        <p class="summary-label"><%= card[:label] %></p>
+        <p class="summary-value"><%= card[:value] %></p>
+        <p class="summary-trend summary-trend--<%= card[:tone] %>"><%= card[:trend] %></p>
+      </article>
+    <% end %>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Connexion Dexcom</h2>
+        <span><%= @dexcom_connection&.active? ? "Connectee" : "Non connectee" %></span>
+      </div>
+
+      <% if @dexcom_connection&.active? %>
+        <p class="reading-meta">
+          Derniere sync:
+          <%= @dexcom_connection.last_synced_at.present? ? l(@dexcom_connection.last_synced_at, format: :long) : "Jamais" %>
+        </p>
+        <p class="reading-notes">
+          Environnement: <strong><%= @dexcom_connection.environment %></strong>
+        </p>
+        <div class="header-actions">
+          <%= button_to "Synchroniser Dexcom", sync_dexcom_connection_path, method: :post, class: "button button-primary" %>
+          <%= button_to "Deconnecter Dexcom", dexcom_connection_path, method: :delete, class: "button button-secondary", form: { data: { turbo_confirm: "Supprimer la connexion Dexcom ?" } } %>
+        </div>
+      <% else %>
+        <p class="reading-notes">Connectez Dexcom pour importer automatiquement les valeurs CGM dans le dashboard.</p>
+        <div class="header-actions">
+          <%= link_to "Connecter Dexcom", connect_dexcom_connection_path, class: "button button-primary" %>
+        </div>
+      <% end %>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Alertes intelligentes</h2>
+        <span><%= @recent_alerts.count %> actives</span>
+      </div>
+
+      <% if @recent_alerts.any? %>
+        <div class="alert-list">
+          <% @recent_alerts.each do |alert| %>
+            <article class="alert-card alert-card--<%= alert.severity %>">
+              <p class="alert-title"><%= alert.alert_type.humanize %> • <%= alert.status_label %></p>
+              <p class="alert-message"><%= alert.message %></p>
+              <div class="reading-actions">
+                <% unless alert.acknowledged? %>
+                  <%= button_to "Accuser reception", acknowledge_health_alert_path(alert), method: :patch, class: "button button-secondary" %>
+                <% end %>
+                <%= button_to "Marquer lue", mark_read_health_alert_path(alert), method: :patch, class: "button button-secondary" %>
+                <% unless alert.resolved? %>
+                  <%= button_to "Resoudre", resolve_health_alert_path(alert), method: :patch, class: "button button-secondary" %>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+        <div class="inline-actions">
+          <%= link_to "Voir toutes les alertes", health_alerts_path, class: "button button-secondary" %>
+          <%= button_to "Tout marquer lu", mark_all_read_health_alerts_path, method: :patch, class: "button button-secondary" %>
+        </div>
+      <% else %>
+        <p class="empty-state">Aucune alerte active.</p>
+      <% end %>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Planning du jour</h2>
+        <span>Aujourd'hui</span>
+      </div>
+
+      <div class="timeline">
+        <% @today_timeline.each do |item| %>
+          <div class="timeline-item timeline-item--<%= item[:kind] %>">
+            <p class="timeline-time"><%= item[:time] %></p>
+            <div>
+              <h3><%= item[:title] %></h3>
+              <p><%= item[:detail] %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Points d'attention</h2>
+        <span>Analyse sur <%= @window %> jours</span>
+      </div>
+
+      <ul class="insight-list">
+        <% @insights.each do |insight| %>
+          <li><%= insight %></li>
+        <% end %>
+      </ul>
+
+      <div class="next-step">
+        <p class="next-step-label">Journal recent</p>
+        <p><%= @recent_journal_count %> entree(s) de journal integrees dans la periode analysee.</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Traitements du jour</h2>
+      <span><%= @taken_reminders_count %>/<%= @today_reminders.count %> pris</span>
+    </div>
+
+    <% if @today_reminders.any? %>
+      <div class="reading-list">
+        <% @today_reminders.each do |reminder| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= reminder.medication_name %></p>
+              <p class="reading-meta"><%= reminder.dosage %> • <%= l(reminder.scheduled_at, format: :long) %></p>
+              <% if reminder.instructions.present? %>
+                <p class="reading-notes"><%= reminder.instructions %></p>
+              <% end %>
+            </div>
+
+            <div class="reading-actions">
+              <% unless reminder.taken? %>
+                <%= button_to "Marquer comme pris", mark_taken_medication_reminder_path(reminder), method: :patch, class: "button button-primary" %>
+              <% end %>
+              <%= link_to "Voir", reminder, class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucun traitement prevu aujourd'hui.</p>
+    <% end %>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Observance et moments de journee</h2>
+        <span><%= @treatment_stats[:adherence_rate] %>% observance</span>
+      </div>
+
+      <div class="summary-grid summary-grid--compact">
+        <% @daypart_averages.each do |daypart| %>
+          <article class="summary-card">
+            <p class="summary-label"><%= daypart[:label] %></p>
+            <p class="summary-value"><%= daypart[:average] || "-" %></p>
+            <p class="summary-trend summary-trend--neutral"><%= daypart[:count] %> mesures</p>
+          </article>
+        <% end %>
+      </div>
+
+      <p class="reading-notes">
+        En retard: <strong><%= @treatment_stats[:overdue_count] %></strong> •
+        Manquees: <strong><%= @treatment_stats[:missed_count] %></strong>
+      </p>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Journal et correlations</h2>
+        <span><%= @symptom_correlation[:symptomatic_entries] %> entrees symptomatiques</span>
+      </div>
+
+      <p class="reading-notes">
+        <strong><%= @symptom_correlation[:correlated_readings_count] %></strong> mesures proches des symptomes,
+        moyenne <strong><%= @symptom_correlation[:average_glucose] %> mg/dL</strong>.
+      </p>
+
+      <% if @journal_snapshot.any? %>
+        <div class="reading-list">
+          <% @journal_snapshot.each do |entry| %>
+            <article class="reading-row">
+              <div>
+                <p class="reading-value"><%= entry.mood.humanize %></p>
+                <p class="reading-meta"><%= l(entry.recorded_at, format: :long) %> • <%= entry.activity_minutes || 0 %> min activite</p>
+                <p class="reading-notes"><%= [entry.symptoms.presence, entry.notes.presence].compact.join(" - ").presence || "Aucune note complementaire" %></p>
+              </div>
+              <div class="reading-actions">
+                <%= link_to "Voir", journal_entry_path(entry), class: "button button-secondary" %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="empty-state">Aucune entree de journal recente.</p>
+      <% end %>
+    </article>
+  </section>
+
+  <section class="panel meal-stats-panel">
+    <div class="panel-header">
+      <h2>Statistiques autour des repas</h2>
+      <span><%= @meal_response_stats[:count] %> repas compares sur <%= @window %> jours</span>
+    </div>
+
+    <div class="summary-grid summary-grid--compact">
+      <article class="summary-card">
+        <p class="summary-label">Avant repas</p>
+        <p class="summary-value"><%= @meal_response_stats[:average_before] %> mg/dL</p>
+        <p class="summary-trend summary-trend--neutral">Moyenne des mesures avant repas</p>
+      </article>
+
+      <article class="summary-card">
+        <p class="summary-label">Apres repas</p>
+        <p class="summary-value"><%= @meal_response_stats[:average_after] %> mg/dL</p>
+        <p class="summary-trend summary-trend--neutral">Moyenne des mesures apres repas</p>
+      </article>
+
+      <article class="summary-card">
+        <p class="summary-label">Evolution moyenne</p>
+        <p class="summary-value"><%= @meal_response_stats[:average_delta] %> mg/dL</p>
+        <p class="summary-trend summary-trend--<%= @meal_response_stats[:average_delta] <= 20 ? "good" : "warn" %>">Variation sur 3 heures apres le repas</p>
+      </article>
+    </div>
+
+    <% if @meal_response_stats[:pairs].any? %>
+      <div class="meal-response-list">
+        <% @meal_response_stats[:pairs].each do |pair| %>
+          <article class="meal-response-row">
+            <div>
+              <p class="reading-value"><%= pair[:meal].name %></p>
+              <p class="reading-meta"><%= pair[:meal].carbs %> g glucides • <%= l(pair[:meal].eaten_at, format: :long) %></p>
+            </div>
+
+            <div class="meal-response-metrics">
+              <p><strong>Avant:</strong> <%= pair[:before].value %> mg/dL</p>
+              <p><strong>Apres:</strong> <%= pair[:after].value %> mg/dL</p>
+              <p><strong>Delta:</strong> <%= pair[:delta] %> mg/dL</p>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Ajoutez des mesures avant et apres repas pour voir la comparaison ici.</p>
+    <% end %>
+  </section>
+
+  <section class="panel chart-panel">
+    <div class="panel-header">
+      <h2>Tendance sur <%= @window %> jours</h2>
+      <span>Moyenne: <%= @weekly_average.round %> mg/dL</span>
+    </div>
+
+    <div class="chart-grid">
+      <% @weekly_series.each do |point| %>
+        <div class="chart-column">
+          <div class="chart-bar-wrap">
+            <% height = point[:average] ? [(point[:average].to_f / @chart_max_value) * 180, 18].max.round : 8 %>
+            <div class="chart-bar <%= point[:average] ? "chart-bar--filled" : "chart-bar--empty" %>" style="height: <%= height %>px"></div>
+          </div>
+          <p class="chart-value"><%= point[:average] ? "#{point[:average]}" : "-" %></p>
+          <p class="chart-label"><%= point[:label] %></p>
+          <p class="chart-meta"><%= point[:count] %> mesures • <%= point[:meals_count] %> repas</p>
+        </div>
+      <% end %>
+    </div>
+  </section>
+</main>

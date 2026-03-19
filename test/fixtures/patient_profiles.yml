@@ -1,0 +1,19 @@
+demo:
+  user: demo
+  hypo_threshold: 72
+  hyper_threshold: 185
+  hypo_critical_threshold: 54
+  hyper_critical_threshold: 250
+  glucose_target_low: 80
+  glucose_target_high: 170
+  browser_notifications_enabled: true
+
+other:
+  user: other
+  hypo_threshold: 70
+  hyper_threshold: 180
+  hypo_critical_threshold: 54
+  hyper_critical_threshold: 250
+  glucose_target_low: 70
+  glucose_target_high: 180
+  browser_notifications_enabled: false

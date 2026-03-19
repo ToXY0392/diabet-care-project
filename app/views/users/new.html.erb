@@ -1,0 +1,72 @@
+<% content_for :title, "Inscription | DiabetCare" %>
+
+<main class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="eyebrow">Inscription</p>
+      <h1>Creer un compte patient</h1>
+      <p class="hero-copy">Votre compte vous permettra de separer vos mesures, repas et tendances.</p>
+
+      <%= form_with model: @user, class: "reading-form" do |form| %>
+        <% if @user.errors.any? %>
+          <div class="form-errors">
+            <h2><%= pluralize(@user.errors.count, "erreur") %> ont empeche la creation :</h2>
+            <ul>
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.label :name, "Nom" %>
+          <%= form.text_field :name, class: "field-input" %>
+        </div>
+
+        <div>
+          <%= form.label :email, "Email" %>
+          <%= form.email_field :email, class: "field-input" %>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <%= form.label :password, "Mot de passe" %>
+            <%= form.password_field :password, class: "field-input" %>
+          </div>
+
+          <div>
+            <%= form.label :password_confirmation, "Confirmation" %>
+            <%= form.password_field :password_confirmation, class: "field-input" %>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <%= form.submit "Creer mon compte", class: "button button-primary" %>
+          <%= link_to "Retour connexion", new_session_path, class: "button button-secondary" %>
+        </div>
+      <% end %>
+    </section>
+
+    <aside class="auth-aside">
+      <p class="eyebrow">Premiers pas</p>
+      <h2>Activez votre espace de suivi personalise</h2>
+      <p>Une fois inscrit, vous pourrez regler vos seuils glycemiques, recevoir des alertes et consolider tout votre suivi quotidien.</p>
+
+      <ul class="feature-list">
+        <li>
+          <strong>Profil sante</strong>
+          Ajustez vos seuils d'hypo, d'hyper et votre plage cible.
+        </li>
+        <li>
+          <strong>Traitements recurrents</strong>
+          Planifiez vos prises et suivez leur observance sur plusieurs jours.
+        </li>
+        <li>
+          <strong>Historique enrichi</strong>
+          Analysez vos repas, mesures, symptomes et tendances depuis le dashboard.
+        </li>
+      </ul>
+    </aside>
+  </div>
+</main>

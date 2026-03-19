@@ -1,0 +1,50 @@
+<% content_for :title, "Entree journal | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Journal patient</p>
+      <h1><%= @journal_entry.mood.humanize %></h1>
+      <p class="hero-copy"><%= l(@journal_entry.recorded_at, format: :long) %></p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour liste", journal_entries_path, class: "button button-secondary" %>
+      <%= link_to "Modifier", edit_journal_entry_path(@journal_entry), class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Humeur</span>
+      <strong><%= @journal_entry.mood.humanize %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Activite</span>
+      <strong><%= @journal_entry.activity_minutes || 0 %> min</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Symptomes</span>
+      <strong><%= @journal_entry.symptoms.present? ? "Renseignes" : "Aucun" %></strong>
+    </article>
+  </section>
+
+  <section class="panel reading-detail">
+    <div>
+      <p class="detail-label">Activite</p>
+      <p><%= @journal_entry.activity_minutes || 0 %> minutes</p>
+    </div>
+    <div>
+      <p class="detail-label">Symptomes</p>
+      <p><%= @journal_entry.symptoms.presence || "Aucun symptome renseigne" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Notes</p>
+      <p><%= @journal_entry.notes.presence || "Aucune note" %></p>
+    </div>
+  </section>
+
+  <div class="inline-actions">
+    <%= button_to "Supprimer", @journal_entry, method: :delete, class: "button button-danger", form: { data: { turbo_confirm: "Supprimer cette entree ?" } } %>
+  </div>
+</main>

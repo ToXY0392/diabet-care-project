@@ -1,0 +1,39 @@
+<%= form_with(model: meal, class: "reading-form") do |form| %>
+  <% if meal.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(meal.errors.count, "erreur") %> ont empeche l'enregistrement :</h2>
+      <ul>
+        <% meal.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div>
+      <%= form.label :name, "Nom du repas" %>
+      <%= form.text_field :name, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :carbs, "Glucides (g)" %>
+      <%= form.number_field :carbs, min: 0, max: 499, class: "field-input" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :eaten_at, "Date et heure" %>
+    <%= form.datetime_local_field :eaten_at, value: meal.eaten_at&.strftime("%Y-%m-%dT%H:%M"), class: "field-input" %>
+  </div>
+
+  <div>
+    <%= form.label :notes, "Notes" %>
+    <%= form.text_area :notes, rows: 4, class: "field-input" %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit "Enregistrer", class: "button button-primary" %>
+    <%= link_to "Retour", meals_path, class: "button button-secondary" %>
+  </div>
+<% end %>

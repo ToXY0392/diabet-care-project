@@ -1,0 +1,15 @@
+demo_thread:
+  clinician: clinician
+  patient: demo
+  subject: Suivi glycémique post-dejeuner
+  status: active
+  last_message_preview: Pouvez-vous partager vos valeurs post-dejeuner ?
+  last_message_at: <%= Time.zone.now.beginning_of_day + 11.hours + 42.minutes %>
+
+other_thread:
+  clinician: clinician
+  patient: other
+  subject: Point traitement hebdomadaire
+  status: active
+  last_message_preview: Merci pour votre retour sur le traitement.
+  last_message_at: <%= Time.zone.now.beginning_of_day + 9.hours + 15.minutes %>

@@ -1,0 +1,56 @@
+<% content_for :title, "Repas | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Repas</p>
+      <h1>Journal des repas</h1>
+      <p class="hero-copy">Gardez une trace des repas et des glucides pour mieux lire les tendances glycemiques.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour dashboard", dashboard_path, class: "button button-secondary" %>
+      <%= link_to "Nouveau repas", new_meal_path, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Repas enregistres</span>
+      <strong><%= @meals.count %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Glucides cumules</span>
+      <strong><%= @meals.sum(&:carbs) %> g</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Dernier repas</span>
+      <strong><%= @meals.first&.name || "Aucun" %></strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <% if @meals.any? %>
+      <div class="reading-list">
+        <% @meals.each do |meal| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= meal.name %></p>
+              <p class="reading-meta"><%= meal.carbs %> g glucides • <%= l(meal.eaten_at, format: :long) %></p>
+              <% if meal.notes.present? %>
+                <p class="reading-notes"><%= meal.notes %></p>
+              <% end %>
+            </div>
+
+            <div class="reading-actions">
+              <%= link_to "Voir", meal, class: "button button-secondary" %>
+              <%= link_to "Modifier", edit_meal_path(meal), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucun repas enregistre pour le moment.</p>
+    <% end %>
+  </section>
+</main>

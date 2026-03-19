@@ -1,0 +1,69 @@
+<% content_for :title, "Mesure glycemique | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Detail mesure</p>
+      <h1><%= @glucose_reading.value %> mg/dL</h1>
+      <p class="hero-copy"><%= @glucose_reading.context_label %> • <%= l(@glucose_reading.measured_at, format: :long) %></p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour liste", glucose_readings_path, class: "button button-secondary" %>
+      <%= link_to "Modifier", edit_glucose_reading_path(@glucose_reading), class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Valeur</span>
+      <strong><%= @glucose_reading.value %> mg/dL</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Source</span>
+      <strong><%= @glucose_reading.source_label %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Statut</span>
+      <strong><%= @glucose_reading.in_target_range? ? "Dans la cible" : "Hors cible" %></strong>
+    </article>
+  </section>
+
+  <section class="panel reading-detail">
+    <div>
+      <p class="detail-label">Contexte</p>
+      <p><%= @glucose_reading.context_label %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Source</p>
+      <p><%= @glucose_reading.source_label %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Date</p>
+      <p><%= l(@glucose_reading.measured_at, format: :long) %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Zone cible</p>
+      <p><%= @glucose_reading.in_target_range? ? "Dans la cible" : "Hors cible" %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Notes</p>
+      <p><%= @glucose_reading.notes.presence || "Aucune note" %></p>
+    </div>
+
+    <% if @glucose_reading.trend.present? %>
+      <div>
+        <p class="detail-label">Tendance Dexcom</p>
+        <p><%= @glucose_reading.trend %></p>
+      </div>
+    <% end %>
+  </section>
+
+  <div class="inline-actions">
+    <%= button_to "Supprimer", @glucose_reading, method: :delete, class: "button button-danger", form: { data: { turbo_confirm: "Supprimer cette mesure ?" } } %>
+  </div>
+</main>

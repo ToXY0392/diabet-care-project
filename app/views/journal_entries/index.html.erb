@@ -1,0 +1,58 @@
+<% content_for :title, "Journal patient | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Journal patient</p>
+      <h1>Symptomes, activite et notes</h1>
+      <p class="hero-copy">Centralisez votre ressenti quotidien pour contextualiser les tendances glycemiques.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Nouvelle entree", new_journal_entry_path, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Entrees</span>
+      <strong><%= @journal_entries.count %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Activite cumulee</span>
+      <strong><%= @journal_entries.sum { |entry| entry.activity_minutes || 0 } %> min</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Derniere humeur</span>
+      <strong><%= @journal_entries.first&.mood&.humanize || "Aucune" %></strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <% if @journal_entries.any? %>
+      <div class="reading-list">
+        <% @journal_entries.each do |entry| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= entry.mood.humanize %></p>
+              <p class="reading-meta"><%= l(entry.recorded_at, format: :long) %> • <%= entry.activity_minutes || 0 %> min activite</p>
+              <% if entry.symptoms.present? %>
+                <p class="reading-notes"><strong>Symptomes:</strong> <%= entry.symptoms %></p>
+              <% end %>
+              <% if entry.notes.present? %>
+                <p class="reading-notes"><%= entry.notes %></p>
+              <% end %>
+            </div>
+
+            <div class="reading-actions">
+              <%= link_to "Voir", entry, class: "button button-secondary" %>
+              <%= link_to "Modifier", edit_journal_entry_path(entry), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucune entree de journal pour le moment.</p>
+    <% end %>
+  </section>
+</main>

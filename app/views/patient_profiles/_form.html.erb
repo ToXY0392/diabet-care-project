@@ -1,0 +1,54 @@
+<%= form_with(model: patient_profile, url: patient_profile_path, class: "reading-form") do |form| %>
+  <% if patient_profile.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(patient_profile.errors.count, "erreur") %> ont empeche l'enregistrement :</h2>
+      <ul>
+        <% patient_profile.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div>
+      <%= form.label :hypo_threshold, "Seuil hypoglycemie" %>
+      <%= form.number_field :hypo_threshold, min: 30, max: 150, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :hyper_threshold, "Seuil hyperglycemie" %>
+      <%= form.number_field :hyper_threshold, min: 120, max: 400, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :hypo_critical_threshold, "Seuil hypo critique" %>
+      <%= form.number_field :hypo_critical_threshold, min: 20, max: 100, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :hyper_critical_threshold, "Seuil hyper critique" %>
+      <%= form.number_field :hyper_critical_threshold, min: 150, max: 450, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :glucose_target_low, "Cible basse" %>
+      <%= form.number_field :glucose_target_low, min: 50, max: 180, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :glucose_target_high, "Cible haute" %>
+      <%= form.number_field :glucose_target_high, min: 100, max: 250, class: "field-input" %>
+    </div>
+  </div>
+
+  <label class="checkbox-row">
+    <%= form.check_box :browser_notifications_enabled %>
+    <span>Autoriser les notifications navigateur hors de l'application</span>
+  </label>
+
+  <div class="form-actions">
+    <%= form.submit "Enregistrer", class: "button button-primary" %>
+    <%= link_to "Retour", patient_profile_path, class: "button button-secondary" %>
+  </div>
+<% end %>

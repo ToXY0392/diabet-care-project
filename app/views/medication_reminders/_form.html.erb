@@ -1,0 +1,51 @@
+<%= form_with(model: medication_reminder, class: "reading-form") do |form| %>
+  <% if medication_reminder.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(medication_reminder.errors.count, "erreur") %> ont empeche l'enregistrement :</h2>
+      <ul>
+        <% medication_reminder.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div>
+      <%= form.label :medication_name, "Nom du traitement" %>
+      <%= form.text_field :medication_name, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :dosage, "Dosage" %>
+      <%= form.text_field :dosage, class: "field-input" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :scheduled_at, "Date et heure prevues" %>
+    <%= form.datetime_local_field :scheduled_at, value: medication_reminder.scheduled_at&.strftime("%Y-%m-%dT%H:%M"), class: "field-input" %>
+  </div>
+
+  <% if defined?(current_user) && current_user.medication_schedules.any? %>
+    <div>
+      <%= form.label :medication_schedule_id, "Lier a un programme recurrent (optionnel)" %>
+      <%= form.collection_select :medication_schedule_id, current_user.medication_schedules.order(:medication_name), :id, :medication_name, { include_blank: "Occurrence manuelle" }, { class: "field-input" } %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :instructions, "Instructions" %>
+    <%= form.text_area :instructions, rows: 4, class: "field-input" %>
+  </div>
+
+  <div>
+    <%= form.label :taken_at, "Pris a" %>
+    <%= form.datetime_local_field :taken_at, value: medication_reminder.taken_at&.strftime("%Y-%m-%dT%H:%M"), class: "field-input" %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit "Enregistrer", class: "button button-primary" %>
+    <%= link_to "Retour", medication_reminders_path, class: "button button-secondary" %>
+  </div>
+<% end %>

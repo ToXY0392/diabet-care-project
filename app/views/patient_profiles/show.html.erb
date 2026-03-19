@@ -1,0 +1,56 @@
+<% content_for :title, "Mon profil sante | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Profil patient</p>
+      <h1>Mon profil sante</h1>
+      <p class="hero-copy">Personnalisez vos seuils glycemiques, votre cible et les notifications navigateur.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Modifier", edit_patient_profile_path, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="summary-grid">
+    <article class="summary-card">
+      <p class="summary-label">Hypoglycemie</p>
+      <p class="summary-value"><%= @patient_profile.hypo_threshold %> mg/dL</p>
+      <p class="summary-trend summary-trend--warn">Critique sous <%= @patient_profile.hypo_critical_threshold %> mg/dL</p>
+    </article>
+
+    <article class="summary-card">
+      <p class="summary-label">Hyperglycemie</p>
+      <p class="summary-value"><%= @patient_profile.hyper_threshold %> mg/dL</p>
+      <p class="summary-trend summary-trend--warn">Critique au-dessus de <%= @patient_profile.hyper_critical_threshold %> mg/dL</p>
+    </article>
+
+    <article class="summary-card">
+      <p class="summary-label">Cible glycemique</p>
+      <p class="summary-value"><%= @patient_profile.glucose_target_low %>-<%= @patient_profile.glucose_target_high %></p>
+      <p class="summary-trend summary-trend--neutral">mg/dL dans la plage cible</p>
+    </article>
+
+    <article class="summary-card">
+      <p class="summary-label">Notifications</p>
+      <p class="summary-value"><%= @patient_profile.browser_notifications_enabled? ? "Activees" : "Desactivees" %></p>
+      <p class="summary-trend summary-trend--neutral">Preference navigateur</p>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Lecture clinique rapide</h2>
+      <span>Parametres actifs</span>
+    </div>
+    <p class="detail-copy">
+      Vos alertes utilisent actuellement une cible glycemique de
+      <strong><%= @patient_profile.glucose_target_low %>-<%= @patient_profile.glucose_target_high %> mg/dL</strong>,
+      avec une alerte basse a <strong><%= @patient_profile.hypo_threshold %> mg/dL</strong>
+      et une alerte haute a <strong><%= @patient_profile.hyper_threshold %> mg/dL</strong>.
+      Les notifications navigateur sont
+      <strong><%= @patient_profile.browser_notifications_enabled? ? "activees" : "desactivees" %></strong>.
+    </p>
+  </section>
+</main>

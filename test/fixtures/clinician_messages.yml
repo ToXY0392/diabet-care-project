@@ -1,0 +1,17 @@
+demo_patient_message:
+  clinician_conversation: demo_thread
+  author: demo
+  body: Pouvez-vous partager vos valeurs post-dejeuner ?
+  sent_at: <%= Time.zone.now.beginning_of_day + 11.hours + 42.minutes %>
+
+demo_clinician_message:
+  clinician_conversation: demo_thread
+  author: clinician
+  body: Oui, je les analyse cet apres-midi.
+  sent_at: <%= Time.zone.now.beginning_of_day + 11.hours + 50.minutes %>
+
+other_patient_message:
+  clinician_conversation: other_thread
+  author: other
+  body: Merci pour votre retour sur le traitement.
+  sent_at: <%= Time.zone.now.beginning_of_day + 9.hours + 15.minutes %>

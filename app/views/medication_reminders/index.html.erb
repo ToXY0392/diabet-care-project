@@ -1,0 +1,80 @@
+<% content_for :title, "Traitements | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Traitements</p>
+      <h1>Occurrences de prise</h1>
+      <p class="hero-copy">Suivez les prises generees a partir des programmes recurrents et les occurrences manuelles.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Programmes recurrents", medication_schedules_path, class: "button button-secondary" %>
+      <%= link_to "Retour dashboard", dashboard_path, class: "button button-secondary" %>
+      <%= link_to "Nouveau rappel", new_medication_reminder_path, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Aujourd'hui</h2>
+      <span><%= @today_reminders.count(&:taken?) %>/<%= @today_reminders.count %> pris</span>
+    </div>
+
+    <% if @today_reminders.any? %>
+      <div class="reading-list">
+        <% @today_reminders.each do |reminder| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= reminder.medication_name %></p>
+              <p class="reading-meta"><%= reminder.dosage %> • <%= l(reminder.scheduled_at, format: :long) %></p>
+              <p class="reading-notes"><span class="status-pill status-pill--<%= reminder.taken? ? "taken" : "pending" %>"><%= reminder.status_label %></span></p>
+            </div>
+            <div class="reading-actions">
+              <% unless reminder.taken? %>
+                <%= button_to "Marquer pris", mark_taken_medication_reminder_path(reminder), method: :patch, class: "button button-primary" %>
+              <% end %>
+              <%= link_to "Voir", reminder, class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucune prise prevue aujourd'hui.</p>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <% if @medication_reminders.any? %>
+      <div class="reading-list">
+        <% @medication_reminders.each do |reminder| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= reminder.medication_name %></p>
+              <p class="reading-meta"><%= reminder.dosage %> • <%= l(reminder.scheduled_at, format: :long) %></p>
+              <p class="reading-notes">
+                <span class="status-pill status-pill--<%= reminder.taken? ? "taken" : "pending" %>"><%= reminder.status_label %></span>
+              </p>
+              <% if reminder.medication_schedule.present? %>
+                <p class="reading-notes">Programme: <%= link_to reminder.medication_schedule.medication_name, medication_schedule_path(reminder.medication_schedule) %></p>
+              <% end %>
+              <% if reminder.instructions.present? %>
+                <p class="reading-notes"><%= reminder.instructions %></p>
+              <% end %>
+            </div>
+
+            <div class="reading-actions">
+              <% unless reminder.taken? %>
+                <%= button_to "Marquer pris", mark_taken_medication_reminder_path(reminder), method: :patch, class: "button button-primary" %>
+              <% end %>
+              <%= link_to "Voir", reminder, class: "button button-secondary" %>
+              <%= link_to "Modifier", edit_medication_reminder_path(reminder), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucun rappel de traitement enregistre pour le moment.</p>
+    <% end %>
+  </section>
+</main>

@@ -1,0 +1,26 @@
+<% content_for :title, "Modifier repas | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Edition</p>
+      <h1>Modifier le repas</h1>
+      <p class="hero-copy">Ajustez le nom, les glucides ou les notes de ce repas.</p>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Action</span>
+      <strong>Edition repas</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Objectif</span>
+      <strong>Historique coherent</strong>
+    </article>
+  </section>
+
+  <section class="panel form-panel">
+    <%= render "form", meal: @meal %>
+  </section>
+</main>

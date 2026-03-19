@@ -1,0 +1,19 @@
+metformin:
+  user: demo
+  medication_name: Metformine
+  dosage: 500 mg
+  instructions: A prendre pendant les repas
+  starts_on: <%= Date.current - 14.days %>
+  reminder_times: 08:00,20:00
+  weekdays_mask: 127
+  active: true
+
+rapid_insulin:
+  user: demo
+  medication_name: Insuline rapide
+  dosage: 6 unites
+  instructions: Avant le dejeuner
+  starts_on: <%= Date.current - 14.days %>
+  reminder_times: 12:30
+  weekdays_mask: 127
+  active: true

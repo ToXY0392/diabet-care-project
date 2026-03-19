@@ -1,0 +1,5 @@
+current:
+  clinician: clinician
+  title: Note de coordination
+  body: Prioriser Demo Patient cet apres-midi puis verifier le suivi de Other Patient demain matin.
+  active: true

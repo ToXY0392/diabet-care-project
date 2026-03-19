@@ -1,0 +1,39 @@
+<%= form_with(model: glucose_reading, class: "reading-form") do |form| %>
+  <% if glucose_reading.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(glucose_reading.errors.count, "erreur") %> ont empeche l'enregistrement :</h2>
+      <ul>
+        <% glucose_reading.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-grid">
+    <div>
+      <%= form.label :value, "Valeur (mg/dL)" %>
+      <%= form.number_field :value, min: 1, max: 499, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :context, "Contexte" %>
+      <%= form.select :context, GlucoseReading::CONTEXTS.map { |context| [context.humanize, context] }, {}, class: "field-input" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :measured_at, "Date et heure" %>
+    <%= form.datetime_local_field :measured_at, value: glucose_reading.measured_at&.strftime("%Y-%m-%dT%H:%M"), class: "field-input" %>
+  </div>
+
+  <div>
+    <%= form.label :notes, "Notes" %>
+    <%= form.text_area :notes, rows: 4, class: "field-input" %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit "Enregistrer", class: "button button-primary" %>
+    <%= link_to "Retour", glucose_readings_path, class: "button button-secondary" %>
+  </div>
+<% end %>

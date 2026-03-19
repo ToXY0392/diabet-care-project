@@ -1,0 +1,20 @@
+breakfast:
+  user: demo
+  name: Petit dejeuner
+  carbs: 32
+  eaten_at: <%= Time.zone.now.beginning_of_day + 8.hours %>
+  notes: Pain complet et yaourt
+
+lunch:
+  user: demo
+  name: Dejeuner
+  carbs: 58
+  eaten_at: <%= Time.zone.now.beginning_of_day + 13.hours %>
+  notes: Riz et legumes
+
+other_user_meal:
+  user: other
+  name: Diner
+  carbs: 40
+  eaten_at: <%= Time.zone.now.beginning_of_day + 19.hours %>
+  notes: Ne doit pas apparaitre

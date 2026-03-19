@@ -1,0 +1,57 @@
+<% content_for :title, "Repas | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Detail repas</p>
+      <h1><%= @meal.name %></h1>
+      <p class="hero-copy"><%= @meal.carbs %> g glucides • <%= l(@meal.eaten_at, format: :long) %></p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour liste", meals_path, class: "button button-secondary" %>
+      <%= link_to "Modifier", edit_meal_path(@meal), class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Repas</span>
+      <strong><%= @meal.name %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Glucides</span>
+      <strong><%= @meal.carbs %> g</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Moment</span>
+      <strong><%= l(@meal.eaten_at, format: "%H:%M") %></strong>
+    </article>
+  </section>
+
+  <section class="panel reading-detail">
+    <div>
+      <p class="detail-label">Nom</p>
+      <p><%= @meal.name %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Glucides</p>
+      <p><%= @meal.carbs %> g</p>
+    </div>
+
+    <div>
+      <p class="detail-label">Date</p>
+      <p><%= l(@meal.eaten_at, format: :long) %></p>
+    </div>
+
+    <div>
+      <p class="detail-label">Notes</p>
+      <p><%= @meal.notes.presence || "Aucune note" %></p>
+    </div>
+  </section>
+
+  <div class="inline-actions">
+    <%= button_to "Supprimer", @meal, method: :delete, class: "button button-danger", form: { data: { turbo_confirm: "Supprimer ce repas ?" } } %>
+  </div>
+</main>

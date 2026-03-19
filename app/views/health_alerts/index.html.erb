@@ -1,0 +1,70 @@
+<% content_for :title, "Alertes | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Alertes intelligentes</p>
+      <h1>Historique des alertes</h1>
+      <p class="hero-copy">Suivez les alertes glycemiques et les alertes liees aux traitements avec leurs etats metier.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour dashboard", dashboard_path, class: "button button-secondary" %>
+      <%= button_to "Tout marquer lu", mark_all_read_health_alerts_path, method: :patch, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Total alertes</span>
+      <strong><%= @health_alerts.count %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Actives</span>
+      <strong><%= @health_alerts.count { |health_alert| !health_alert.resolved? } %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Critiques</span>
+      <strong><%= @health_alerts.count { |health_alert| health_alert.severity == "critical" } %></strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <% if @health_alerts.any? %>
+      <div class="alert-list">
+        <% @health_alerts.each do |alert| %>
+          <article class="alert-card alert-card--<%= alert.severity %>">
+            <p class="alert-title"><%= alert.alert_type.humanize %> • <%= alert.status_label %></p>
+            <p class="alert-message"><%= alert.message %></p>
+            <p class="reading-meta">
+              <%= l(alert.detected_at, format: :long) %>
+              <% if alert.glucose_reading.present? %>
+                • <%= alert.glucose_reading.source_label %>
+              <% elsif alert.medication_reminder.present? %>
+                • <%= alert.medication_reminder.medication_name %>
+              <% end %>
+            </p>
+            <div class="reading-actions">
+              <% unless alert.acknowledged? %>
+                <%= button_to "Accuser reception", acknowledge_health_alert_path(alert), method: :patch, class: "button button-secondary" %>
+              <% end %>
+              <% unless alert.read? %>
+                <%= button_to "Marquer lue", mark_read_health_alert_path(alert), method: :patch, class: "button button-secondary" %>
+              <% end %>
+              <% unless alert.resolved? %>
+                <%= button_to "Resoudre", resolve_health_alert_path(alert), method: :patch, class: "button button-secondary" %>
+              <% end %>
+              <% if alert.glucose_reading.present? %>
+                <%= link_to "Voir la mesure", glucose_reading_path(alert.glucose_reading), class: "button button-secondary" %>
+              <% elsif alert.medication_reminder.present? %>
+                <%= link_to "Voir la prise", medication_reminder_path(alert.medication_reminder), class: "button button-secondary" %>
+              <% end %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucune alerte pour le moment.</p>
+    <% end %>
+  </section>
+</main>

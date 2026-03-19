@@ -1,0 +1,17 @@
+demo:
+  name: Demo Patient
+  email: demo@example.com
+  role: patient
+  password_digest: <%= BCrypt::Password.create("password123") %>
+
+other:
+  name: Other Patient
+  email: other@example.com
+  role: patient
+  password_digest: <%= BCrypt::Password.create("password123") %>
+
+clinician:
+  name: Dr Camille Martin
+  email: clinician@example.com
+  role: clinician
+  password_digest: <%= BCrypt::Password.create("password123") %>

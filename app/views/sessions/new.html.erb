@@ -1,0 +1,51 @@
+<% content_for :title, "Connexion | DiabetCare" %>
+
+<main class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="eyebrow">Connexion</p>
+      <h1>Acceder a votre espace</h1>
+      <p class="hero-copy">Utilisez le compte de demonstration ou creez votre compte patient.</p>
+
+      <%= form_with url: session_path, class: "reading-form" do |form| %>
+        <div>
+          <%= form.label :email, "Email" %>
+          <%= form.email_field :email, class: "field-input", autofocus: true %>
+        </div>
+
+        <div>
+          <%= form.label :password, "Mot de passe" %>
+          <%= form.password_field :password, class: "field-input" %>
+        </div>
+
+        <div class="form-actions">
+          <%= form.submit "Se connecter", class: "button button-primary" %>
+          <%= link_to "Creer un compte", new_user_path, class: "button button-secondary" %>
+        </div>
+      <% end %>
+
+      <p class="auth-hint">Compte demo: <strong>demo@diabetcare.local</strong> / <strong>password123</strong></p>
+    </section>
+
+    <aside class="auth-aside">
+      <p class="eyebrow">Espace patient</p>
+      <h2>Suivez vos donnees au meme endroit</h2>
+      <p>Retrouvez votre glycemie, vos repas, vos traitements recurrents, vos alertes intelligentes et votre journal personnel.</p>
+
+      <ul class="feature-list">
+        <li>
+          <strong>Dashboard unifie</strong>
+          Un point d'entree unique pour les indicateurs, l'observance et les tendances.
+        </li>
+        <li>
+          <strong>Alertes et objectifs personnalises</strong>
+          Les seuils et notifications s'adaptent a votre profil sante.
+        </li>
+        <li>
+          <strong>Journal patient</strong>
+          Conservez vos symptomes, votre activite et votre humeur pour contextualiser vos valeurs.
+        </li>
+      </ul>
+    </aside>
+  </div>
+</main>

@@ -1,0 +1,26 @@
+<% content_for :title, "Nouvelle entree journal | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Journal patient</p>
+      <h1>Nouvelle entree</h1>
+      <p class="hero-copy">Ajoutez vos symptomes, votre activite, votre humeur et vos notes du moment.</p>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Action</span>
+      <strong>Nouvelle entree</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Utilite</span>
+      <strong>Contexte patient</strong>
+    </article>
+  </section>
+
+  <section class="panel form-panel">
+    <%= render "form", journal_entry: @journal_entry %>
+  </section>
+</main>

@@ -1,0 +1,17 @@
+demo_note:
+  clinician: clinician
+  patient: demo
+  title: Note clinique
+  body: Surveiller la derive glycemique apres le dejeuner.
+  category: follow_up
+  pinned: true
+  recorded_at: <%= Time.zone.now.beginning_of_day + 12.hours %>
+
+other_note:
+  clinician: clinician
+  patient: other
+  title: Coordination traitement
+  body: Maintenir le suivi hebdomadaire et confirmer la tolerance du traitement.
+  category: coordination
+  pinned: false
+  recorded_at: <%= Time.zone.now.beginning_of_day + 9.hours %>

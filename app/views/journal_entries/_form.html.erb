@@ -1,0 +1,44 @@
+<%= form_with(model: journal_entry, class: "reading-form") do |form| %>
+  <% if journal_entry.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(journal_entry.errors.count, "erreur") %> ont empeche l'enregistrement :</h2>
+      <ul>
+        <% journal_entry.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :recorded_at, "Date et heure" %>
+    <%= form.datetime_local_field :recorded_at, value: journal_entry.recorded_at&.strftime("%Y-%m-%dT%H:%M"), class: "field-input" %>
+  </div>
+
+  <div class="form-grid">
+    <div>
+      <%= form.label :mood, "Humeur" %>
+      <%= form.select :mood, JournalEntry::MOODS.map { |mood| [mood.humanize, mood] }, {}, class: "field-input" %>
+    </div>
+
+    <div>
+      <%= form.label :activity_minutes, "Activite (minutes)" %>
+      <%= form.number_field :activity_minutes, min: 0, class: "field-input" %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :symptoms, "Symptomes" %>
+    <%= form.text_area :symptoms, rows: 3, class: "field-input" %>
+  </div>
+
+  <div>
+    <%= form.label :notes, "Notes" %>
+    <%= form.text_area :notes, rows: 4, class: "field-input" %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit "Enregistrer", class: "button button-primary" %>
+    <%= link_to "Retour", journal_entries_path, class: "button button-secondary" %>
+  </div>
+<% end %>

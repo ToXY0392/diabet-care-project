@@ -1,0 +1,26 @@
+<% content_for :title, "Nouveau repas | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Creation</p>
+      <h1>Nouveau repas</h1>
+      <p class="hero-copy">Ajoutez un repas pour enrichir le contexte glycémique du dashboard.</p>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Action</span>
+      <strong>Nouveau repas</strong>
+    </article>
+    <article class="metric-chip">
+      <span>Utilite</span>
+      <strong>Contexte glycemique</strong>
+    </article>
+  </section>
+
+  <section class="panel form-panel">
+    <%= render "form", meal: @meal %>
+  </section>
+</main>

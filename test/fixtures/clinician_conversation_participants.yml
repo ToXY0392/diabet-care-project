@@ -1,0 +1,27 @@
+demo_thread_clinician:
+  clinician_conversation: demo_thread
+  user: clinician
+  role: clinician
+  unread_count: 1
+  last_read_at:
+
+demo_thread_patient:
+  clinician_conversation: demo_thread
+  user: demo
+  role: patient
+  unread_count: 0
+  last_read_at: <%= Time.zone.now.beginning_of_day + 10.hours %>
+
+other_thread_clinician:
+  clinician_conversation: other_thread
+  user: clinician
+  role: clinician
+  unread_count: 0
+  last_read_at: <%= Time.zone.now.beginning_of_day + 9.hours + 20.minutes %>
+
+other_thread_patient:
+  clinician_conversation: other_thread
+  user: other
+  role: patient
+  unread_count: 0
+  last_read_at: <%= Time.zone.now.beginning_of_day + 9.hours + 30.minutes %>

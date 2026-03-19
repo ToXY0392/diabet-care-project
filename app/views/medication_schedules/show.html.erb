@@ -1,0 +1,64 @@
+<% content_for :title, "Programme traitement | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Programme recurrent</p>
+      <h1><%= @medication_schedule.medication_name %></h1>
+      <p class="hero-copy"><%= @medication_schedule.dosage %> • <%= @medication_schedule.reminder_time_list.join(", ") %></p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour liste", medication_schedules_path, class: "button button-secondary" %>
+      <%= link_to "Modifier", edit_medication_schedule_path(@medication_schedule), class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="panel reading-detail">
+    <div>
+      <p class="detail-label">Statut</p>
+      <p><%= @medication_schedule.active? ? "Actif" : "Inactif" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Periode</p>
+      <p><%= @medication_schedule.starts_on %> <%= @medication_schedule.ends_on.present? ? "au #{@medication_schedule.ends_on}" : "(sans fin)" %></p>
+    </div>
+    <div>
+      <p class="detail-label">Jours</p>
+      <p><%= @medication_schedule.enabled_weekdays.map(&:humanize).join(", ") %></p>
+    </div>
+    <div>
+      <p class="detail-label">Instructions</p>
+      <p><%= @medication_schedule.instructions.presence || "Aucune instruction" %></p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Occurrences a venir</h2>
+      <span><%= @next_doses.count %> affichees</span>
+    </div>
+
+    <% if @next_doses.any? %>
+      <div class="reading-list">
+        <% @next_doses.each do |dose| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= l(dose.scheduled_at, format: :long) %></p>
+              <p class="reading-meta"><%= dose.status_label %></p>
+            </div>
+            <div class="reading-actions">
+              <%= link_to "Voir", medication_reminder_path(dose), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucune occurrence planifiee pour cette fenetre.</p>
+    <% end %>
+  </section>
+
+  <div class="inline-actions">
+    <%= button_to "Supprimer", @medication_schedule, method: :delete, class: "button button-danger", form: { data: { turbo_confirm: "Supprimer ce programme recurrent ?" } } %>
+  </div>
+</main>

@@ -1,0 +1,56 @@
+<% content_for :title, "Mesures glycemiques | DiabetCare" %>
+
+<main class="content-page">
+  <section class="content-header">
+    <div>
+      <p class="eyebrow">Suivi glycemique</p>
+      <h1>Mesures glycemiques</h1>
+      <p class="hero-copy">Consultez, ajoutez et modifiez les mesures qui alimentent le dashboard.</p>
+    </div>
+
+    <div class="header-actions">
+      <%= link_to "Retour dashboard", dashboard_path, class: "button button-secondary" %>
+      <%= link_to "Nouvelle mesure", new_glucose_reading_path, class: "button button-primary" %>
+    </div>
+  </section>
+
+  <section class="overview-strip">
+    <article class="metric-chip">
+      <span>Mesures</span>
+      <strong><%= @glucose_readings.count %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Derniere valeur</span>
+      <strong><%= @glucose_readings.first ? "#{@glucose_readings.first.value} mg/dL" : "Aucune" %></strong>
+    </article>
+    <article class="metric-chip">
+      <span>Sources</span>
+      <strong><%= @glucose_readings.map(&:source).uniq.map(&:humanize).join(", ").presence || "Manual" %></strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <% if @glucose_readings.any? %>
+      <div class="reading-list">
+        <% @glucose_readings.each do |reading| %>
+          <article class="reading-row">
+            <div>
+              <p class="reading-value"><%= reading.value %> mg/dL</p>
+              <p class="reading-meta"><%= reading.context_label %> • <%= reading.source_label %> • <%= l(reading.measured_at, format: :long) %></p>
+              <% if reading.notes.present? %>
+                <p class="reading-notes"><%= reading.notes %></p>
+              <% end %>
+            </div>
+
+            <div class="reading-actions">
+              <%= link_to "Voir", reading, class: "button button-secondary" %>
+              <%= link_to "Modifier", edit_glucose_reading_path(reading), class: "button button-secondary" %>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">Aucune mesure enregistree pour le moment.</p>
+    <% end %>
+  </section>
+</main>

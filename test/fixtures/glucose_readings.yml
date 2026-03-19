@@ -1,0 +1,41 @@
+breakfast_before:
+  user: demo
+  value: 102
+  measured_at: <%= Time.zone.now.beginning_of_day + 7.hours + 30.minutes %>
+  context: before_meal
+  notes: Avant le petit dejeuner
+
+breakfast_after:
+  user: demo
+  value: 138
+  measured_at: <%= Time.zone.now.beginning_of_day + 9.hours + 15.minutes %>
+  context: after_meal
+  notes: Apres le petit dejeuner
+
+lunch_before:
+  user: demo
+  value: 118
+  measured_at: <%= Time.zone.now.beginning_of_day + 12.hours + 30.minutes %>
+  context: before_meal
+  notes: Avant le dejeuner
+
+lunch_after:
+  user: demo
+  value: 156
+  measured_at: <%= Time.zone.now.beginning_of_day + 14.hours + 10.minutes %>
+  context: after_meal
+  notes: Apres le dejeuner
+
+yesterday_fasting:
+  user: demo
+  value: 110
+  measured_at: <%= 1.day.ago.beginning_of_day + 8.hours %>
+  context: fasting
+  notes: Mesure a jeun
+
+other_user_reading:
+  user: other
+  value: 175
+  measured_at: <%= Time.zone.now.beginning_of_day + 10.hours %>
+  context: after_meal
+  notes: Ne doit pas apparaitre
