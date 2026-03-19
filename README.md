@@ -130,6 +130,10 @@ La base produit est en place. La suite utile est maintenant :
 2. industrialiser la synchronisation Dexcom avec des jobs planifies
 3. preparer l'exploitation en environnement distant avec monitoring et gestion des secrets
 
+Document detaille :
+
+- `docs/prochaine_etape_recommandee.md`
+
 ## Regle de maintenance documentaire
 
 Toute tache terminee dans ce depot doit declencher automatiquement, dans le meme travail :
@@ -137,3 +141,7 @@ Toute tache terminee dans ce depot doit declencher automatiquement, dans le meme
 1. la mise a jour de la documentation concernee dans `README.md` ou `docs/`
 2. la mise a jour des exemples de configuration si une variable change
 3. la verification que les comptes, commandes ou chemins documentes correspondent bien au depot reel
+
+Document detaille :
+
+- `docs/regle_de_maintenance_documentaire.md`
