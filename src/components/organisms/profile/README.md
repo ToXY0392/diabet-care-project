@@ -1,5 +1,0 @@
-# profile
-
-- ProfileSummaryCard
-- ProfileSettingsList
-- AppSettingsPanel

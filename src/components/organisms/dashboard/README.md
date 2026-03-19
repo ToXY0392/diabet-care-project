@@ -1,5 +1,0 @@
-# dashboard
-
-- SensorHeroCard
-- UnreadHighlightCard
-- DashboardStatsGrid

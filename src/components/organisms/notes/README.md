@@ -1,5 +1,0 @@
-# notes
-
-- NotesFeed
-- NotesSidebar
-- NoteDetail
