@@ -17,6 +17,6 @@ class AdminDashboardTest < ActionDispatch::IntegrationTest
     sign_in_session!(users(:demo))
     get admin_dashboard_path
 
-    assert_redirected_to dashboard_path
+    assert_redirected_to dashboard_path(phone: "1")
   end
 end

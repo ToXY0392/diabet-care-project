@@ -21,10 +21,9 @@ class AuthenticationTest < ApplicationSystemTestCase
 
     sign_in_as(users(:demo))
 
-    assert_current_path dashboard_path
+    assert_current_path dashboard_path(phone: "1")
     assert_text "DiaCare"
     assert_text "Demo Patient"
-    assert_text "Vue patient"
   end
 
   test "allows an admin to sign in and reach the admin dashboard" do

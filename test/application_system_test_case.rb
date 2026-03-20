@@ -10,7 +10,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     case user.role
     when "patient" then click_on "Je suis patient"
     when "clinician" then click_on "Je suis soignant"
-    when "admin" then click_on "Administration"
+    when "admin" then click_on "Accès administration"
     else
       raise ArgumentError, "Role non gere pour la connexion systeme: #{user.role.inspect}"
     end

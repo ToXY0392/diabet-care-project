@@ -14,10 +14,13 @@
       <div class="form-actions" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
         <%= button_to "Je suis patient", choose_profile_path, method: :post, params: { role: "patient" }, class: "button button-primary" %>
         <%= button_to "Je suis soignant", choose_profile_path, method: :post, params: { role: "clinician" }, class: "button button-primary" %>
-        <%= button_to "Administration", choose_profile_path, method: :post, params: { role: "admin" }, class: "button button-secondary" %>
       </div>
 
-      <p class="auth-hint"><%= link_to "Presentation du produit (sans connexion)", home_path %></p>
+      <p class="auth-hint auth-hint--stack">
+        <%= link_to "Presentation du produit (sans connexion)", home_path %>
+        <span class="auth-hint-sep" aria-hidden="true">·</span>
+        <%= button_to "Accès administration", choose_profile_path, method: :post, params: { role: "admin" }, class: "button button-ghost-link" %>
+      </p>
     </section>
 
     <aside class="auth-aside">

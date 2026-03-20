@@ -2,7 +2,7 @@ class DexcomConnectionsController < ApplicationController
   # Porte le flux OAuth Dexcom et les synchronisations de mesures CGM.
   def connect
     unless Dexcom::Config.configured?
-      redirect_to dashboard_path, alert: "Configuration Dexcom manquante dans les variables d'environnement."
+      redirect_to after_authentication_path, alert: "Configuration Dexcom manquante dans les variables d'environnement."
       return
     end
 
@@ -14,12 +14,12 @@ class DexcomConnectionsController < ApplicationController
 
   def callback
     if params[:error].present?
-      redirect_to dashboard_path, alert: "Connexion Dexcom refusee: #{params[:error]}."
+      redirect_to after_authentication_path, alert: "Connexion Dexcom refusee: #{params[:error]}."
       return
     end
 
     if session.delete(:dexcom_oauth_state) != params[:state]
-      redirect_to dashboard_path, alert: "La verification Dexcom a echoue."
+      redirect_to after_authentication_path, alert: "La verification Dexcom a echoue."
       return
     end
 
@@ -35,20 +35,20 @@ class DexcomConnectionsController < ApplicationController
     )
 
     imported_count = Dexcom::SyncReadings.call(user: current_user)
-    redirect_to dashboard_path, notice: "Connexion Dexcom reussie. #{imported_count} glycemies synchronisees."
+    redirect_to after_authentication_path, notice: "Connexion Dexcom reussie. #{imported_count} glycemies synchronisees."
   rescue Dexcom::Error, KeyError => error
-    redirect_to dashboard_path, alert: "Dexcom: #{error.message}"
+    redirect_to after_authentication_path, alert: "Dexcom: #{error.message}"
   end
 
   def sync
     imported_count = Dexcom::SyncReadings.call(user: current_user)
-    redirect_to dashboard_path, notice: "Synchronisation Dexcom terminee: #{imported_count} glycemies importees."
+    redirect_to after_authentication_path, notice: "Synchronisation Dexcom terminee: #{imported_count} glycemies importees."
   rescue Dexcom::Error => error
-    redirect_to dashboard_path, alert: error.message
+    redirect_to after_authentication_path, alert: error.message
   end
 
   def destroy
     current_user.dexcom_connection&.destroy
-    redirect_to dashboard_path, notice: "Connexion Dexcom supprimee."
+    redirect_to after_authentication_path, notice: "Connexion Dexcom supprimee."
   end
 end

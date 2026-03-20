@@ -5,14 +5,12 @@ class DashboardTest < ApplicationSystemTestCase
     sign_in_as(users(:demo))
 
     assert_text "DiaCare"
-    assert_text "Vue patient"
-    assert_text "Vue soignant"
     assert_text "Demo Patient"
     assert_text "Courbe glycémie"
     assert_text "demo@example.com"
     assert_text "80-170 mg/dL"
     assert_text "Notifications"
     assert_text "Réglages"
-    assert_text "Maquette statique"
+    assert_text "DiaCare 2026"
   end
 end

@@ -27,7 +27,7 @@ class ApplicationController < ActionController::Base
   def require_clinician
     return if current_user&.clinician?
 
-    redirect_to dashboard_path, alert: "Cet espace est reserve aux soignants."
+    redirect_to after_authentication_path, alert: "Cet espace est reserve aux soignants."
   end
 
   def require_admin
@@ -37,8 +37,13 @@ class ApplicationController < ActionController::Base
   end
 
   # Destination apres connexion ou inscription : admin -> dashboard admin, sinon maquette dashboard.
+  # Patient : mode smartphone (?phone=1) ; soignant : vue soignant (?view=soignant).
   def after_authentication_path(user = current_user)
     return admin_dashboard_path if user&.admin?
+
+    return dashboard_path(phone: "1") if user&.patient?
+
+    return dashboard_path(view: "soignant") if user&.clinician?
 
     dashboard_path
   end

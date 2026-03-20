@@ -3,7 +3,9 @@ class PagesController < ApplicationController
   skip_before_action :require_login, only: %i[role_select choose_profile reset_login_role home]
 
   # Premier ecran : l'utilisateur indique s'il accede en tant que patient, soignant ou administration.
+  # Les utilisateurs deja connectes sont renvoyes vers leur espace (pas de re-choix de profil).
   def role_select
+    redirect_to after_authentication_path if logged_in?
   end
 
   # Enregistre le profil attendu en session puis envoie vers la page de connexion (/connexion).

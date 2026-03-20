@@ -423,6 +423,43 @@ strong {
   color: #ffffff;
 }
 
+.button-ghost-link {
+  min-height: auto;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink-500);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.button-ghost-link:hover,
+.button-ghost-link:focus-visible {
+  transform: none;
+  box-shadow: none;
+  color: var(--mint-700);
+}
+
+.auth-hint--stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+}
+
+.auth-hint-sep {
+  color: var(--ink-400);
+}
+
+.auth-hint--stack .button_to {
+  display: inline;
+  margin: 0;
+}
+
 .summary-card,
 .panel,
 .auth-card {

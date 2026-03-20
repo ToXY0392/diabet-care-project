@@ -63,7 +63,7 @@
                 <span><%= current_user.admin? ? "Pilotage plateforme" : (current_user.clinician? ? "Suivi clinique" : "Suivi personalise") %></span>
               </span>
             </div>
-            <%= button_to "Se deconnecter", session_path, method: :delete, class: "button button-secondary" %>
+            <%= button_to "Se deconnecter", session_path, method: :delete, class: "button button-secondary", form: { data: { turbo: false } } %>
           </div>
         </div>
       </header>

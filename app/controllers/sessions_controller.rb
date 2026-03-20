@@ -1,7 +1,7 @@
 class SessionsController < ApplicationController
   # Gere l'ouverture et la fermeture de session pour patient, soignant et admin.
   # La session `login_role` doit etre positionnee par PagesController#choose_profile avant l'affichage du formulaire.
-  skip_before_action :require_login, only: %i[new create]
+  skip_before_action :require_login, only: %i[new create destroy]
 
   def new
     redirect_to after_authentication_path if logged_in?
@@ -40,7 +40,8 @@ class SessionsController < ApplicationController
 
   def destroy
     reset_session
-    redirect_to root_path, notice: "Deconnexion reussie."
+    # root_path = ecran « patient / soignant » (role_select), pas /connexion ni /home.
+    redirect_to root_path, notice: "Deconnexion reussie.", status: :see_other
   end
 
   private

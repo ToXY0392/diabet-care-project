@@ -84,9 +84,13 @@ module Dashboard
       replace_once!(html, '<span class="pill orange">Médecin uniquement</span>', %(<span class="pill #{sensor_sync_pill_class}">#{h(sensor_sync_label)}</span>))
 
       replace_once!(html, "Bonjour Marie, pouvez-vous noter vos glycémies post-déjeuner ?", "Bonjour #{h(first_name)}, pouvez-vous noter vos glycémies post-déjeuner ?")
+
+      apply_mockup_logout_csrf!(html)
     end
 
     def personalize_clinician_markup!(html)
+      inject_before_marker!(html, "</head>", %(\n<meta name="csrf-token" content="#{h(@csrf_token)}">\n))
+
       replace_once!(html, "Dr Claire Lambert", clinician_name)
       replace_once!(html, "Endocrinologie • 24 patients actifs", clinician_subtitle)
       replace_js_array!(html, "patients", clinician_patients_payload)
@@ -94,6 +98,15 @@ module Dashboard
       replace_js_array!(html, "appointments", clinician_appointments_payload)
       inject_before_marker!(html, "const state = {", seeded_clinician_state_script)
       inject_before_marker!(html, "</script>", clinician_persistence_bridge_script)
+
+      apply_mockup_logout_csrf!(html)
+    end
+
+    def apply_mockup_logout_csrf!(html)
+      return html if @csrf_token.blank?
+
+      html.gsub!("__MOCKUP_LOGOUT_CSRF__", h(@csrf_token))
+      html
     end
 
     def replace_once!(html, old_value, new_value)

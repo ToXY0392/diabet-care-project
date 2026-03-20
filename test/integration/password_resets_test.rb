@@ -48,7 +48,7 @@ class PasswordResetsTest < ActionDispatch::IntegrationTest
     end
 
     user = User.order(:created_at).last
-    assert_redirected_to dashboard_path
+    assert_redirected_to dashboard_path(phone: "1")
     assert_equal "New Patient", user.name
   end
 end

@@ -18,7 +18,7 @@ class ClinicianRoutesTest < ActionDispatch::IntegrationTest
 
     get clinician_appointments_path
 
-    assert_redirected_to dashboard_path
+    assert_redirected_to dashboard_path(phone: "1")
   end
 
   test "clinician can create a conversation with an initial message" do
