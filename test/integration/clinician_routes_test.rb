@@ -2,7 +2,7 @@ require "test_helper"
 
 class ClinicianRoutesTest < ActionDispatch::IntegrationTest
   test "clinician can post a message to an existing conversation" do
-    post session_path, params: { email: users(:clinician).email, password: "password123" }
+    sign_in_session!(users(:clinician))
 
     assert_difference("ClinicianMessage.count", 1) do
       post clinician_conversation_messages_path(clinician_conversations(:demo_thread)),
@@ -14,7 +14,7 @@ class ClinicianRoutesTest < ActionDispatch::IntegrationTest
   end
 
   test "patient cannot access clinician routes" do
-    post session_path, params: { email: users(:demo).email, password: "password123" }
+    sign_in_session!(users(:demo))
 
     get clinician_appointments_path
 
@@ -22,7 +22,7 @@ class ClinicianRoutesTest < ActionDispatch::IntegrationTest
   end
 
   test "clinician can create a conversation with an initial message" do
-    post session_path, params: { email: users(:clinician).email, password: "password123" }
+    sign_in_session!(users(:clinician))
     fresh_patient = User.create!(
       name: "Fresh Patient",
       email: "fresh.patient@example.com",
@@ -46,7 +46,7 @@ class ClinicianRoutesTest < ActionDispatch::IntegrationTest
   end
 
   test "clinician can create a patient record" do
-    post session_path, params: { email: users(:clinician).email, password: "password123" }
+    sign_in_session!(users(:clinician))
     fresh_patient = User.create!(
       name: "Fresh Patient",
       email: "fresh.patient.record@example.com",
@@ -83,7 +83,7 @@ class ClinicianRoutesTest < ActionDispatch::IntegrationTest
   end
 
   test "clinician can update an existing patient record" do
-    post session_path, params: { email: users(:clinician).email, password: "password123" }
+    sign_in_session!(users(:clinician))
     record = clinician_patient_profiles(:demo_record)
 
     patch clinician_patient_record_path(record),

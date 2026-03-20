@@ -71,6 +71,7 @@ end
 demo_user = ensure_user(email: "demo@diabetcare.local", name: "Demo Patient", role: "patient")
 other_patient = ensure_user(email: "other@diabetcare.local", name: "Other Patient", role: "patient")
 clinician = ensure_user(email: "clinician@diabetcare.local", name: "Dr Camille Martin", role: "clinician")
+admin = ensure_user(email: "admin@diabetcare.local", name: "Admin DiabetCare", role: "admin")
 
 seed_patient_profile(
   demo_user,

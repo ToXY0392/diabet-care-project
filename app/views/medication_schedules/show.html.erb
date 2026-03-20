@@ -25,7 +25,7 @@
     </div>
     <div>
       <p class="detail-label">Jours</p>
-      <p><%= @medication_schedule.enabled_weekdays.map(&:humanize).join(", ") %></p>
+      <p><%= @medication_schedule.enabled_weekdays.map { |day| day.to_s.humanize }.join(", ") %></p>
     </div>
     <div>
       <p class="detail-label">Instructions</p>

@@ -1,0 +1,49 @@
+<%# Saisie du nouveau mot de passe : etape 2, apres clic sur le lien signe dans l'email. %>
+<% content_for :title, "Nouveau mot de passe | DiabetCare" %>
+
+<main class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="eyebrow">Reinitialisation</p>
+      <h1>Choisir un nouveau mot de passe</h1>
+      <p class="hero-copy">Renseignez un nouveau mot de passe pour finaliser la reinitialisation.</p>
+
+      <%= form_with model: @user, url: password_reset_path(params[:token]), method: :patch, class: "reading-form" do |form| %>
+        <% if @user.errors.any? %>
+          <div class="form-errors">
+            <h2><%= pluralize(@user.errors.count, "erreur") %> ont empeche la mise a jour :</h2>
+            <ul>
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <div>
+          <%= form.label :password, "Nouveau mot de passe" %>
+          <%= form.password_field :password, class: "field-input", autofocus: true %>
+        </div>
+
+        <div>
+          <%= form.label :password_confirmation, "Confirmation" %>
+          <%= form.password_field :password_confirmation, class: "field-input" %>
+        </div>
+
+        <div class="form-actions">
+          <%= form.submit "Mettre a jour", class: "button button-primary" %>
+          <%= link_to "Retour connexion", root_path, class: "button button-secondary" %>
+        </div>
+      <% end %>
+    </section>
+
+    <aside class="auth-aside">
+      <p class="eyebrow">Confidentialite</p>
+      <h2>Le mot de passe n'est jamais affiche</h2>
+      <p>
+        Le lien signe identifie l'utilisateur de facon temporaire, puis le mot de passe
+        est stocke sous forme de digest via `has_secure_password`.
+      </p>
+    </aside>
+  </div>
+</main>

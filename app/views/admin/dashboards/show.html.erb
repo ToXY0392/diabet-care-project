@@ -1,0 +1,89 @@
+<%# Vue admin : indicateurs globaux, derniers comptes, alertes et rendez-vous (role `admin` uniquement). %>
+<% content_for :title, "Administration | DiabetCare" %>
+
+<main class="dashboard-page">
+  <section class="dashboard-hero">
+    <div>
+      <p class="eyebrow">Dashboard admin</p>
+      <h1>Pilotez l'activite de la plateforme.</h1>
+      <p class="hero-copy">
+        Cette vue de supervision consolide les comptes, les alertes et les prochains suivis
+        pour fournir un espace d'administration demonstrable.
+      </p>
+    </div>
+
+    <div class="hero-panel">
+      <span class="hero-label">Acces</span>
+      <strong><%= current_user.name %></strong>
+      <p>Role: administration</p>
+    </div>
+  </section>
+
+  <section class="summary-grid">
+    <% @platform_metrics.each do |metric| %>
+      <article class="summary-card">
+        <p class="summary-label"><%= metric[:label] %></p>
+        <p class="summary-value"><%= metric[:value] %></p>
+        <p class="summary-trend summary-trend--neutral">Etat courant de la plateforme</p>
+      </article>
+    <% end %>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Derniers comptes</h2>
+        <span>Utilisateurs</span>
+      </div>
+
+      <div class="timeline">
+        <% @recent_users.each do |user| %>
+          <div class="timeline-item">
+            <p class="timeline-time"><%= user.created_at.strftime("%d/%m") %></p>
+            <div>
+              <h3><%= user.name %></h3>
+              <p><%= user.email %> · <%= user.role %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </article>
+
+    <article class="panel">
+      <div class="panel-header">
+        <h2>Alertes et rendez-vous</h2>
+        <span>Supervision</span>
+      </div>
+
+      <ul class="insight-list">
+        <% @recent_alerts.each do |alert| %>
+          <li><%= alert.user.name %> : <%= alert.message %></li>
+        <% end %>
+        <% if @recent_alerts.empty? %>
+          <li>Aucune alerte active pour le moment.</li>
+        <% end %>
+      </ul>
+
+      <div class="timeline">
+        <% @upcoming_appointments.each do |appointment| %>
+          <div class="timeline-item">
+            <p class="timeline-time"><%= appointment.starts_at.strftime("%d/%m %H:%M") %></p>
+            <div>
+              <h3><%= appointment.patient.name %></h3>
+              <p><%= appointment.clinician.name %> · <%= appointment.reason %></p>
+            </div>
+          </div>
+        <% end %>
+        <% if @upcoming_appointments.empty? %>
+          <div class="timeline-item">
+            <p class="timeline-time">--:--</p>
+            <div>
+              <h3>Aucun rendez-vous programme</h3>
+              <p>La supervision affichera ici les prochains suivis cliniques.</p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </article>
+  </section>
+</main>

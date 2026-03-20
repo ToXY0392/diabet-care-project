@@ -1,0 +1,33 @@
+<%# Demande de lien par email : etape 1 du flux de reinitialisation de mot de passe. %>
+<% content_for :title, "Reinitialisation | DiabetCare" %>
+
+<main class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="eyebrow">Mot de passe oublie</p>
+      <h1>Recevoir un lien de reinitialisation</h1>
+      <p class="hero-copy">Entrez votre email pour recevoir un lien valable 30 minutes.</p>
+
+      <%= form_with url: password_resets_path, class: "reading-form" do |form| %>
+        <div>
+          <%= form.label :email, "Email" %>
+          <%= form.email_field :email, class: "field-input", autofocus: true %>
+        </div>
+
+        <div class="form-actions">
+          <%= form.submit "Envoyer le lien", class: "button button-primary" %>
+          <%= link_to "Retour connexion", root_path, class: "button button-secondary" %>
+        </div>
+      <% end %>
+    </section>
+
+    <aside class="auth-aside">
+      <p class="eyebrow">Securite</p>
+      <h2>Un flux demonstrable pour le jury</h2>
+      <p>
+        Le lien est envoye via Action Mailer et permet de mettre a jour le mot de passe
+        sans exposer d'information sensible sur l'existence d'un compte.
+      </p>
+    </aside>
+  </div>
+</main>

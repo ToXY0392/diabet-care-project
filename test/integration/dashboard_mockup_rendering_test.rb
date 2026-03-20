@@ -2,8 +2,7 @@ require "test_helper"
 
 class DashboardMockupRenderingTest < ActionDispatch::IntegrationTest
   test "injects real clinician data into the mockup html" do
-    post session_path, params: { email: users(:demo).email, password: "password123" }
-    follow_redirect!
+    sign_in_session!(users(:demo), follow: true)
 
     assert_response :success
     assert_includes response.body, "Dr Camille Martin"
@@ -16,8 +15,7 @@ class DashboardMockupRenderingTest < ActionDispatch::IntegrationTest
   end
 
   test "injects clinician persistence bridge for clinician sessions" do
-    post session_path, params: { email: users(:clinician).email, password: "password123" }
-    follow_redirect!
+    sign_in_session!(users(:clinician), follow: true)
 
     assert_response :success
     assert_includes response.body, '"enabled":true'

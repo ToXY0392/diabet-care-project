@@ -15,3 +15,9 @@ clinician:
   email: clinician@example.com
   role: clinician
   password_digest: <%= BCrypt::Password.create("password123") %>
+
+admin:
+  name: Admin DiabetCare
+  email: admin@example.com
+  role: admin
+  password_digest: <%= BCrypt::Password.create("password123") %>

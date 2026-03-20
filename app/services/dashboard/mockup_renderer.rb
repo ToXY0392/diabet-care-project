@@ -599,14 +599,15 @@ module Dashboard
       {
         enabled: @user.clinician?,
         csrfToken: @csrf_token,
-        conversationsPath: "/clinician/conversations",
-        conversationPathTemplate: "/clinician/conversations/__ID__",
-        conversationMessagesPathTemplate: "/clinician/conversations/__ID__/messages",
-        conversationMarkReadPathTemplate: "/clinician/conversations/__ID__/mark_read",
-        clinicalNotesPath: "/clinician/clinical_notes",
-        patientRecordsPath: "/clinician/patient_records",
-        patientRecordPathTemplate: "/clinician/patient_records/__ID__",
-        coordinationNotePath: "/clinician/coordination_note",
+        conversationsPath: clinician_conversations_path,
+        conversationPathTemplate: clinician_conversation_path("__ID__"),
+        conversationMessagesPathTemplate: clinician_conversation_messages_path("__ID__"),
+        conversationMarkReadPathTemplate: mark_read_clinician_conversation_path("__ID__"),
+        clinicalNotesPath: clinician_clinical_notes_path,
+        clinicalNotePathTemplate: clinician_clinical_note_path("__ID__"),
+        patientRecordsPath: clinician_patient_records_path,
+        patientRecordPathTemplate: clinician_patient_record_path("__ID__"),
+        coordinationNotePath: clinician_coordination_note_path,
         coordinationNoteId: latest_coordination_note&.id
       }
     end
@@ -722,7 +723,7 @@ module Dashboard
               const patient = patientMap.get(patientId);
               if (!patient) return;
               const isUpdate = Boolean(patient.clinicalNoteId);
-              const url = isUpdate ? replacePathId(`${clinicianApi.clinicalNotesPath}/__ID__`, patient.clinicalNoteId) : clinicianApi.clinicalNotesPath;
+              const url = isUpdate ? replacePathId(clinicianApi.clinicalNotePathTemplate, patient.clinicalNoteId) : clinicianApi.clinicalNotesPath;
               const response = await fetch(url, {
                 method: isUpdate ? "PATCH" : "POST",
                 headers: clinicianHeaders(),
@@ -985,9 +986,9 @@ module Dashboard
                     const patient = patientMap.get(activePatientEditId);
                     if (!patient) return;
 
-                    const prenom = patientEditPrenom ? String(patientEditPrenom.value || "").trim() : "";
-                    const nom = patientEditNom ? String(patientEditNom.value || "").trim() : "";
-                    const fullName = [prenom, nom].filter(Boolean).join(" ").trim() || patient.name;
+                    const firstName = patientEditPrenom ? String(patientEditPrenom.value || "").trim() : "";
+                    const lastName = patientEditNom ? String(patientEditNom.value || "").trim() : "";
+                    const fullName = [firstName, lastName].filter(Boolean).join(" ").trim() || patient.name;
 
                     try {
                       await persistPatientRecord(activePatientEditId, {

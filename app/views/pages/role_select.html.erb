@@ -1,0 +1,32 @@
+<%# Ecran d'accueil : choix du profil avant redirection vers /connexion (session[:login_role]). %>
+<% content_for :title, "Bienvenue | DiabetCare" %>
+
+<main class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="eyebrow">DiabetCare</p>
+      <h1>Comment souhaitez-vous acceder ?</h1>
+      <p class="hero-copy">
+        Selectionnez votre profil pour afficher l'ecran de connexion adapte. Les comptes
+        patients et soignants sont distincts.
+      </p>
+
+      <div class="form-actions" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
+        <%= button_to "Je suis patient", choose_profile_path, method: :post, params: { role: "patient" }, class: "button button-primary" %>
+        <%= button_to "Je suis soignant", choose_profile_path, method: :post, params: { role: "clinician" }, class: "button button-primary" %>
+        <%= button_to "Administration", choose_profile_path, method: :post, params: { role: "admin" }, class: "button button-secondary" %>
+      </div>
+
+      <p class="auth-hint"><%= link_to "Presentation du produit (sans connexion)", home_path %></p>
+    </section>
+
+    <aside class="auth-aside">
+      <p class="eyebrow">Pourquoi cette etape</p>
+      <h2>Une meme application, deux parcours</h2>
+      <p>
+        L'espace patient et l'espace soignant ne presentent pas les memes donnees ni les memes actions.
+        Indiquer votre profil evite les erreurs de connexion sur le mauvais type de compte.
+      </p>
+    </aside>
+  </div>
+</main>

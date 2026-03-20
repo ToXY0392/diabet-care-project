@@ -9,15 +9,23 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  root "pages#dashboard"
+  # Entree : choix patient / soignant, puis connexion sur /connexion (page marketing sur /home).
+  root "pages#role_select"
+  post "choisir-profil", to: "pages#choose_profile", as: :choose_profile
+  get "profil/retour", to: "pages#reset_login_role", as: :reset_login_role
+  get "home" => "pages#home"
   get "dashboard" => "pages#dashboard"
   resource :patient_profile, only: %i[show edit update]
-  resource :session, only: %i[new create destroy]
+  resource :session, only: %i[create destroy]
+  get "connexion", to: "sessions#new", as: :login
+  resources :password_resets, only: %i[new create edit update], param: :token
   resource :dexcom_connection, only: %i[destroy], controller: "dexcom_connections" do
     get :connect
     get :callback
     post :sync
   end
+  # Inscription patient : pose le contexte session puis redirige vers le formulaire (sans passer par le bouton d'accueil).
+  get "inscription/patient", to: "users#begin_patient_signup", as: :begin_patient_signup
   resources :users, only: %i[new create]
   resources :health_alerts, only: %i[index] do
     patch :mark_read, on: :member
@@ -43,5 +51,9 @@ Rails.application.routes.draw do
       patch :mark_read, on: :member
       resources :messages, only: :create, controller: "conversation_messages"
     end
+  end
+
+  namespace :admin do
+    resource :dashboard, only: :show, controller: "dashboards"
   end
 end

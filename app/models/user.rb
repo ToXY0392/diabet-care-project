@@ -1,6 +1,6 @@
 class User < ApplicationRecord
-  # Modele central de l'application, partage entre les parcours patient et soignant.
-  ROLES = %w[patient clinician].freeze
+  # Modele central : comptes patient, soignant clinique et admin (pilotage plateforme).
+  ROLES = %w[patient clinician admin].freeze
 
   has_secure_password
 
@@ -25,16 +25,19 @@ class User < ApplicationRecord
   has_many :medication_reminders, dependent: :destroy
 
   normalizes :email, with: ->(email) { email.strip.downcase }
+  normalizes :name, with: ->(name) { name.to_s.squish.presence }
 
   validates :role, inclusion: { in: ROLES }
-  validates :name, presence: true
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 8 }, if: -> { password.present? }
 
+  # Nom affiche par defaut a l'inscription si le champ est vide (derive de l'email).
+  before_validation :assign_default_name
   after_create_commit :ensure_patient_profile!
 
   scope :patients, -> { where(role: "patient") }
   scope :clinicians, -> { where(role: "clinician") }
+  scope :admins, -> { where(role: "admin") }
 
   def current_patient_profile
     patient_profile || build_patient_profile
@@ -48,8 +51,33 @@ class User < ApplicationRecord
     role == "clinician"
   end
 
+  def admin?
+    role == "admin"
+  end
+
+  # Jeton signe temporaire pour le lien « mot de passe oublie » (pas de colonne en base).
+  def password_reset_token
+    signed_id(purpose: "password_reset", expires_in: 30.minutes)
+  end
+
+  # Retrouve l'utilisateur a partir du parametre d'URL ; nil si expire ou falsifie.
+  def self.find_by_password_reset_token(token)
+    find_signed(token, purpose: "password_reset")
+  rescue ActiveSupport::MessageVerifier::InvalidSignature
+    nil
+  end
+
   private
 
+  def assign_default_name
+    return if name.present?
+    return if email.blank?
+
+    local_part = email.to_s.split("@").first.to_s.tr("._-", " ").squish
+    self.name = local_part.present? ? local_part.split.map(&:capitalize).join(" ") : "Utilisateur DiabetCare"
+  end
+
+  # Cree le profil glycemique par defaut des la creation d'un compte patient.
   def ensure_patient_profile!
     create_patient_profile! if patient? && !patient_profile
   end

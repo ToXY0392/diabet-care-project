@@ -1,11 +1,24 @@
+<%# Formulaire de connexion : libelle et comptes demo selon session[:login_role] (patient / clinician / admin). %>
 <% content_for :title, "Connexion | DiabetCare" %>
+<% role = session[:login_role].to_s %>
 
 <main class="auth-page">
   <div class="auth-layout">
     <section class="auth-card">
       <p class="eyebrow">Connexion</p>
-      <h1>Acceder a votre espace</h1>
-      <p class="hero-copy">Utilisez le compte de demonstration ou creez votre compte patient.</p>
+      <% if role == "patient" %>
+        <h1>Acceder a votre espace patient</h1>
+        <p class="hero-copy">Connectez-vous pour suivre vos mesures, repas, traitements et alertes.</p>
+      <% elsif role == "clinician" %>
+        <h1>Acceder a votre espace soignant</h1>
+        <p class="hero-copy">Connectez-vous pour le suivi clinique, les echanges et le planning.</p>
+      <% elsif role == "admin" %>
+        <h1>Acceder a l'administration</h1>
+        <p class="hero-copy">Connexion reservee aux comptes de pilotage de la plateforme.</p>
+      <% else %>
+        <h1>Acceder a votre espace</h1>
+        <p class="hero-copy">Utilisez le compte de demonstration ou creez votre compte patient.</p>
+      <% end %>
 
       <%= form_with url: session_path, class: "reading-form" do |form| %>
         <div>
@@ -20,32 +33,55 @@
 
         <div class="form-actions">
           <%= form.submit "Se connecter", class: "button button-primary" %>
-          <%= link_to "Creer un compte", new_user_path, class: "button button-secondary" %>
+          <% if role == "patient" %>
+            <%= link_to "Creer un compte", new_user_path, class: "button button-secondary" %>
+          <% end %>
         </div>
       <% end %>
 
-      <p class="auth-hint">Compte demo: <strong>demo@diabetcare.local</strong> / <strong>password123</strong></p>
+      <% if role == "patient" %>
+        <p class="auth-hint">Compte demo patient: <strong>demo@diabetcare.local</strong> / <strong>password123</strong></p>
+      <% elsif role == "clinician" %>
+        <p class="auth-hint">Compte demo soignant: <strong>clinician@diabetcare.local</strong> / <strong>password123</strong></p>
+      <% elsif role == "admin" %>
+        <p class="auth-hint">Compte demo admin: <strong>admin@diabetcare.local</strong> / <strong>password123</strong></p>
+      <% end %>
+      <p class="auth-hint"><%= link_to "Mot de passe oublie ?", new_password_reset_path %></p>
+      <p class="auth-hint"><%= link_to "Changer de profil (patient / soignant / admin)", reset_login_role_path %></p>
     </section>
 
     <aside class="auth-aside">
-      <p class="eyebrow">Espace patient</p>
-      <h2>Suivez vos donnees au meme endroit</h2>
-      <p>Retrouvez votre glycemie, vos repas, vos traitements recurrents, vos alertes intelligentes et votre journal personnel.</p>
-
-      <ul class="feature-list">
-        <li>
-          <strong>Dashboard unifie</strong>
-          Un point d'entree unique pour les indicateurs, l'observance et les tendances.
-        </li>
-        <li>
-          <strong>Alertes et objectifs personnalises</strong>
-          Les seuils et notifications s'adaptent a votre profil sante.
-        </li>
-        <li>
-          <strong>Journal patient</strong>
-          Conservez vos symptomes, votre activite et votre humeur pour contextualiser vos valeurs.
-        </li>
-      </ul>
+      <% if role == "clinician" %>
+        <p class="eyebrow">Espace soignant</p>
+        <h2>Coordination et suivi clinique</h2>
+        <p>Accedez aux conversations, notes cliniques, rendez-vous et fiches patients alignees sur vos outils habituels.</p>
+        <ul class="feature-list">
+          <li><strong>Fil de messages</strong> securise avec les patients suivis.</li>
+          <li><strong>Vue synthetique</strong> des alertes et du planning.</li>
+        </ul>
+      <% elsif role == "admin" %>
+        <p class="eyebrow">Administration</p>
+        <h2>Pilotage de la plateforme</h2>
+        <p>Tableau de bord dedie aux indicateurs globaux et a la supervision des comptes.</p>
+      <% else %>
+        <p class="eyebrow">Espace patient</p>
+        <h2>Suivez vos donnees au meme endroit</h2>
+        <p>Retrouvez votre glycemie, vos repas, vos traitements recurrents, vos alertes intelligentes et votre journal personnel.</p>
+        <ul class="feature-list">
+          <li>
+            <strong>Dashboard unifie</strong>
+            Un point d'entree unique pour les indicateurs, l'observance et les tendances.
+          </li>
+          <li>
+            <strong>Alertes et objectifs personnalises</strong>
+            Les seuils et notifications s'adaptent a votre profil sante.
+          </li>
+          <li>
+            <strong>Journal patient</strong>
+            Conservez vos symptomes, votre activite et votre humeur pour contextualiser vos valeurs.
+          </li>
+        </ul>
+      <% end %>
     </aside>
   </div>
 </main>

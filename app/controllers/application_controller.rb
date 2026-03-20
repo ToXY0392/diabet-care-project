@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
 
   before_action :require_login
 
-  helper_method :current_user, :logged_in?
+  helper_method :current_user, :logged_in?, :after_authentication_path
 
   private
 
@@ -17,15 +17,29 @@ class ApplicationController < ActionController::Base
     current_user.present?
   end
 
+  # Redirige vers la racine : ecran de choix patient / soignant, puis connexion (pas /connexion direct).
   def require_login
     return if logged_in?
 
-    redirect_to new_session_path, alert: "Connectez-vous pour acceder a DiabetCare."
+    redirect_to root_path, alert: "Connectez-vous pour acceder a DiabetCare."
   end
 
   def require_clinician
     return if current_user&.clinician?
 
     redirect_to dashboard_path, alert: "Cet espace est reserve aux soignants."
+  end
+
+  def require_admin
+    return if current_user&.admin?
+
+    redirect_to after_authentication_path, alert: "Cet espace est reserve a l'administration."
+  end
+
+  # Destination apres connexion ou inscription : admin -> dashboard admin, sinon maquette dashboard.
+  def after_authentication_path(user = current_user)
+    return admin_dashboard_path if user&.admin?
+
+    dashboard_path
   end
 end

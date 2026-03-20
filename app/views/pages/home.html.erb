@@ -1,69 +1,59 @@
-<% content_for :title, "Dashboard | DiabetCare" %>
+<%# Page marketing publique (/home) : presentation produit sans passer par le choix de profil. %>
+<% content_for :title, "DiabetCare | Suivi diabetique connecte" %>
 
-<main class="dashboard-page">
-  <section class="dashboard-hero">
-    <div>
-      <p class="eyebrow">Dashboard patient</p>
-      <h1>Bonjour <%= @patient_name %>, voici votre journee.</h1>
+<main class="auth-page">
+  <div class="auth-layout">
+    <section class="auth-card">
+      <p class="eyebrow">Plateforme patient et soignant</p>
+      <h1>Centralisez le suivi diabetique, les alertes et la coordination clinique.</h1>
       <p class="hero-copy">
-        Retrouvez vos indicateurs clefs, vos rappels importants et les prochains
-        points de suivi au meme endroit.
+        DiabetCare rassemble les mesures glycemiques, les repas, les traitements, le journal patient,
+        les alertes intelligentes et un espace soignant connecte a Dexcom.
       </p>
-    </div>
 
-    <div class="hero-panel">
-      <span class="hero-label">Statut du jour</span>
-      <strong>Suivi global stable</strong>
-      <p>Derniere synchronisation il y a 5 minutes.</p>
-    </div>
-  </section>
-
-  <section class="summary-grid">
-    <% @summary_cards.each do |card| %>
-      <article class="summary-card">
-        <p class="summary-label"><%= card[:label] %></p>
-        <p class="summary-value"><%= card[:value] %></p>
-        <p class="summary-trend summary-trend--<%= card[:tone] %>"><%= card[:trend] %></p>
-      </article>
-    <% end %>
-  </section>
-
-  <section class="dashboard-grid">
-    <article class="panel">
-      <div class="panel-header">
-        <h2>Planning du jour</h2>
-        <span>Aujourd'hui</span>
+      <div class="form-actions">
+        <%= link_to "Se connecter", root_path, class: "button button-primary" %>
+        <%= link_to "Creer un compte patient", begin_patient_signup_path, class: "button button-secondary" %>
       </div>
 
-      <div class="timeline">
-        <% @today_timeline.each do |item| %>
-          <div class="timeline-item">
-            <p class="timeline-time"><%= item[:time] %></p>
-            <div>
-              <h3><%= item[:title] %></h3>
-              <p><%= item[:detail] %></p>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </article>
-
-    <article class="panel">
-      <div class="panel-header">
-        <h2>Points d'attention</h2>
-        <span>Analyse rapide</span>
-      </div>
-
-      <ul class="insight-list">
-        <% @insights.each do |insight| %>
-          <li><%= insight %></li>
-        <% end %>
+      <ul class="feature-list">
+        <li>
+          <strong>Dashboard patient en temps reel</strong>
+          Mesures, tendances, rappels et contexte de vie sont visibles au meme endroit.
+        </li>
+        <li>
+          <strong>Espace soignant persistant</strong>
+          Conversations, notes cliniques, rendez-vous et coordination sont relies a des donnees Rails reelles.
+        </li>
+        <li>
+          <strong>Integration Dexcom</strong>
+          Le flux OAuth Dexcom permet de connecter un capteur CGM et d'importer les donnees de suivi.
+        </li>
       </ul>
+    </section>
 
-      <div class="next-step">
-        <p class="next-step-label">Prochaine evolution utile</p>
-        <p>Connecter ces widgets a de vraies donnees de glycemie, repas et traitements.</p>
-      </div>
-    </article>
-  </section>
+    <aside class="auth-aside">
+      <p class="eyebrow">Demonstration</p>
+      <h2>Une proposition de valeur lisible des l'entree</h2>
+      <p>
+        L'application repond a un besoin simple : aider les patients a mieux suivre leur diabete
+        tout en donnant aux soignants une vue exploitable pour prioriser les actions de suivi.
+      </p>
+
+      <ul class="feature-list">
+        <li>
+          <strong>Compte patient demo</strong>
+          `demo@diabetcare.local` / `password123`
+        </li>
+        <li>
+          <strong>Compte soignant demo</strong>
+          `clinician@diabetcare.local` / `password123`
+        </li>
+        <li>
+          <strong>Compte admin demo</strong>
+          `admin@diabetcare.local` / `password123`
+        </li>
+      </ul>
+    </aside>
+  </div>
 </main>
