@@ -1036,13 +1036,20 @@
       }
 
       .soignant-app .thread-message {
+        box-sizing: border-box;
         max-width: min(78%, 640px);
+        width: fit-content;
+        align-self: flex-start;
         padding: 14px 16px;
         background: var(--sky-50);
         border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow-wrap: anywhere;
+        word-wrap: break-word;
       }
 
       .soignant-app .thread-message.me {
+        align-self: flex-end;
         margin-left: auto;
         background: var(--mint-100);
         border-color: rgba(16, 185, 129, 0.18);
@@ -1056,6 +1063,8 @@
       .soignant-app .thread-message p {
         margin: 0;
         line-height: 1.6;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .soignant-app .thread-message span {
@@ -1066,20 +1075,26 @@
       }
 
       .soignant-app .thread-form {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 14px;
-        padding: 18px 24px 24px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 16px 10px;
         border-top: 1px solid var(--line);
       }
 
       .soignant-app .thread-form textarea {
+        flex: 1;
+        min-width: 0;
         width: 100%;
-        min-height: 64px;
+        min-height: 44px;
+        height: 44px;
+        max-height: 120px;
         resize: vertical;
         border: 1px solid var(--line);
         border-radius: 18px;
-        padding: 16px;
+        padding: 10px 14px;
+        line-height: 22px;
         background: white;
         outline: none;
       }
@@ -1215,11 +1230,13 @@
         }
 
         .soignant-app .thread-form {
-          grid-template-columns: 1fr;
+          flex-direction: column;
+          align-items: stretch;
         }
 
         .soignant-app .thread-message {
           max-width: 100%;
+          width: fit-content;
         }
       }
 
@@ -1626,6 +1643,8 @@
         padding: 10px 12px;
         font-size: 14px;
         font-family: inherit;
+        line-height: 1.4;
+        min-height: 44px;
         resize: none;
       }
 
@@ -4262,15 +4281,21 @@
       }
 
       .thread-message {
+        box-sizing: border-box;
         max-width: min(78%, 640px);
+        width: fit-content;
+        align-self: flex-start;
         padding: 14px 16px;
         background: var(--mint-50);
         border: 1px solid var(--line);
         border-radius: 18px;
         box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
+        overflow-wrap: anywhere;
+        word-wrap: break-word;
       }
 
       .thread-message.me {
+        align-self: flex-end;
         margin-left: auto;
         background: linear-gradient(135deg, var(--mint-100), rgba(236, 253, 245, 0.9));
         border-color: rgba(16, 185, 129, 0.28);
@@ -4285,6 +4310,8 @@
       .thread-message p {
         margin: 0;
         line-height: 1.6;
+        max-width: 100%;
+        min-width: 0;
       }
 
       .thread-message span {
@@ -4294,13 +4321,15 @@
         font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.02em;
+        max-width: 100%;
       }
 
       .thread-form {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
         gap: 10px;
-        padding: 12px 18px 16px;
+        padding: 8px 14px 10px;
         border-top: 1px solid rgba(16, 185, 129, 0.20);
         border-radius: 20px;
         background: linear-gradient(
@@ -4311,15 +4340,19 @@
       }
 
       .thread-form textarea {
+        flex: 1;
+        min-width: 0;
         width: 100%;
-        height: 38px;
-        min-height: 38px;
+        /* Une ligne : padding vertical + line-height = hauteur pour centrer le texte */
+        min-height: 44px;
+        height: 44px;
         max-height: 96px;
         resize: none;
         overflow: auto;
         border: 1px solid var(--line);
         border-radius: 18px;
-        padding: 12px 14px;
+        padding: 10px 14px;
+        line-height: 22px;
         background: #ffffff;
         outline: none;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -4336,9 +4369,9 @@
       }
 
       .thread-form .primary-button {
-        height: 36px;
-        align-self: end;
-        width: 36px;
+        height: 44px;
+        width: 44px;
+        flex-shrink: 0;
         padding: 0;
         display: flex;
         align-items: center;
@@ -4680,11 +4713,17 @@
         }
 
         .thread-form {
-          grid-template-columns: 1fr;
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .thread-form .primary-button {
+          align-self: flex-end;
         }
 
         .thread-message {
           max-width: 100%;
+          width: fit-content;
         }
       }
     </style>
@@ -6394,7 +6433,7 @@
           threadInput.disabled = false;
           threadInput.placeholder = "";
         }
-        if (threadForm) threadForm.style.display = "grid";
+        if (threadForm) threadForm.style.display = "";
       }
 
       function updateMessageCounters() {
