@@ -35,6 +35,13 @@
         --card-bg: rgba(255, 255, 255, 0.9);
         --card-border: rgba(148, 163, 184, 0.2);
         --shadow-soft: 0 24px 45px rgba(15, 23, 42, 0.08);
+        /* Fond canvas unique (reference = espace soignant) — body / mode phone / template injecte */
+        --app-canvas-bg:
+          radial-gradient(circle at top left, #ccfbf1 0%, transparent 45%),
+          radial-gradient(circle at 85% 15%, #fde68a 0%, transparent 40%),
+          radial-gradient(circle at 15% 85%, #fde68a 0%, transparent 40%),
+          radial-gradient(circle at 85% 85%, #ccfbf1 0%, transparent 45%),
+          linear-gradient(135deg, #ecfdf5 0%, #fffbeb 100%);
       }
 
       * {
@@ -45,12 +52,10 @@
         margin: 0;
         font-family: "Manrope", sans-serif;
         color: var(--ink-900);
-        background:
-          radial-gradient(circle at top left, #e0f2fe 0%, transparent 45%),
-          radial-gradient(circle at 85% 15%, #fde68a 0%, transparent 40%),
-          linear-gradient(135deg, #f8fafc 0%, #ecfdf5 100%);
+        background: var(--app-canvas-bg);
       }
 
+      /* Mode smartphone : meme fond canvas que la vue patient */
       body.phone {
         display: flex;
         justify-content: center;
@@ -58,10 +63,7 @@
         padding: 16px;
         height: 100dvh;
         overflow: hidden;
-        background:
-          radial-gradient(circle at 20% 10%, rgba(15, 23, 42, 0.7), transparent 45%),
-          radial-gradient(circle at 85% 30%, rgba(15, 23, 42, 0.6), transparent 40%),
-          #0b1120;
+        background: var(--app-canvas-bg);
       }
 
       .page {
@@ -81,10 +83,7 @@
         border: 1px solid rgba(148, 163, 184, 0.35);
         box-shadow: 0 30px 80px rgba(15, 23, 42, 0.45);
         overflow: hidden;
-        background:
-          radial-gradient(circle at top left, #e0f2fe 0%, transparent 45%),
-          radial-gradient(circle at 85% 15%, #fde68a 0%, transparent 40%),
-          linear-gradient(135deg, #f8fafc 0%, #ecfdf5 100%);
+        background: var(--app-canvas-bg);
       }
 
       body.phone .hero {
@@ -103,28 +102,6 @@
 
       body.phone .footer-note {
         display: none;
-      }
-
-      .phone-toggle {
-        position: fixed;
-        top: 18px;
-        right: 18px;
-        z-index: 30;
-        border: 0;
-        padding: 10px 16px;
-        border-radius: 999px;
-        font-weight: 700;
-        font-size: 12px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: white;
-        background: #0f172a;
-        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.25);
-        cursor: pointer;
-      }
-
-      body.phone .phone-toggle {
-        background: var(--mint-700);
       }
 
       .hero {
@@ -261,10 +238,7 @@
         margin: 0;
         font-family: "Manrope", sans-serif;
         color: var(--text);
-        background:
-          radial-gradient(circle at top left, #e0f2fe 0%, transparent 45%),
-          radial-gradient(circle at 85% 15%, #fde68a 0%, transparent 40%),
-          linear-gradient(135deg, #f8fafc 0%, #ecfdf5 100%);
+        background: var(--app-canvas-bg);
       }
 
       .soignant-app button, .soignant-app input, .soignant-app textarea {
@@ -2114,9 +2088,6 @@
     </style>
   </head>
   <body>
-    <button class="phone-toggle" type="button" aria-pressed="false">
-      Mode smartphone
-    </button>
     <main class="page">
       <section class="hero">
         <div class="hero-copy">
@@ -2568,6 +2539,13 @@
         --radius-lg: 22px;
         --radius-md: 18px;
         --radius-sm: 14px;
+        /* Meme fond canvas soignant que le doc principal */
+        --app-canvas-bg:
+          radial-gradient(circle at top left, #ccfbf1 0%, transparent 45%),
+          radial-gradient(circle at 85% 15%, #fde68a 0%, transparent 40%),
+          radial-gradient(circle at 15% 85%, #fde68a 0%, transparent 40%),
+          radial-gradient(circle at 85% 85%, #ccfbf1 0%, transparent 45%),
+          linear-gradient(135deg, #ecfdf5 0%, #fffbeb 100%);
       }
 
       * {
@@ -2594,12 +2572,7 @@
         margin: 0;
         font-family: "Manrope", sans-serif;
         color: var(--text);
-        background:
-          radial-gradient(circle at top left, #ccfbf1 0%, transparent 45%),
-          radial-gradient(circle at 85% 15%, #fde68a 0%, transparent 40%),
-          radial-gradient(circle at 15% 85%, #fde68a 0%, transparent 40%),
-          radial-gradient(circle at 85% 85%, #ccfbf1 0%, transparent 45%),
-          linear-gradient(135deg, #ecfdf5 0%, #fffbeb 100%);
+        background: var(--app-canvas-bg);
         -webkit-user-select: text;
         user-select: text;
       }
@@ -8007,12 +7980,6 @@
       window.addEventListener("popstate", () => {
         applyDashboardFromLocation();
       });
-
-      if (phoneToggle) {
-        phoneToggle.addEventListener("click", () => {
-          setPhoneMode(!isPhone, { historyMode: "push", resetPatientOnEnable: true });
-        });
-      }
     </script>
   </body>
 </html>
