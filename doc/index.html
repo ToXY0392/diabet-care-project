@@ -7533,6 +7533,8 @@
         url.search = "";
         if (isPhone) {
           url.searchParams.set("phone", "1");
+        } else if (currentView === "patient") {
+          url.searchParams.set("desktop", "1");
         }
         if (currentView === "soignant") {
           url.searchParams.set("view", "soignant");
@@ -7581,8 +7583,11 @@
 
       function applyDashboardFromLocationCore() {
         const p = new URL(window.location.href).searchParams;
-        const wantPhone = p.has("phone") || p.has("mobile");
         const wantSoignant = p.get("view") === "soignant" || p.get("soignant") === "1";
+        /* Smartphone par defaut pour l'espace patient ; ?desktop=1 pour le mode bureau ; soignant sans telephone */
+        const wantPhone =
+          !wantSoignant &&
+          (p.has("phone") || p.has("mobile") || p.get("desktop") !== "1");
         const page = p.get("page") || "overview";
         const conv = p.get("conv");
 
