@@ -115,7 +115,7 @@ diabet-care-project/
 
 - Rails est l'unique runtime applicatif du projet
 - les parcours patient sont disponibles pour le suivi glycemique, les repas, le journal, le profil et les alertes
-- l'authentification par mot de passe et les roles `patient` / `clinician` sont en place
+- l'authentification par mot de passe et les roles `patient` / `clinician` sont en place ; le parcours commence par `/` (choix du profil) puis `/connexion` ; apres login : patient → `/dashboard?phone=1`, clinicien → `/dashboard?view=soignant`, admin → `/admin/dashboard`
 - le dashboard visuel s'appuie sur la maquette HTML source tout en affichant des donnees Rails reelles
 - le domaine soignant persiste les patients suivis, conversations, messages, rendez-vous, notes cliniques et notes de coordination
 - les actions principales de la maquette soignant sont reliees aux endpoints Rails persistants

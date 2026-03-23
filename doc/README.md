@@ -20,7 +20,7 @@ DiabetCare est une application Rails de suivi diabetique avec deux espaces :
 
 L'application fournit aujourd'hui :
 
-- l'authentification avec roles `patient` et `clinician`
+- l'authentification avec roles `patient` et `clinician` (voir section **Parcours d'authentification** ci-dessous)
 - un dashboard patient et un dashboard soignant rendus depuis Rails
 - la gestion des glycemies, repas, journal et rappels medicamenteux
 - un domaine soignant persistant pour les rendez-vous, conversations, messages et notes
@@ -30,7 +30,7 @@ L'application fournit aujourd'hui :
 
 ### Cote patient
 
-- inscription et connexion
+- inscription et connexion (ecran d'accueil `/` avec choix du profil, puis `/connexion` ; apres login : `/dashboard?phone=1` par defaut)
 - dashboard personnalise
 - saisie et consultation des `glucose_readings`
 - suivi des repas via `meals`
@@ -50,12 +50,27 @@ L'application fournit aujourd'hui :
 - note de coordination globale
 - persistance des modales de fiche patient
 
+## Parcours d'authentification
+
+- **`/`** : selection **patient** ou **soignant** (POST `choisir-profil`), lien **Accès administration**, presentation produit sur `/home`.
+- **`/connexion`** : formulaire selon le role choisi ; le lien **Changer d'espace** reinitialise le role (`GET /profil/retour`).
+- **Redirection post-login** : patient → **`/dashboard?phone=1`** (maquette en mode smartphone par defaut) ; clinicien → **`/dashboard?view=soignant`** ; admin → **`/admin/dashboard`**.
+- **UI Rails** : les ecrans accueil + connexion utilisent un **cadre ~390px** centre (`auth-page--phone`, `application.css`), coherent visuellement avec le `main.page` de la maquette.
+
+## Maquette HTML (`index.html`)
+
+- Fichier de reference : `index.html` dans ce dossier ; injection des donnees Rails via `DiabetCare/app/services/dashboard/mockup_renderer.rb`.
+- **Fond** : variable **`--app-canvas-bg`** (meme reference que l'espace soignant dans la feuille de style de la maquette).
+- **Patient** : mode telephone active par defaut dans le script ; **`?desktop=1`** pour la vue patient « bureau ». **Soignant** : **`?view=soignant`** (pas de mode telephone sur ce flux).
+- Pas de bouton de bascule telephone / bureau : reglage via **URL** uniquement.
+
 ## API et routes actives
 
 L'application expose des routes HTML et des endpoints JSON internes.
 
 ### Routes principales
 
+- `GET /` (choix du profil), `GET /connexion`, `POST /choisir-profil`
 - `GET /dashboard`
 - `resource /session`
 - `resource /patient_profile`
