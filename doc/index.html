@@ -2301,7 +2301,7 @@
             </div>
 
             <div class="patient-page hidden" data-page="messages">
-              <div class="messages-grid">
+              <div class="messages-grid" id="patient-messages-grid">
                 <div class="card conversation-list-card">
                   <div class="page-header">
                     <div>
@@ -7399,10 +7399,120 @@
       let soignantMutationObserver = null;
       let soignantResizeTimer = null;
 
-      /** Déclarés avant applyDashboardFromLocation (évite toute ambiguïté TDZ / ordre d’exécution). */
-      const conversationButtons = document.querySelectorAll(".conversation-item");
-      const conversationThreads = document.querySelectorAll(".conversation-thread");
-      const messagesGrid = document.querySelector(".messages-grid");
+      /** Remplacé par Dashboard::MockupRenderer quand le dashboard est servi par Rails (patient). */
+      let patientMessagingApi = { enabled: false, csrfToken: "", conversationsPath: "", conversationMessagesPathTemplate: "", conversationMarkReadPathTemplate: "" };
+
+      function replacePatientApiPath(template, id) {
+        return String(template || "").replace("__ID__", String(id));
+      }
+      function patientApiHeaders() {
+        return {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-CSRF-Token": patientMessagingApi.csrfToken || ""
+        };
+      }
+
+      function escapePatientMessagingHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      async function hydratePatientMessagingFromRails() {
+        if (!patientMessagingApi.enabled || !messagesGrid) return;
+        try {
+          const res = await fetch(patientMessagingApi.conversationsPath, {
+            headers: { Accept: "application/json" },
+            credentials: "same-origin"
+          });
+          if (!res.ok) return;
+          const rows = await res.json();
+          if (!Array.isArray(rows) || rows.length === 0) {
+            messagesGrid.innerHTML =
+              '<div class="card" style="grid-column:1/-1;"><p class="muted" style="padding:24px;">Aucune conversation pour le moment. Votre équipe soignante peut vous écrire depuis l’espace clinicien.</p></div>';
+            return;
+          }
+
+          const listItems = rows
+            .map((row) => {
+              const convKey = `c-${row.id}`;
+              const preview = escapePatientMessagingHtml(row.last_message_preview || "…");
+              const title = escapePatientMessagingHtml(row.clinician_name || "Soignant");
+              return `<button class="conversation-item" type="button" data-conversation="${convKey}" data-server-conversation-id="${row.id}">
+                <span class="title">${title}</span>
+                <span class="preview">${preview}</span>
+              </button>`;
+            })
+            .join("");
+
+          const threads = rows
+            .map((row) => {
+              const convKey = `c-${row.id}`;
+              const msgs = Array.isArray(row.messages) ? row.messages : [];
+              const bubbles = msgs
+                .map((m) => {
+                  const body = escapePatientMessagingHtml(m.body).replace(/\n/g, "<br>");
+                  const who = m.mine ? "Vous" : escapePatientMessagingHtml(m.author_name || "Soignant");
+                  const t = m.sent_at
+                    ? new Date(m.sent_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })
+                    : "";
+                  const bubbleClass = m.mine ? "message-bubble you" : "message-bubble";
+                  return `<div class="${bubbleClass}">${body}<div class="message-meta">${who} · ${t}</div></div>`;
+                })
+                .join("");
+              const title = escapePatientMessagingHtml(row.clinician_name || "Soignant");
+              const unread = Number(row.unread_count || 0) > 0 ? `<span class="pill amber">${row.unread_count} nouveau(x)</span>` : `<span class="pill mint">Lu</span>`;
+              return `<div class="card conversation-thread hidden" data-conversation="${convKey}" data-server-conversation-id="${row.id}">
+                <div class="page-header">
+                  <div>
+                    <div class="label">Discussion</div>
+                    <strong>${title}</strong>
+                  </div>
+                  <div class="row" style="gap: 8px;">
+                    <button class="thread-back" type="button">Retour</button>
+                    ${unread}
+                  </div>
+                </div>
+                <div class="divider"></div>
+                <div class="message-list">${bubbles}</div>
+                <form class="message-form" data-server-conversation-id="${row.id}">
+                  <textarea name="message" placeholder="Écrire un message…" rows="1" autocomplete="on"></textarea>
+                  <button type="submit">Envoyer</button>
+                </form>
+              </div>`;
+            })
+            .join("");
+
+          messagesGrid.innerHTML = `
+            <div class="card conversation-list-card">
+              <div class="page-header">
+                <div>
+                  <div class="label">Conversations</div>
+                  <strong>Vos échanges avec l’équipe soignante</strong>
+                </div>
+                <span class="pill mint">${rows.length} fil(s)</span>
+              </div>
+              <div class="divider"></div>
+              <div class="conversation-list">${listItems}</div>
+            </div>
+            ${threads}
+          `;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      /** Grille messagerie patient (sélecteurs rejoués après hydratation Rails). */
+      const messagesGrid = document.getElementById("patient-messages-grid") || document.querySelector(".messages-grid");
+      function patientConversationThreads() {
+        return messagesGrid ? messagesGrid.querySelectorAll(".conversation-thread") : document.querySelectorAll(".conversation-thread");
+      }
+      function patientConversationButtons() {
+        return messagesGrid ? messagesGrid.querySelectorAll(".conversation-item") : document.querySelectorAll(".conversation-item");
+      }
 
       function buildDashboardUrl() {
         // Ne pas concaténer origin + pathname : avec file:// ou certaines origines, cela peut
@@ -7475,8 +7585,8 @@
           if (messagesGrid) {
             messagesGrid.classList.remove("thread-open");
           }
-          conversationThreads.forEach((thread) => thread.classList.add("hidden"));
-          conversationButtons.forEach((btn) => btn.classList.remove("active"));
+          patientConversationThreads().forEach((thread) => thread.classList.add("hidden"));
+          patientConversationButtons().forEach((btn) => btn.classList.remove("active"));
           setView("patient");
           setPatientPage(page, { skipHistory: true });
           if (page === "messages" && conv) {
@@ -7484,8 +7594,8 @@
           } else {
             activeConversationId = null;
             if (page === "messages") {
-              conversationThreads.forEach((thread) => thread.classList.add("hidden"));
-              conversationButtons.forEach((btn) => btn.classList.remove("active"));
+              patientConversationThreads().forEach((thread) => thread.classList.add("hidden"));
+              patientConversationButtons().forEach((btn) => btn.classList.remove("active"));
               if (messagesGrid) messagesGrid.classList.remove("thread-open");
             }
           }
@@ -7522,8 +7632,8 @@
         } else {
           activeConversationId = null;
           if (page === "messages") {
-            conversationThreads.forEach((thread) => thread.classList.add("hidden"));
-            conversationButtons.forEach((btn) => btn.classList.remove("active"));
+            patientConversationThreads().forEach((thread) => thread.classList.add("hidden"));
+            patientConversationButtons().forEach((btn) => btn.classList.remove("active"));
             if (messagesGrid) messagesGrid.classList.remove("thread-open");
           }
         }
@@ -7544,8 +7654,8 @@
           if (messagesGrid) {
             messagesGrid.classList.remove("thread-open");
           }
-          conversationThreads.forEach((thread) => thread.classList.add("hidden"));
-          conversationButtons.forEach((btn) => btn.classList.remove("active"));
+          patientConversationThreads().forEach((thread) => thread.classList.add("hidden"));
+          patientConversationButtons().forEach((btn) => btn.classList.remove("active"));
           activeConversationId = null;
         }
         if (enabled) {
@@ -7742,11 +7852,11 @@
       function setConversation(id, options = {}) {
         const { skipHistory = false, historyMode = "push" } = options;
         activeConversationId = id || null;
-        conversationThreads.forEach((thread) => {
+        patientConversationThreads().forEach((thread) => {
           const isActive = thread.dataset.conversation === id;
           thread.classList.toggle("hidden", !isActive);
         });
-        conversationButtons.forEach((button) => {
+        patientConversationButtons().forEach((button) => {
           button.classList.toggle("active", button.dataset.conversation === id);
         });
         if (isPhone && messagesGrid) {
@@ -7757,26 +7867,46 @@
         }
       }
 
-      conversationButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          setConversation(button.dataset.conversation, { skipHistory: false, historyMode: "push" });
+      if (messagesGrid) {
+        messagesGrid.addEventListener("click", (event) => {
+          const item = event.target.closest(".conversation-item");
+          if (item && messagesGrid.contains(item)) {
+            const id = item.dataset.conversation;
+            setConversation(id, { skipHistory: false, historyMode: "push" });
+            const sid = item.dataset.serverConversationId;
+            if (patientMessagingApi.enabled && sid) {
+              fetch(replacePatientApiPath(patientMessagingApi.conversationMarkReadPathTemplate, sid), {
+                method: "PATCH",
+                headers: patientApiHeaders(),
+                credentials: "same-origin"
+              }).catch(() => {});
+            }
+            return;
+          }
+          const back = event.target.closest(".thread-back");
+          if (back && messagesGrid.contains(back)) {
+            if (messagesGrid) messagesGrid.classList.remove("thread-open");
+            patientConversationThreads().forEach((thread) => thread.classList.add("hidden"));
+            patientConversationButtons().forEach((btn) => btn.classList.remove("active"));
+            activeConversationId = null;
+            commitDashboardHistory("push");
+          }
         });
-      });
 
-      const backButtons = document.querySelectorAll(".thread-back");
-      backButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          if (messagesGrid) messagesGrid.classList.remove("thread-open");
-          conversationThreads.forEach((thread) => thread.classList.add("hidden"));
-          conversationButtons.forEach((btn) => btn.classList.remove("active"));
-          activeConversationId = null;
-          commitDashboardHistory("push");
+        messagesGrid.addEventListener("click", (event) => {
+          const bubble = event.target.closest(".message-bubble");
+          if (!bubble || !messagesGrid.contains(bubble)) return;
+          const thread = bubble.closest(".conversation-thread");
+          if (!thread) return;
+          const input = thread.querySelector("textarea[name='message']");
+          if (!input) return;
+          input.focus({ preventScroll: true });
+          input.scrollIntoView({ behavior: "smooth", block: "center" });
         });
-      });
 
-      const messageForms = document.querySelectorAll(".message-form");
-      messageForms.forEach((form) => {
-        form.addEventListener("submit", (event) => {
+        messagesGrid.addEventListener("submit", async (event) => {
+          const form = event.target.closest(".message-form");
+          if (!form || !messagesGrid.contains(form)) return;
           event.preventDefault();
           const input = form.querySelector("textarea[name='message']");
           if (!input || !input.value.trim()) return;
@@ -7785,36 +7915,55 @@
           const list = thread ? thread.querySelector(".message-list") : null;
           if (!list) return;
 
+          if (patientMessagingApi.enabled) {
+            const sid = form.dataset.serverConversationId || thread?.dataset.serverConversationId;
+            if (!sid) return;
+            try {
+              const res = await fetch(replacePatientApiPath(patientMessagingApi.conversationMessagesPathTemplate, sid), {
+                method: "POST",
+                headers: patientApiHeaders(),
+                credentials: "same-origin",
+                body: JSON.stringify({ clinician_message: { body: text } })
+              });
+              if (!res.ok) throw new Error("send");
+              const payload = await res.json();
+              const bubble = document.createElement("div");
+              bubble.className = "message-bubble you";
+              bubble.textContent = text;
+              const meta = document.createElement("div");
+              meta.className = "message-meta";
+              meta.textContent = `Vous · ${new Date(payload.sent_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+              bubble.appendChild(meta);
+              list.appendChild(bubble);
+              input.value = "";
+              list.scrollTop = list.scrollHeight;
+            } catch {
+              window.alert("Impossible d'envoyer le message pour le moment.");
+            }
+            return;
+          }
+
           const bubble = document.createElement("div");
           bubble.className = "message-bubble you";
           bubble.textContent = text;
-
           const meta = document.createElement("div");
           meta.className = "message-meta";
           const now = new Date();
-          const time = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-          meta.textContent = `Vous · ${time}`;
-
+          meta.textContent = `Vous · ${now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
           bubble.appendChild(meta);
           list.appendChild(bubble);
           input.value = "";
           list.scrollTop = list.scrollHeight;
         });
-      });
+      }
 
-      conversationThreads.forEach((thread) => {
-        thread.addEventListener("click", (event) => {
-          const bubble = event.target.closest(".message-bubble");
-          if (!bubble) return;
-          const input = thread.querySelector("textarea[name='message']");
-          if (!input) return;
-          input.focus({ preventScroll: true });
-          input.scrollIntoView({ behavior: "smooth", block: "center" });
-        });
-      });
-
-      applyDashboardFromLocation();
-      commitDashboardHistory("replace");
+      (async () => {
+        if (patientMessagingApi.enabled) {
+          await hydratePatientMessagingFromRails();
+        }
+        applyDashboardFromLocation();
+        commitDashboardHistory("replace");
+      })();
 
       window.addEventListener("popstate", () => {
         applyDashboardFromLocation();
