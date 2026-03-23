@@ -9,7 +9,7 @@
 
 Application de suivi diabetique maintenant centree sur Ruby on Rails.
 
-La version fonctionnelle de l'application vit dans `../`. Le dossier `doc/` du depot Git sert a documenter l'etat produit, la reference visuelle et les points d'entree utiles pour comprendre l'application telle qu'elle fonctionne aujourd'hui.
+La version fonctionnelle de l'application vit dans `../DiabetCare/`. Le dossier `doc/` sert a documenter l'etat produit, la reference visuelle et les points d'entree utiles pour comprendre l'application telle qu'elle fonctionne aujourd'hui.
 
 ## Vue d'ensemble
 
@@ -95,7 +95,7 @@ Elle couvre :
 
 Documentation technique :
 
-- `../docs/dexcom_integration.md`
+- `../DiabetCare/docs/dexcom_integration.md`
 
 ## Comptes de demo
 
@@ -108,6 +108,7 @@ Les seeds actuelles creent :
 ## Lancer l'application
 
 ```bash
+cd ../DiabetCare
 bundle install
 npm install
 ruby bin/rails db:prepare
@@ -120,34 +121,36 @@ Puis ouvrir `http://127.0.0.1:5000`.
 ## Arborescence utile
 
 ```text
-DiabetCare/
-├── app/                        # controllers, models, services, views
-├── config/                     # routing, environnements, puma, queue
-├── db/                         # migrations, schema, seeds
-├── doc/                        # documentation fonctionnelle suivie par Git
-├── docs/                       # documentation technique, dont Dexcom
-└── test/                       # tests modeles, integration, services, systeme
+diabet-care-project/
+├── DiabetCare/                 # application Rails active
+│   ├── app/                    # controllers, models, services, views
+│   ├── config/                 # routing, environnements, puma, queue
+│   ├── db/                     # migrations, schema, seeds
+│   ├── docs/                   # documentation technique, dont Dexcom
+│   └── test/                   # tests modeles, integration, services, systeme
+└── doc/                        # documentation produit + reference visuelle
 ```
 
 ## Source de verite technique
 
 Pour comprendre l'etat reel de l'application, les points d'entree utiles sont :
 
-- `README.md`
-- `config/routes.rb`
-- `app/controllers/`
-- `app/services/dashboard/mockup_renderer.rb`
-- `app/services/dexcom/`
-- `db/seeds.rb`
-- `test/`
+- `../DiabetCare/README.md`
+- `../DiabetCare/config/routes.rb`
+- `../DiabetCare/app/controllers/`
+- `../DiabetCare/app/services/dashboard/mockup_renderer.rb`
+- `../DiabetCare/app/services/dexcom/`
+- `../DiabetCare/db/seeds.rb`
+- `../DiabetCare/test/`
 
 ## Position du dossier `doc/`
 
-Le dossier `doc/` du depot Git n'est plus la description d'un prototype a venir.
+Le dossier `doc/` n'est plus la description d'un prototype a venir.
 
 Il sert maintenant surtout a :
 
-- conserver une documentation fonctionnelle lisible
+- conserver la reference visuelle `index.html`
+- exposer une vue lisible de l'etat fonctionnel du projet
 - documenter l'etat reel du produit
 - pointer vers les zones du code Rails qui portent les parcours reels
 
@@ -155,7 +158,7 @@ Il sert maintenant surtout a :
 
 Si l'application evolue, ce document doit rester coherent avec :
 
-1. `README.md`
-2. `config/routes.rb`
-3. `db/seeds.rb`
-4. `docs/dexcom_integration.md`
+1. `../DiabetCare/README.md`
+2. `../DiabetCare/config/routes.rb`
+3. `../DiabetCare/db/seeds.rb`
+4. `../DiabetCare/docs/dexcom_integration.md`
